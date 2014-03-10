@@ -1,0 +1,11 @@
+
+ S <=> Save file entry and add signature (default)
+ W <=> Save file entry without adding the signature
+ H <=> Save file to System Operator's private directory
+
+ L <=> List description buffer contents
+ E <=> Edit a description line
+ R <=> Resume editing
+
+ D <=> Delete file entry and the actual file
+

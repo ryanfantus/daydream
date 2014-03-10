@@ -1,0 +1,121 @@
+<title>SysOp commands</title>
+
+<h1>SysOp commands</h1>
+
+<p>Note that the functionality of some of these commands may have been
+changes.
+
+<h2><a name="susered">1 [ USERED ] - Usereditor</a></h2>
+
+<p>Enters the user editor. Ansimode is required to use this.
+<dl compact>
+
+<h3><dt>1)</h3><dd>Shows menu with the following commands:
+
+  <dl compact>
+  <dt>C)urrent user<dd>Edit current user
+  <dt>S)earh from userbase<dd>Searches  user   from   the  userbase,  wildcards
+                         allowed.
+  <dt>N)ew accounts scan<dd>Scans userbase for new accounts.
+  <dt>L)ist users       <dd>Shows userlister by user number.
+  <dt>F)ind by user number<dd>Allows you to modify a user by their user number
+  <dt>Q)uit             <dd>Quit usereditor.
+  </dl>
+  
+<h3><dt>2)</h3><dd>When user to edit is selected, DD will show this kind of a screen:
+<hr>
+<pre>
+
+  A) Name         : Mikko Rajala                 L) Security    : 13
+  B) Handle       : Mercenary                    N) Time Left   : 13
+  C) Organization : M&auml; Osaan jo kaiken           Q) Calls Made  : 13
+  D) Zip & City   : 31337                        R) Protocol    : unused
+  E) Voice Phone  : (013) 31337                  S) Auto-Join   : 13
+  F) PassWord     : (encrypted)                  T) Free Bytes  : 0
+  G) CPU Model    : Pentinium pro                U) Free Files  : 0
+
+  H) Uploaded     :         13 | 13              W) Acc. Status : Active
+     Downloaded   :         13 | 13
+                                                 Slot number : 13
+  X) Access Presets                              Z) Edit Security
+
+  I) UL Signature : [ - M&auml; OsaAn Jo KaiKEn -- MeRCeNary Couriering ]
+
+  User number 003 -  [,] Change #
+  Select field to be altered (SAve, ABort or VIew):
+</pre>
+<hr>
+
+  <p>Now  sysop may alter any of these fields.  With X-command he can select
+  pre-defined accesslevels which is the fastest method to edit the access
+  of the user.
+
+  <p>Using Z-command screen like this will be shown:
+
+<hr>
+<pre>
+1) Security Level  : 255            2) Daily Time      : 300
+3) Byte Ratio      : 0              4) File Ratio      : 0
+5) Conference Access (01-32): XXXXXXXX________________________
+6) Conference Access (33-64): ________________________________
+
+7) Download       : On    8) Upload         : On    9) Read Message   : On
+A) Enter Message  : On    B) Page SysOp     : On    C) Comment        : On
+D) Bulletins      : On    E) List Files     : On    F) New Files      : On
+G) Zippy Search   : On    H) Run Door       : On    I) Join Conference: On
+J) Change Msg Area: On    K) Change Info    : On    L) Relogin        : On
+M) Tag Editor     : On    N) User Stats     : On    O) View Time      : On
+P) Hydra Transfer : On    Q) Expert Mode    : On    R) Eall-Message   : On
+S) Fidomessage    : On    T) Public Message : On    U) Privateread    : On
+V) User Editor    : On    W) View Log       : On    X) SysOp DL       : On
+Y) Userlist       : On    Z) Delete Any Msg : On    !) Remote Shell   : On
+") Who is online  : On    &pound;) Move file      : On    $) Select FConfs  : On
+%) Select Bases   : On    &) Send Netmail   : On
+
+Select field to be altered (SAve, ABort or VIew):
+</pre>
+<hr>
+
+   <p>SysOp  is  able  to edit these fields, too.  It's not advicable to edit
+   access  information  from  here, because when new securityflags appear,
+   they  will be always set to OFF if user has his/her own custom security
+   information.
+</dl>
+<h2><a name="smove">2 [ MOVE ] - Move file(s)</a></h2>
+
+This  command  allows  SysOp  to move files from conference/catalog to the
+another.  Wildcards are supported.  Should be easy to figure out how this
+one works.
+
+<h2><a name="slink">3 [ LINK ] - Link file(s)</a></h2>
+
+Mostly the same as MOVE, but instead of moving creates a symlink.
+
+<h2><a name="scopy">4 [ COPY ] - Copy file(s)</a></h2>
+
+Mostly the same as MOVE, but instead of moving copies the file.
+
+<h2><a name="ssd">5 [ SD ] - SysOp download</a></h2>
+
+This  command  allows  SysOp to download any file from the harddisk.  File
+won't be marked to the download bytes/files.
+
+<h2><a name="slog">6 [ LOG ] - View logfile</a></h2>
+ 
+This command allows SysOp to view logfile of the specified node.
+
+<h2><a name="stest">7 [ $ ] - Test door</a></h2>
+
+This command allows SysOp to test a door program before installing it.
+The first parameter is the pathname of the tested door and the remaining
+parameter, if any, are just the normal parameters for the door command.
+<p>
+Note that you can not specify the command line arguments with which the
+door executable is exec'd. The only argument provided to the door is the
+node number of the current node. For most doors, this is OK.
+
+<h2><a name="slu">8 [ LU ] - Local upload</a></h2>
+
+Upload file(s) locally. DD prompts you to copy files to a temp dir and after
+you have copied the files, hit return and DD puts the files online.
+

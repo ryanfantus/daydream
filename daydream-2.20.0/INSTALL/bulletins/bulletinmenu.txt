@@ -1,0 +1,12 @@
+[2J[HBulletins:
+
+1  -- Info about DayDream              2  -- Top 30 uploaders (Byte/Forever) 
+3  -- Top 30 uploaders (File/Forever)  4  -- Top 30 dnloaders (Byte/Forever)
+5  -- Top 30 dnloaders (File/Forever)  6  -- Top 30 callers (Forever)
+7  -- Top 30 msg writers (Forever)     8  -- Top 30 uploaders (Byte/This wk)
+9  -- Top 30 uploaders (File/This wk)  10 -- Top 30 dnloaders (Byte/This wk)
+11 -- Top 30 dnloaders (File/This wk)  12 -- Top 30 callers (This wk)
+13 -- Top 30 msg writers (This wk)     14 -- Top 30 uploaders (Byte/Last wk)
+15 -- Top 30 uploaders (File/Last wk)  16 -- Top 30 dnloaders (Byte/Last wk)
+17 -- Top 30 dnloaders (File/Last wk)  18 -- Top 30 callers (Last wk)
+19 -- Top 30 msg writers (Last wk)     

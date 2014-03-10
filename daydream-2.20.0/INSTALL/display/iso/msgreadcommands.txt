@@ -1,0 +1,15 @@
+A <=> Re-display current message               
+L <=> List messages
++ <=> Set current reading direction as forward 
+- <=> Set current reading direction as backward
+! <=> Toggle klugdes
+R <=> Reply to the current message             
+D <=> Delete current message (Author/Sysop only)
+E <=> Edit current message (Author/Sysop only)
+Q <=> Quit reading messages                    
+K <=> Keep message
+[ <=> Jump to previous base
+] <=> Jump to next base
+ 
+NS <=> Non-stop message reading
+EH <=> Edit message header (Author/Sysop only)

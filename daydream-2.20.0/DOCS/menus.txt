@@ -1,0 +1,262 @@
+ Soft-coded menu system
+ ----------------------
+ 
+DayDream 2.07 features almost fully configurable menu system. On other
+words, it is not restricted to AmiExpress look & feel. The main highlight
+is the ability to handle multiple menus and hotkeys. 
+
+The ~#MB control code is used to perform menu-related operations, for
+example, defining command bindings. The argument accepted by ~#MB is a list
+of statements, terminated by a pipe character `|'. The statements in the
+list are separated by a semicolon and the last semicolon before the pipe
+character may be omitted. Whitespaces are skipped in the argument list,
+provided that they won't break keywords or data objects.
+
+Statements look like function calls do in many popular programming
+languages. More precisely, the following components form a valid statement:
+
+ 1. statement keyword
+ 2. a opening brace `('
+ 3. optional argument
+ 4. optionally a) a comma and jump to step 3.
+ 5. a closing brace `)'
+ 6. a final pipes wrapper `|'
+ 7. optionally ~#LF
+ 
+Some statements require only the keyword, that is, it is of form `foo()', in
+which case the braces may be omitted. The valid arguments are either positive
+integers or strings enclosed in double quotes. The required argument type is
+dependent of the statement and is discussed more throughly below.
+
+Before going into the statements, there is an argument list related to
+statement execution. I'll call these arguments "scope arguments", because
+every command executes in its own scope, that is, it doesn't know anything
+of the arguments of other statements executing (consider a statement that
+executes another statement with different arguments). Confusing? 
+
+This kind of abstraction layer facilitates argument conversion without
+having a complicated (i.e. obfuscated) parser. For example, DayDream's
+internal function responsible for user interface in the main menu, docmd(),
+passes the arguments of the command as a single string. 
+
+The optional ~#LF at the end of the entire line causes DayDream NOT
+to do a linefeed as it parses the command.  I recommend adding this code
+to each line you want parsed, or it will display very oddly.
+
+And now the statements. Optional arguments are surrounded by [ brackets ].
+
+1. subst(str1, str2)
+--------------------
+
+`subst' stands for argument substitution. This statement executes statement
+str1 with scope arguments that are constructed from the first argument
+by parsing it according to argument template str2. The format of template is
+somewhat confusing but simply said, every token in the template must begin
+with a percent sign `%'. The character following the percent sign is 
+interpreted in the following way:
+
+ 1. letter `d' - the next argument is an integer
+ 2. letter `s' - the next argument is a string, up to next whitespace
+ 3. letter `S' - consider the rest of the first argument in the current
+                 scope as a string argument
+ 4. a hyphen ' - include the whitespace terminated word following the
+                 hyphen as is
+
+For example, consider having subst() called by DayDream's user interface,
+in which case the first argument in subst's scope is the argument passed
+to the command. Consider the whole user input being "foo 32 209 12 xyz bar",
+so that the argument string is "32 209 12 xyz bar".
+
+subst("internal", "%'blah %s%d%S") would execute statement `internal' with
+arguments "blah", "32", 209 and "12 xyz bar". Note that with exception of
+an integer 209, all other arguments were treated as strings.
+
+2. internal(str1 [, str2])
+--------------------------
+
+`internal' executes one of the built-in commands with the optional argument.
+Valid commands are:
+
+bulletins
+change_info
+change_msgbase
+comment
+copy
+download
+enter_msg
+expert_mode
+file_scan
+global_fscan
+global_read
+help
+join_conf
+link
+local_upload
+logoff
+mode
+move
+new_files
+next_base
+next_conf
+olm
+page
+prev_base
+prev_conf
+read_msgs
+scan_mail
+stats
+sysop_download
+tag_confs
+tag_editor
+tag_msgbases
+text_search
+time
+upload
+upload_rz
+usered
+userlist
+ver
+view_file
+who
+zippy_search
+
+3. bind_cmd([str1])
+-------------------
+
+`bind_cmd' binds the rest of statement list into menu command str1. The
+argument may be omitted, in which case the statement list is binded to empty
+command. 
+
+These three statements are enough for us to create a functional menu
+binding, like this:
+
+~#MBbind_cmd("j");subst("internal", "%'join_conf %S")|
+
+Let's look at this one closely. When the user writes "j 5", the scope
+argument list would contain only one string, "5". The command `j' is bound
+to a statement list, in this case to a mere substitution. This substitution,
+however, creates a new argument scope and constructs an argument list whose
+elements are "join_conf" and "5". The statement `internal' is then executed
+with these arguments and the user finally proceeds to join the conference 5
+(provided that he/she has access and the conference exists).
+
+Note that bind_cmd has to have kind of context, in which it is executed. In
+plain english, this statement fails if there is no menu declared.
+
+4. push_menu([str1 [, str2]])
+-----------------------------
+
+Declares a new menu and pushes it into the menu stack. The first argument
+specifies the menu screen to be displayed between commands (in case the user
+has not turned on the expert-mode). The second argument changes the node
+status (can be seen in `who' etc). Neither of the two required. However, the
+default behaviour (prior to 2.07) would require the arguments "commands" and
+"Main menu".
+
+5. pop_menu([integer])
+--------------------
+
+Pops a menu from menu stack, discarding it. You may pop more than one level
+at a time by specifying the popping count via an integer argument.
+
+6. door(str1 [, str2])
+----------------------
+
+Just like `internal', but executes a door. Note that the door must be
+declared in "daydream.cfg".
+
+7. source(str)
+--------------
+
+This works like `source' in the standard UNIX shells. On other words, it 
+sources the given file, reading it and interpreting the control codes in it.
+After that the execution of the current statement list is continued. This is
+useful, if you a number of menu files which do not differ from each other 
+much; just source the common portion from the specialized stubs.
+
+The filename may contain some special tokens. Those are discussed below.
+
+8. exec(str)
+------------
+
+Like `source', but control is never transferred back to calling file.
+However, if A source()'s B and B exec()'s C, the rest of A would be read.
+
+9. bind_hotkey([str])
+---------------------
+
+Similar to `bind_cmd'. Note that hotkey needs not to be a single character,
+the commands are executed when the last character of "hot string" is
+typed.
+
+10. command(str1[, str2])
+-------------------------
+
+Run main menu command with an optional argument.
+
+11. return(int)
+---------------
+
+Terminates the sequence of statements, with the supplied return value.
+Return value is interpreted as follows:
+
+ 0   hangup immediately
+ 1   ok (default)
+ 2   null, "empty command"
+ 3   unknown command
+ 
+12. print([str])
+----------------
+
+Almost self-explanatory. The string may contain C-style escape sequences.
+Note that ~#-codes are not interpreted. If you need them, use source() and
+an external file.
+
+13. test_door(str1[, str2])
+---------------------------
+
+This is a quick hack to implement the "$"-command. It is used for testing 
+doors without "installing" them by means of adding them to daydream.cfg.
+The first argument is the pathname of the door executable and the optional
+second parameter is the parameters for the tested door.
+
+Note that this command runs the door with a node number of the current
+node with its only argument. It is an old convention to pass the node
+number as a first argument to the door. This is not a technical 
+requirement, but this implementation of the "$"-command will not allow
+you to specify any additional command line arguments; they just become
+the parameters specified in the main menu.
+
+Perhaps this should be implemented better. Any suggestions concerning
+this feature are welcome.
+
+
+ Special tokens in filenames
+ ---------------------------
+ 
+Commands affected are source() and exec(). Here is a list of those tokens
+(examples in braces):
+
+ %c        conference path (/home/bbs/confs/newusers/)
+ %s        user security level, prefixed by a dot (.255)
+ %e        .gfx or .txt extension
+ %d        display path (iso/)
+ %o        BBS home (/home/bbs)
+ %n        conference number (3)
+ %m        menu path (/home/bbs/menu/)
+ %%        a percent sign
+
+Note that %m is kind of coupled with %o, it just adds the "menu/" suffix.
+
+Some of these tokens are magical, in various ways. First, if there is no
+such file and the filename contains one or more `%s' tokens, those tokens
+are ignored. Secondly, `%e' is interpreted as ".gfx", if the user has 
+chosen ANSI colors. In case the file is not found *and* the conference
+doesn't disallow trying with ".txt" extension, the file with ".txt" is
+searched for. 
+
+The `%e' token is reinterpreted before `%s' token. On other words, let's
+suppose you have the files "welcome.255.txt" and "welcome.gfx", but not
+"welcome.255.gfx" and the ".gfx" extension may be replaced by ".txt". In
+this case a filename "welcome%s%e" is interpreted as "welcome.255.txt",
+not "welcome.gfx".

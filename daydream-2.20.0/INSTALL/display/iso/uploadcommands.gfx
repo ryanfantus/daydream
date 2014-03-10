@@ -1,0 +1,11 @@
+
+ [33mS [0m<=> [32mSave file entry and add signature [0m([33mdefault[0m)
+ [33mW [0m<=> [32mSave file entry without adding the signature
+ [33mH [0m<=> [32mSave file to System Operator's private directory
+
+ [33mL [0m<=> [32mList description buffer contents
+ [33mE [0m<=> [32mEdit a description line
+ [33mR [0m<=> [32mResume editing
+
+ [33mD [0m<=> [32mDelete file entry and the actual file
+

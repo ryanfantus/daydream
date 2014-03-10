@@ -1,0 +1,12 @@
+DayDream will support syslogd(8) eventually and some warnings are
+logged via syslog already. To use this facility, add the following
+to your /etc/syslog.conf:
+
+local2.*	/var/log/ddlog
+
+Having added this, reread the configuration file, i.e., send SIGHUP
+to syslogd. Please consult the manpage for the explanation of the
+line above.
+
+Do not worry about the fixed local2 facility, it will be fully
+configurable some day.

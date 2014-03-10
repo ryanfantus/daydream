@@ -1,0 +1,51 @@
+Several akas for one netmail directory
+--------------------------------------------
+
+Several nodes in FTN networks have several akas,
+for example a NC (applies to RC, ZC, etc) may 
+have z:x/0, and his own node, for example, z:x/100.
+But we want just one netmail area. That is possible
+by having the same netmail messagebase twice. E.g.
+
+NetmailArea NETMAIL_1 63:1 -a z:x/0
+NetmailArea NETMAIL_1 63:1 -a z:x/100
+
+However we just one of the addresses can be used
+for sending mail (normal bbs behaviour). The name
+of the area does not matter.
+
+If you are in an othernet too you would need to
+have another netmail area for that net, because
+of the sender address. For example (first net
+z_1, x_1, second net z_2, x_2).
+
+NetmailArea NETMAIL_1 63:1 -a z_1:x_1/0
+NetmailArea NETMAIL_1 63:1 -a z_1:x_1/100
+NetmailArea NETMAIL_1 64:1 -a z_2:x_2/100
+
+My netmail configuration is the following. I am
+in just fidonet (conf 2) and Amiganet (conf 4).
+
+NetmailArea NETMAIL 2:1 -a 2:236/100
+NetmailArea NETMAIL 4:1 -a 39:140/100
+
+Passthru areas
+--------------------------------------------
+
+Since DD-Echo uses the store-and-forward principle
+passthru areas would require several changes to the
+code. I have a more simpler solution. 
+
+To create a passthru area. Add a area with a dummy
+messagebase. This messagebase should not be used for
+anything else than this purpose. Use this messagebase
+for all passthru areas, like this (dummy msgbase 64:1)
+
+Conference 63 /path/to/conf/
+
+Area PASSTHRU_1 63:1 -g D -a 2:236/100 2:236/100.1 ...
+Area PASSTHRU_2 63:1 -g D -a 2:236/100 2:236/100.1 ...
+Area PASSTHRU_3 63:1 -g D -a 2:236/100 2:236/100.1 ...
+
+After tossing AND scanning you should delete all files
+in the messagebase, i.e rm /path/to/conf/messages/base001/*

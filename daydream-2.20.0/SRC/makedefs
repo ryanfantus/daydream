@@ -1,0 +1,3 @@
+UNAME=$(shell uname -s)
+WARNFLAGS=-w
+OPTCFLAGS=-O2 -fPIC -DUNAME="\"$(UNAME)\""

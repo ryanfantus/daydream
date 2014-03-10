@@ -1,0 +1,11 @@
+Hi,
+
+The following files has been send to you on behalf of 
+your request:
+
+-----------------------------------------------------
+@@FILES@@
+-----------------------------------------------------
+
+Best regards,
+Sysop

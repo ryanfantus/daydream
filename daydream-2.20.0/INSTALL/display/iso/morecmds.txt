@@ -1,0 +1,15 @@
+[2J[H
+Additional commands
+===================
+
+ [ USERLIST ] - Userlist             [ FAKER ] - Nuke/Comment files
+ [ FR ]       - Reverse filelist     [ WHOF ]  - View who tranferred a file
+ [ WALL ]     - Tag wall             [ CTOPA ] - Conftop (All time)
+ [ CTOPT ]    - Conftop (This week)  [ CTOPL ] - Conftop (Last week)
+ [ GRAB ]     - Grab a QWK-package   [ CLS ]   - Clear screen
+ [ OLM ]      - Online message       [ VER ]   - Version information
+ [ WHO ]      - Who's online         [ MODE ]  - Change displaymode
+ 
+
+ 
+ 

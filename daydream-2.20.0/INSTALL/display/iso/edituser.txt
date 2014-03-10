@@ -1,0 +1,17 @@
+[2J[H
+                           User Data For ~#HA
+----------------------------------------------------------------------------
+  1) Real Name............: ~#RN
+  2) Handle...............: ~#HA
+  3) Organization.........: ~#OR
+  4) Zip Code And City....: ~#LO
+  5) Voice Phone Number...: ~#PH
+  6) PassWord.............: (encrypted)
+  7) Screen Lenght........: ~#SL
+  8) Default Protocol.....: ~#PR
+  9) UpLoad Signature.....: ~#SI
+ 10) Computer Model.......: ~#CM
+ 11) Max lines in descs...: ~#ML
+ 12) Change message signature
+----------------------------------------------------------------------------
+

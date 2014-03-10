@@ -1,0 +1,8 @@
+#! /bin/sh
+
+fname=`echo $1 | sed -e 's/\.y/\.c/g'`
+
+if test -f $fname; then
+  cp -f $fname y.tab.c 
+fi
+

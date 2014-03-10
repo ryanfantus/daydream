@@ -1,0 +1,24 @@
+Just a quick note.  DDFTPD currently shows a list of conferences once
+a user goes to their 'ul' dir.  This is a symbolic link to their
+$DAYDREAM/users/<USERNUMBER>/ftp/ul dir.
+
+You may wish to have instructions for ddftpd as a bulletin or something
+like that.
+
+Anyway, if they go to the upload dir, they will be shown:
+$DAYDREAM/display/ftp-upload.txt
+
+This is another good place to put some rules and list conference numbers.
+An example will be placed there.
+
+So, a user can be in their /ul dir and type:
+SITE UPLOAD <conf#> i.e. SITE UPLOAD 3 to change their upload conference
+to conference #3.  After some access and error checking, all put/mput's
+issued by the user will try and upload the files to that conference.
+
+The catch is, if there's no diz, since this isn't an interactive upload,
+the file won't automatically be placed in the conference.  So, if you want
+to place that in the rules, it's up to you.  Basically, archives with zips
+will be automatically imported, but regular files will not.
+
+Enjoy!

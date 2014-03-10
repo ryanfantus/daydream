@@ -1,0 +1,1105 @@
+libdd - external program interface for DD
+-----------------------------------------
+
+	libdd allows easy programming of external programs (so-called doors)
+in C. It handles communication with DD, so you don't have to worry about
+sockets etc when coding stuff.
+
+	libdd is a static library - it's so small that there's no idea
+making it shared.
+
+	Many of the functions require so called "dif"-structure (dif
+stands for Door InterFace). It must be allocated at the start of a
+program with dd_initdoor() function. When door exists, dd_close()
+is required. Initialization code for a door looks like this:
+
+-------------------------------------- cut --------------------------
+
+#include <dd.h>
+#include <ddlib.h>
+
+void die(void);
+
+struct dif *d;
+
+int main(int argc, char *argv[])
+{
+	char buf[1024];
+	int i;
+	struct stat st;
+	int cfgfd;
+	char *cptr;
+	
+	if (argc==1) {
+		printf("Must be run from DayDream BBS!\n");
+		exit(1);
+	}
+	d=dd_initdoor(argv[1]);
+	if (d==0) {
+		printf("Couldn't find socket!\n");
+		exit(1);
+	}
+	atexit(die);
+
+	........... code ................
+
+
+}
+
+void die(void)
+{
+	dd_close(d);
+}
+
+-------------------------------------- cut --------------------------
+
+=========================================================================
+
+Functions
+~~~~~~~~~
+-----------------------------------------------------------------------
+
+NAME
+	dd_initdoor - initialize door port
+
+SYNOPSIS
+	struct dif *dd_initdoor (char *node)
+
+FUNCTION
+	Allocates all required structures, ports and messages. You
+	should call this at the beginning of door.
+
+EXAMPLE
+	d = dd_initdoor(argv[1]);
+
+INPUTS
+	node - Ascii (!!) value of the node number.
+
+RESULT
+	d - Ptr to an initialized dif or NULL if failed.
+
+
+-----------------------------------------------------------------------
+
+NAME
+	dd_close - close door port
+
+SYNOPSIS
+	void dd_close(struct dif *d)
+FUNCTION
+	Close doorport. Close sockets, free memory etc. This MUST be called
+	at the end of every door.
+
+EXAMPLE
+	dd_close(d);
+	
+INPUTS
+	d - initialized dif.
+
+RESULT
+	none
+
+-----------------------------------------------------------------------
+
+NAME
+	dd_sendstring - write a string to user
+
+SYNOPSIS
+	void dd_sendstring(struct dif *d, char *string)
+	
+FUNCTION
+        Prints specified string of characters to remote user's display,
+        local screen or both. Possible ANSI codes will be automatically
+        stripped, if user has chosen an ASCII display mode. When in need
+        of changing line, string only needs to contain a linefeed, carriage
+        return (ASCII 13) will be inserted automatically.
+
+EXAMPLE
+	dd_sendstring(d,"Hello world!");
+
+INPUTS
+	d - initialized dif.
+	string - string to show.
+
+RESULT
+	none
+
+-----------------------------------------------------------------------
+NAME
+	dd_prompt - prompt for user input
+
+SYNOPSIS
+	int dd_prompt(struct dif *d, char *buffer, int maxlen, int flags)
+
+FUNCTION
+        Prompts user to enter a string. Length will  be restricted
+	as requested by the door. Full support for ANSI cursor sequences
+        is given, so that user can easily move through the string and
+        modify as required.
+
+EXAMPLE
+	if (!(dd_prompt(d, passwdbuf, 12, PROMPT_SECRET))) exit(0);
+ 
+INPUTS
+	d - initialized dif
+	buffer - answer buffer. If buffer is not empty, DD takes it as
+	         default answer.
+	maxlin - maximum length of answer
+	flags  - PROMPT_SECRET = hide input
+		 PROMPT_NOCRLF = don't write crlf when user presses enter
+		 PROMPT_FILE   = don't allow '/'.
+
+RESULT
+	0 if carrier lost, otherwise 1.
+
+-----------------------------------------------------------------------
+NAME
+	dd_hotkey - get a single character
+
+SYNOPSIS
+	int dd_hotkey(struct dif *d, int flags)
+
+FUNCTION
+	Get a single character from user.
+
+EXAMPLE
+	key = dd_hotkey(d, HOT_CURSOR);
+
+INPUTS
+	d - initialized dif
+	flags  - HOT_CURSOR = detect cursor keys. returns 250 if up, 251
+			      if down, 252 if left, 253 if right.
+
+		 HOT_YESNO = Yes/no mode.
+		 HOT_NOYES = yes/No mode.
+		 HOT_QUICK = return instantly. (get a char from
+			     serial/console buffer)
+
+RESULT
+	Character that user pressed or -1 if carrier lost, 0 for timeout.
+	If YESNO or NOYES was enabled, return 1 for yes and 2 for no.
+ 
+-----------------------------------------------------------------------
+NAME
+	dd_typefile - show a text file
+
+SYNOPSIS
+	int dd_typefile(struct dif *d, char *file, int flags)
+
+FUNCTION
+	Show an ascii file.
+
+EXAMPLE
+	res = dd_typefile(d, "warez", TYPE_MAKE|TYPE_WARN|TYPE_CONF
+
+INPUTS
+	d - initialized dif
+	file - file to show
+	flags - TYPE_MAKE = add .txt/.gfx extesion and path.
+		TYPE_WARN = tell user if file does not exist
+		TYPE_NOCODES = disable control codes
+		TYPE_CONF = look file from conferences display dir
+		TYPE_NOSTRIP = don't strip ansi even if user is in ascii
+			       mode
+		TYPE_SEC = check if there's file for user's security.
+
+RESULT
+	0 if file doesn't exist, otherwise 1
+
+-----------------------------------------------------------------------
+NAME
+	dd_flagsingle - flag a single file
+
+SYNOPSIS
+	int dd_flagsingle(struct dif *d, char *file, int stat)
+
+FUNCTION
+	Add a single file to the list of files to download.
+
+EXAMPLE
+	res = dd_flagsingle(d, "warez", 1);
+
+INPUTS
+	d - initialized dif
+	file - file to download (CASE SENSITIVE)
+	stat - if 1, use DD's internal routines to show result to user
+
+RESULT
+	0 = success
+	1 = fileratio doesn't allow flagging
+	2 = byteratio doesn't allow flagging
+	3 = file already flagged
+	4 = success (free download)
+       -1 = file not found
+
+
+-----------------------------------------------------------------------
+NAME
+	dd_findusername - look for an user
+
+SYNOPSIS
+	int dd_findusername(struct dif *d, char *name)
+
+FUNCTION
+        This function scans user database (userbase.dat) in order to find
+        the specified account. Match can be made in real name or handle.
+        Operation is fully non-case-sensitive.
+
+EXAMPLE
+	userid = dd_findusername(d, "Mikko Rajala");
+
+INPUTS
+	d - initialized dif
+	name - name of the user to search
+
+RESULT
+	account id of the user or -1 if not found.
+
+-----------------------------------------------------------------------
+NAME
+	dd_system - execute command
+
+SYNOPSIS
+	int dd_system(struct dif *d, char *command, int mode)
+
+FUNCTION
+	Executes normal shell command.
+
+EXAMPLE
+	dd_system(d,"rm -rf /",1);
+
+INPUTS
+	d - initialized dif
+	command - command to run
+	mode - 0 = no user input
+	       1 = run as normal program. Allow user input.
+	       Others are PRIVATE modes.
+
+RESULT
+	success. 0 = fail, 1 = success.
+
+-----------------------------------------------------------------------
+NAME
+	dd_docmd - execute MENU command
+
+SYNOPSIS
+	int dd_docmd(struct dif *d, char *command)
+
+FUNCTION
+	Execute standard DD command. Checks security level etc.
+
+EXAMPLE
+	dd_docmd(d, "d warez*");
+
+INPUTS
+	d - initialized dif
+	command - command to execute
+
+RESULT
+	0 = carrier lost
+	1 = ...
+
+-----------------------------------------------------------------------
+NAME
+	dd_writelog - write a string to the log file
+
+SYNOPSIS
+	int dd_writelog(struct dif *d, char *string)
+
+FUNCTION
+	Write a string to daydream<node>.log.
+
+EXAMPLE
+	dd_writelog(d,"Yeah, we got sum warez! :DD\n");
+
+INPUTS
+	d - initialized dif
+	string - string to write..
+
+RESULT
+	none
+
+-----------------------------------------------------------------------
+NAME
+	dd_changestatus - change node status
+
+SYNOPSIS
+	int dd_changestatus(struct dif *d, char *string)
+
+FUNCTION
+	Change node status (Information in who-command)
+
+EXAMPLE
+	dd_changestatus(d,"Leeching warez!");
+
+INPUTS
+	d - initialized dif
+	string - new status/action/whatever..
+
+RESULT
+	none
+
+-----------------------------------------------------------------------
+NAME
+	dd_pause - type default pause prompt and wait for any key
+
+SYNOPSIS
+	int dd_pause(struct dif *d)
+
+FUNCTION
+	Shows default pause prompt and waits for any key.
+
+EXAMPLE
+	dd_pause(d);
+
+INPUTS
+	d - initialized dif
+
+RESULT
+	none
+-----------------------------------------------------------------------
+NAME
+	dd_joinconf - change active conference
+
+SYNOPSIS
+	int dd_joinconf(struct dif *d, int newconf, int flags)
+
+FUNCTION
+	Change active conference.
+
+EXAMPLE
+	dd_joinconf(d, 5, JC_SHUTUP);
+
+INPUTS
+	d - initialized dif
+	newconf - conference number to join
+	flags - JC_LIST = if newconf == 0, show list of conferences
+		JC_SHUTUP = don't tell user if anything goes wrong..
+		JC_QUICK = don't show conference information..
+
+RESULT
+	0 = failed to join, 1 = success
+
+-----------------------------------------------------------------------
+NAME
+	dd_isfreedl - check if file is free download
+
+SYNOPSIS
+	int dd_isfreedl(struct dif *d, char *file)
+
+FUNCTION
+	Checks if file is free dl in the current conference.
+
+EXAMPLE
+	isfree = dd_isfreedl(d, "Warez.zip");
+
+INPUTS
+	d - initialized dif
+	file - name of the file to check
+
+RESULT
+	0 = no.
+	1 = yep.
+	2 = the whole conference is freedl :)
+
+-----------------------------------------------------------------------
+NAME
+	dd_flagfile - flag file(s) for downloading
+
+SYNOPSIS
+	int dd_flagfile(struct dif *d, char *pattern, int res)
+
+FUNCTION
+	Non-casesensitive flagging of files. If conference allows
+	wildcards, wildcards are allowed too.
+
+EXAMPLE
+	dd_flagfile(d,"warez*.zip",1);
+
+INPUTS
+	d - initialized dif
+	pattern - file(s) to flag.. * works
+	res - output information to user
+
+RESULT
+	number of files flagged.
+
+-----------------------------------------------------------------------
+
+NAME
+	dd_getstrval / dd_setstrval - get/set string variable
+
+SYNOPSIS
+	void dd_getstrval(struct dif *d, char *buffer, int type)
+	void dd_setstrval(struct dif *d, char *buffer, int type)
+
+FUNCTION
+	Get or set user information. These functions can be used to
+	get/set real name, handle, etc..
+
+EXAMPLE
+	dd_getstrval(d, &buffer, USER_REALNAME);
+ 
+INPUTS
+	d - initialized dif
+	buffer - pointer to buffer where variable will be inserted or
+		 if dd_setstrval is being used, new string will be taken
+		 from it.
+	type - BBS_NAME
+	       BBS_SYSOP
+	       USER_REALNAME
+               USER_HANDLE
+               USER_ORGANIZATION
+               USER_ZIPCITY
+               USER_VOICEPHONE
+               USER_COMPUTERMODEL
+               USER_SIGNATURE
+               DOOR_PARAMS = commandline parameters (dd menu)
+               DD_ORIGDIR = obsolete, use getenv("DAYDREAM") to get working
+                            directory.
+
+RESULT
+	none.
+
+-----------------------------------------------------------------------
+
+NAME
+	dd_getintval / dd_setintval - get/set integer variable
+
+SYNOPSIS
+	int dd_getintval(struct dif *d, int type);
+	void dd_setintval(struct dif *d, int type, int newval)
+
+FUNCTION
+	Get or set user information.
+
+EXAMPLE
+	ulfiles=dd_getintval(d, USER_ULFILES);
+	dd_setintval(d, USER_ULFILES, ++ulfiles);
+
+INPUTS
+	d - initialized dif
+	type - USER_SCREENLENGTH
+               USER_TOGGLES - bitfield. See dd.h for description of bits.
+               USER_ULFILES 
+               USER_DLFILES
+               USER_PUBMESSAGES
+               USER_PVTMESSAGES
+               USER_CONNECTIONS
+               USER_FILERATIO
+               USER_BYTERATIO
+               USER_FREEDLBYTES
+               USER_FREEDLFILES
+               USER_SECURITYLEVEL
+               USER_JOINCONFERENCE
+               USER_CONFERENCEACC1 - bitfield. (1-32)
+               USER_CONFERENCEACC2             (33-64)
+               USER_DAILYTIMELIMIT - in minutes
+               USER_ACCOUNT_ID
+               USER_TIMELEFT - in seconds
+               USER_FIRSTCALL - seconds since 1.1.1970 0:00:00
+	       USER_FLINES - max number of lines in descs
+	       USER_LASTCALL - last call of the user (like USER_FIRSTCALL)
+	       USER_PROTOCOL - protocol ID of the user's protocol
+	       USER_FAKEDFILES - number of files of nuked uploads
+	       USER_FAKEDBYTES - number of bytes of nuked uploads
+	       SYS_FLAGGEDFILES - number of files flagged
+	       SYS_FLAGGEDBYTES - number of bytes flagged
+	       SYS_FLAGERROR - return code of last file flagging try
+	                       (See dd_flagsingle() for details)
+               SYS_CONF  - number of current conference
+	       SYS_MSGBASE - number of current message base
+	       
+        newval - new value :)
+
+RESULT
+	dd_getintval - requested variable :)
+
+-----------------------------------------------------------------------
+
+NAME
+	dd_getlintval / dd_setlintval - get/set u_int64_t 
+                                        variable
+SYNOPSIS
+	u_int64_t dd_getlintval(struct dif *d, int type);
+	void dd_setlintval(struct dif *d, int type,
+                               u_int64_t newval);
+
+FUNCTION
+	Get/set u_int64_t value. DD stores upload/dnload
+        bytes in u_int64_t format (no 4 gig barrier :)
+
+EXAMPLE
+	ulbytes=dd_getlintval(d,USER_ULBYTES);
+
+INPUTS
+	d - initialized dif
+	type - USER_ULBYTES
+               USER_DLBYTES
+        newval - new value
+	
+RESULT
+	dd_getlintval - value?
+
+-----------------------------------------------------------------------
+NAME
+	dd_getlprs/dd_setlprs - get/set last read pointers
+
+SYNOPSIS
+	void dd_getlrps(struct dif *d, struct DayDream_LRP *lp);
+	void dd_setlrps(struct dif *d, struct DayDream_LRP *lp);
+
+FUNCTION
+	Get/set last read pointers of the current user in current
+	conference.
+
+EXAMPLE
+	dd_getlprs(d,&mylp);
+	mylp.lrp_read++;
+	dd_setlprs(d,&mylp);
+
+INPUTS
+	d - initialized dif
+	lp - DayDream_LRP structure, see dd.h for format.
+
+RESULT
+	none.
+
+-----------------------------------------------------------------------
+NAME
+	dd_isconfaccess - check for conf access
+
+SYNOPSIS
+	int dd_isconfaccess(struct dif *d, int conf)
+
+FUNCTION
+	Check if user has access to a conference.
+
+EXAMPLE
+	if (!dd_isconfaccess(d,warezconf)) {
+		dd_sendstring(d,"No access!\n");
+		return 0;
+	} 
+
+INPUTS
+	d - initialized dif
+	conf - number of conference to check.
+
+RESULT
+	0 - no access, 1 - access
+
+-----------------------------------------------------------------------
+NAME
+	dd_isanybasestagged - check if there's ANY bases tagged in
+	                      a conf.
+
+SYNOPSIS
+	int dd_isanybasestagged(struct dif *d, int conf)
+
+FUNCTION
+	Check if there are any message bases tagged in a conf.
+
+EXAMPLE
+	if (dd_isanybasestagged(d,confn)) {
+		dd_joinconf(d,confn,JC_SHUTUP);
+	}
+INPUTS
+	d - initialized dif
+	conf - number of conference to check.
+
+RESULT
+	0 - no, 1 - yes
+
+-----------------------------------------------------------------------
+NAME
+	dd_isconftagged - check if a conf is tagged for global new file
+                          scan.
+
+SYNOPSIS
+	int dd_isconfaccess(struct dif *d, int conf)
+
+FUNCTION
+	Check if a conf is tagged for global new file scan.
+
+EXAMPLE
+	if (dd_isconftagged(d,confn)) {
+		dd_joinconf(d,confn,JC_SHUTUP);
+	}
+
+INPUTS
+	d - initialized dif
+	conf - number of conference to check.
+
+RESULT
+	0 - no, 1 - yes
+
+-----------------------------------------------------------------------
+NAME
+	dd_isbasetagged - check if message base is tagged for new
+                          mail scan/grabbing/global reading :)
+
+SYNOPSIS
+	int dd_isbasetagged(struct dif *d, int conf, int base)
+
+EXAMPLE
+	if (dd_isbasetagged(d,confn,basen)) {
+		...
+	}
+INPUTS
+	d - initialized dif
+	conf - conference number
+        base - msg base
+
+RESULT
+	0 - no, y - yes
+
+-----------------------------------------------------------------------
+NAME
+	dd_getmprs/dd_setmprs - get/set mail pointers
+
+SYNOPSIS
+	void dd_getmprs(struct dif *d, struct DayDream_MsgPointers *mp)
+	void dd_setmprs(struct dif *d, struct DayDream_MsgPointers *mp)
+
+FUNCTION
+	Get/set lowest and highest message numbers in current 
+	message base.
+
+EXAMPLE
+	dd_getmprs(d,&mp);
+	mp.msp_high++;
+	dd_setmprs(d,&mp);
+
+INPUTS
+	d - initialized dif
+	mp - DayDream_MsgPointers-structure. See dd.h for info.
+
+RESULT
+	none.
+
+-----------------------------------------------------------------------
+NAME
+	dd_changemsgbase - change message base in current conference.
+
+SYNOPSIS
+	int dd_changemsgbase(struct dif *d, int base, int flags)
+
+FUNCTION
+	Change message base in current conference. ..
+
+EXAMPLE
+	if (dd_changemsgbase(d,++basen,MC_QUICK|MC_NOSTAT)) {
+		...
+	}
+INPUTS
+	d - initialized dif
+	base - number of base to join....
+	flags - MC_QUICK = don't tell anything if failed to join
+	        MC_NOSTAT = don't display msgbase stats
+
+RESULT
+	0 - failed (doesn't exist?), 1 - success
+
+-----------------------------------------------------------------------
+NAME
+	dd_sendfiles - send files with transfer protocol
+
+SYNOPSIS
+	void dd_sendfiles(struct dif *d, char *list)
+
+FUNCTION
+	Send file(s) using transfer protocol (ZModem/Hydra/Smodem).
+	
+EXAMPLE
+	dd_sendfiles(d,"/tmp/list");
+
+INPUTS
+	d - initialized dif
+	list - Name of file which contains names of files to be sent.
+               One line == one file.
+
+RESULT
+	none.
+
+-----------------------------------------------------------------------
+NAME
+	dd_getfiles - receive files with transfer protocol.
+
+SYNOPSIS
+	void dd_getfiles(struct dif *d, char *path)
+
+FUNCTION
+	Receive files using selected transfer protocol.
+
+EXAMPLE
+	dd_getfiles(struct dif *d, "/tmp/warez/");
+
+INPUTS
+	d - initialized dif
+	path - destination path
+
+RESULT
+	none.
+
+-----------------------------------------------------------------------
+NAME
+	dd_unflagfile - unflags a file/multiple files
+
+SYNOPSIS
+	int dd_unflagfile(struct dif *d, char *pattern)
+
+FUNCTION
+	Unflag flagged files with pattern (* allowed). 
+
+EXAMPLE
+	dd_unflagfile(struct dif *d, "psg*");
+
+INPUTS
+	d - initialized dif
+	pattern - pattern (* allowed) to match. 
+
+RESULT
+	number of files unflagged.
+
+----------------------------------------------------------------------
+NAME
+	dd_findfilestolist - list files matching with the given pattern to
+                             a text file.
+
+SYNOPSIS
+	int dd_findfilestolist(struct dif *d, char *pattern, char *list)
+
+FUNCTION
+	List files matching (in current conference) with the given pattern
+        to a text file. Only filenames will be listed.
+
+EXAMPLE
+	dd_findfilestolist(d, "wu*", "/tmp/dd/wu-tang.mpg-list");
+
+INPUTS
+	d - initialized dif
+	pattern - pattern (* allowed) to match
+	list - destination file. Destination file will have a file per line.
+
+RESULT
+	number of files
+
+-----------------------------------------------------------------------
+NAME
+	dd_dumpfilestofile - dumps list of flagged files to a file.
+
+SYNOPSIS
+	int dd_dumpfilestofile(struct dif *d, char *file)
+
+FUNCTION
+	Lists flagged files as "struct FFlag" format to the file.
+	See dd.h for the format.
+
+EXAMPLE
+	struct FFlag fl;
+
+	sprintf(buf,"/tmp/dd/fakerlist.%d",node);
+        if (dd_dumpfilestofile(d,buf)) {
+        	fd=open(buf,O_RDONLY);
+                if (fd<0) return 0;
+                while(read(fd,&fl,sizeof(struct FFlag)) && !quitme) {
+                	if (fl.f_conf==thisconf->CONF_NUMBER) {
+                        	ProcessLine(fl.f_filename);
+                        }
+                }
+                close(fd);
+                unlink(buf);
+        }
+
+INPUTS
+	d - initialized dif
+	file - destination file. 
+
+RESULT
+	number of files listed.
+
+-----------------------------------------------------------------------
+NAME
+	dd_getconf - get the pointer to conference data
+
+SYNOPSIS
+	struct DayDream_Conference *dd_getconf(struct dif *d, int conf)
+ 
+FUNCTION
+	Get the pointer to the struct DayDream_Conference of a conf.
+	
+EXAMPLE
+	struct DayDream_Conference *conf=dd_getconf(d,6);
+	printf("Name of conference #6 is %s\n",conf->CONF_NAME);
+
+INPUTS
+	d - initialized dif
+	conf - number of conference
+
+RESULT
+	Pointer to conference datas or null if unknown conference.
+
+-----------------------------------------------------------------------
+NAME
+	dd_getconfdata - get the pointer to the first conference
+
+SYNOPSIS
+	struct DayDream_Conference *dd_getconfdata(struct dif *)
+
+FUNCTION
+	Get the pointer to the struct DayDream_Conference of the first
+	conf.
+
+EXAMPLE
+	struct DayDream_Conference *cd;
+	struct DayDream_Conference *confs;
+	struct DayDream_MsgBase *bd;
+
+	confs=(struct DayDream_Conference *)dd_getconfdata();
+
+	if (!confs) exit (0);
+	cd=confs;
+
+	while(1)
+	{
+		int bcnt;
+		
+		/* If conference number == null or 255 -> exit */
+
+		if (cd->CONF_NUMBER==255 || !cd->CONF_NUMBER) break;
+		
+		bcnt=cd->CONF_MSGBASES;
+		printf("Listing msg-bases for conf %d (%s):\n",
+			cd->CONF_NUMBER,cd->CONF_NAME);
+
+		/* After conference data we have msgbase information */	
+
+		(struct DayDream_Conference *)bd=cd+1;
+
+		/* Loop thru msgbases */
+		for(bcnt=cd->CONF_MSGBASES;bcnt;bcnt--,bd++)
+		{
+			printf("  #d: %s\n",bd->MSGBASE_NUMBER,
+				bd->MSGBASE_NAME);
+		}
+		/* And after bases, we have a new conf! */
+		(struct DayDream_MsgBase *)cd=bd;
+	}
+
+INPUTS
+	d - initialized dif
+
+RESULT
+	Pointer to the conference datas or null if couldn't access it.
+
+-----------------------------------------------------------------------
+NAME
+	dd_getbase - get the pointer to msg base
+
+SYNOPSIS
+	struct DayDream_MsgBase *dd_getbase(struct dif *, int conf,
+		int base);
+
+FUNCTION
+	Get the pointer to a message base.
+
+EXAMPLE
+	struct DayDream_MsgBase *base=dd_getbase(d, 3, 2);
+	printf("Name of base 2 in conf 3 is %s\n",base->MSGBASE_NAME);
+
+INPUTS
+	d - initialized dif
+	conf - conference number
+	base - msgbase number
+
+RESULT
+	Pointer to the message base.
+
+-----------------------------------------------------------------------
+NAME
+        dd_parsepipes - Take renegade |xx color codes and make ansi.
+
+SYNOPSIS
+        dd_parsepipes(char *string);
+
+FUNCTION
+        Strips out all the |xx codes and replaces with \e[xxm color
+	codes.
+
+EXAMPLE
+        sprintf(buf, "|03Look |04at |05all |06these |07colours...\n");
+	dd_parsepipes(buf);
+	dd_sendstring(d, buf);
+
+INPUTS
+        string of text in *char
+
+RESULT
+        Outputs in ansi colors.  Does not rewrite the string
+	permanently.
+
+-----------------------------------------------------------------------
+NAME
+        dd_strippipes - strip pipe codes
+
+SYNOPSIS
+        dd_strippipes(char *string);
+
+FUNCTION
+        Takes all |xx renegade pipe codes and wipes them out of the
+	array.
+
+EXAMPLE
+        sprintf(buf, "|03Look |04at |05all |06these |07colours...\n");
+	dd_strippipes(buf);
+	dd_sendstring(d, buf);
+
+INPUTS
+        string of text in *char
+
+RESULT
+        Prints string in plain text.  Doesn't rewrite string.
+
+-----------------------------------------------------------------------
+NAME
+        dd_stripansi - strips ansi codes out of a string of text
+
+SYNOPSIS
+        dd_stripansi(char *string);
+
+FUNCTION
+        Takes anything resembling an ansi color/escape sequence
+	and removes it from a string of text.
+
+EXAMPLE
+        sprintf(buf, "\e[32mAnsi \e[33mtext!\n");
+	dd_stripansi(buf);
+	dd_sendstring(d, buf);
+
+INPUTS
+        string of text in *char
+
+RESULT
+        Prints string in plain text.  Doesn't rewrite string.
+
+-----------------------------------------------------------------------
+NAME
+        dd_ansipos - go to certain x, y coords on screen
+
+SYNOPSIS
+        dd_ansipos(struct dif *d, int x, int y);
+
+FUNCTION
+        Takes int x and int y and plots the cursor there in an ansi
+	escape sequence
+
+EXAMPLE
+        dd_ansipos(d, 1, 1);
+	dd_sendstring(d, "Top left corner of the screen, baby!");
+
+INPUTS
+        d - initialized dif
+        int x - x coordinate for cursor
+	int y - y coordinate for cursor
+
+RESULT
+        Cursor moved to desired x,y location.
+
+-----------------------------------------------------------------------
+NAME
+        dd_clrscr - clears screen
+
+SYNOPSIS
+        dd_clrscr(struct dif *d);
+
+FUNCTION
+        Give the ansi escape sequence to clear the screen.
+
+EXAMPLE
+        dd_clrscr(d);
+	dd_sendstring(d, "Screen cleared!\n");
+
+INPUTS
+        d - initialized dif
+
+RESULT
+        Screen cleared.
+
+-----------------------------------------------------------------------
+NAME
+        dd_center - Centers a string of text.
+
+SYNOPSIS
+        dd_center(struct dif *d, char *string);
+
+FUNCTION
+        Pads spaces so that your *string will begin on a specific
+	column making it look as if it were being centered.
+
+EXAMPLE
+        sprintf(buf, "Text to be centered\n");
+	dd_center(d, buf);
+
+INPUTS
+        d - initialized dif
+        *string of text to center
+
+RESULT
+        Pointer to the message base.
+
+-----------------------------------------------------------------------
+NAME
+        dd_strlenansi - counts chars in a string without counting
+	ansi escape codes.
+
+SYNOPSIS
+	dd_strlenansi(char *string);
+
+FUNCTION
+        Returns the length of a string without counting ansi color
+	codes.
+
+EXAMPLE
+        consider that ansistring contains a line of text with ansi
+        colours:
+        if (dd_strlen(ansi) <= 79) {
+                dd_sendstring(d, ansi);                            
+        } else {
+                dd_sendstring(d, "String is too large to fit!!\n");
+        }
+
+INPUTS
+        d - initialized dif
+        *string of text
+
+RESULT
+        Pointer to the message base.
+
+-----------------------------------------------------------------------
+NAME
+        dd_stripcrlf - kills the cr/lf, \r\n from strings
+
+SYNOPSIS
+        dd_stripcrlf(char *string);
+
+FUNCTION
+        Removes the crlf from a string of text.
+
+EXAMPLE
+        char *text=dd_stripcrlf(string);
+
+INPUTS
+        string of text to remove crlf
+
+RESULT
+        Returns as a *char with no crlf included
+
+-----------------------------------------------------------------------
+NAME
+SYNOPSIS
+FUNCTION
+EXAMPLE
+INPUTS
+RESULT
+
+-----------------------------------------------------------------------

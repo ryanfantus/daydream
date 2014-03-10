@@ -1,0 +1,20 @@
+               _ _____  _________________ ___ ______   _ _/____
+                _____ \/ ____\  ________//   \_    /_____/    /
+                 /   \__/   //\/ ____/_ /   \__   //    /    /
+                /    //    //    /    //    /    //    /    /
+               /____//    //_________//____/____//_________/
+                    /____/ [AdK]
+
+ File Commands              Message Commands          Other
+
+ [ D ]  - Download          [ C ]  - Comment          [ A ] - Alter userdata
+ [ F ]  - List Files        [ E ]  - Enter message    [ B ] - Bulletins
+ [ N ]  - New file scan     [ R ]  - Read messages    [ G ] - Disconnect
+ [ T ]  - Tag Editor        [ M ]  - Change base      [ J ] - Change conf
+ [ U ]  - Upload            [ >> ] - Next base        [ L ] - Local time
+ [ Z ]  - Zippy search      [ << ] - Prev base        [ O ] - Page SysOp
+ [ NS ] - Global new scan   [ MS ] - Mail scan        [ S ] - Statistics
+ [ SF ] - Select file confs [ SM ] - Select msg bases [ X ] - Expertmode
+ [ UD ] - Hydra transfer                              [ > ] - Next conf
+                                                      [ < ] - Prev conf
+                                                      [ MORE ] - More commands

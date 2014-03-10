@@ -1,0 +1,72 @@
+- First off, ensure that you have xinetd setup, don't use inetd, it's
+  outdated and xinetd is what is currently supported by most linux distros.
+
+- Check that you have the following line in /etc/services:
+
+telnet	23/tcp
+
+- If you plan to use ddftp (recommended) ensure you also have this in there:
+
+ftp	21/tcp
+
+- Now, scoot over to /etc/xinetd.d/
+
+- Here is what is contained in my /etc/xinetd.d/telnet file:
+
+service telnet
+{
+socket_type     = stream
+protocol        = tcp
+wait            = no
+user            = root
+server          = /home/bbs/rundd
+flags           = REUSE NODELAY KEEPALIVE
+log_on_failure += USERID
+}
+
+- Here is what is contained in my /etc/xinetd.d/ftp file:
+
+service ftp
+{
+socket_type     = stream
+protocol        = tcp
+wait            = no
+user            = root
+server          = /home/bbs/bin/ddftpd
+server_args	= -D/home/bbs -p/home/bbs/bin/daydream
+log_on_success	+= DURATION
+nice		= 10
+disable		= no
+env             = DAYDREAM=/home/bbs
+}
+
+- As you can see, the telnet server is effectively just a script being run
+  by root.  The actual rundd looks like:
+
+#!/bin/bash
+/home/bbs/bin/ddtelnetd -ubbs
+
+- Obviously, you'll have to change your paths and usernames to reflect your
+  setup.  It's important to use ddtelnetd and NOT telnetd.  This is because
+  linux ships with a 7 bit telnet daemon.  You NEED 8 bits for reliable
+  file transfers and things of that nature.
+
+- The ddftpd server_args point to your $DAYDREAM dir as well as your
+  main daydream binary.  The reason is because it is needed for using
+  "SITE UPLOAD <CONF#> in an ftp session to properly import files into
+  conferences.
+
+- rundd is an excellent place to set ownerships.  This is because it is run
+  by root at each logon prior to launching the daydream binary.  Here's what
+  I do, you can do something similar.  I make a script, /home/bbs/ownbbs .
+  In that script I have:
+
+#!/bin/bash
+chown -R bbs.bbs /home/bbs
+chmod 775 /home/bbs
+chown zipcheck /home/bbs/utils/runas
+chmod u+s /home/bbs/utils/runas
+
+- Now just chmod +x that script, and in your rundd script priot to launching
+  ddtelnetd you can point to this script, and you'll never have issues with
+  permissions again.

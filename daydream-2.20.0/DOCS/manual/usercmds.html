@@ -1,0 +1,388 @@
+<title>User commands</title>
+<h1>User commands</h1>
+
+<p>Note that the functionality of some of these commands may have been changed.
+
+<h2><a name="sa">1 [ A ] - Alter userdata</a></h2>
+
+<p>User  can  change  his  personal information such as phone number, sent-by
+line,  password  etc..   Some  switches can be altered behind this command
+too.
+
+<h2><a name="sb">2 [ B ] - Bulletins</a></h2>
+
+<p>Every  conference  can  contain  it's  own  bulletins.  Bulletins  will be
+searched from  [Conference]/bulletins/ and the naming system is as follows:
+
+<dl compact>
+<dt><h3>bulletinmenu.txt/gfx</h3><dd>Menu of available bulletins
+
+<dt><h3>bulletin.XXX.txt/gfx</h3><dd>Textfile containing the information.
+</dl>
+<p>
+If  conference  doesn't  contain  any bulletins, they will be snooped from
+$DAYDREAM/bulletins/.
+
+<h2><a name="sc">3 [ C ] - Comment</a></h2>
+
+<p>User can leave comment to system administration using this command.
+
+<h2><a name="sd">4 [ D ] - Download</a></h2>
+
+<p>Performs file downloading. 
+<dl compact>
+
+<dt>1)<dd>Shows   download.txt/gfx  from  Conferences  displaydirectory  or  from
+   $DAYDREAM/display/[Mode]/.
+
+<dt>2)<dd>Asks for files to download.
+
+<dt>3)<dd>Shows  list of  files to  download, their sizes and  estimated transfer
+   time.
+
+<dt>4)<dd>Asks  if  user wants to start transfer, disconnect after transfer, edit
+   list of the files to download or abort.
+
+<dt>5)<dd>Performs filetransfer.
+
+<dt>6)<dd>If user was using bidirectional filetransfer protocol, DayDream
+goes to upload phase....
+</dl>
+
+<h2><a name="se">5 [ E ] - Enter Message</a></h2>
+
+<p>Allows user to write public/private/echo/netmail messages. 
+<dl compact>
+<dt>1)<dd>Asks  for  receiver.  If message is public or private, receiver will be
+looked  from  userbase.   If  user  presses just enter, message will be
+addressed  to  everyone.  If receiver is EALL, message will be shown to
+everyone at the mailscan.
+
+<dt>2)<dd>Asks  for  subject.   If  user  just  enters  return,  message  will be
+aborted.
+
+<dt>3)<dd>If message base allows both public and private messages, DD will ask if
+user wants to send it as a private message.
+
+<dt>4)<dd>User  enters  line-ed or Fsed.   It's very easy to use, but still
+   quite  efficient. Line-editor supports following commands:
+<p>
+<dl compact>
+    <dt>A)bort<dd>Aborts message entry.
+
+    <dt>C)ommands<dd>Shows DayDream:Display/[mode]/LineEditorCommands.TXT/GFX
+
+    <dt>D)elete<dd>Allows user to delete lines from the message.
+
+    <dt>E)dit<dd>Allows user to edit line in message.
+
+    <dt>F)ile attach<dd>Allows user to attach file to the message.
+
+    <dt>I)nsert<dd>Allows user to insert line anywhere in the message.
+
+    <dt>P)assword<dd>Equips message with password.
+
+    <dt>Q)uote<dd>Quotes message (works only in reply mode)
+
+    <dt>R)esume<dd>Back to the message-editor.
+
+    <dt>S)ave<dd>Saves message.
+    </dl>
+    </dl>
+<h2><a name="sf">6 [ F ] - List files</a></h2>
+
+<p>Lists files available for downloading.
+<dl compact>
+
+<dt>1)<dd>If number of filedirectories is 0 in the conference, drops user back to
+   the main prompt.
+
+<dt>2)<dd>Displays the file filecatalogs.txt/gfx from the displaydirectory of the
+   conference or from $DAYDREAM/display/[mode]/.
+
+<dt>3)<dd>Asks areas to scan or A)ll or U)pload.
+
+<dt>4)<dd>Shows  filelists  from  the  specified areas.  In more prompt there are
+   following options available:
+<p><dl compact>
+   <dt>Y)es<dd>Shows more files
+
+   <dt>N)o<dd>Quits filelisting
+
+   <dt>F)lag or T)ag<dd>Adds file for download request.
+
+   <dt>C)ontinuous<dd>Non-stop listing, no more more-prompts.
+
+   <dt>Cursor Up<dd>Flag files using cursor keys.
+</dl></dl>
+<h2><a name="sg">7 [ G ] - Goodbye (Disconnect)</a></h2>
+
+<p>This command disconnects user from the system. 
+<dl compact>
+<dt>1)<dd>Asks if user is absolutely certain about leaving the BBS.
+
+<dt>2)<dd>Displays the file $DAYDREAM/display/[Mode]/goodBye.txt/fdx.
+
+<dt>3)<dd>Drops the carrier.
+
+<dt>4)<dd>Executes  the  file  "$DAYDREAM/batch/batch1.logoff".   If  this is a
+   shell-script, make sure it's equipped with "x"-flag.
+</dl>
+<p>Note  that dropping carrier anywhere in the BBS will bring user to phase 3
+of this command.
+
+<h2><a name="sj">8 [ J ] - Join conference</a></h2>
+
+<p>This  command  allows  user  to  change to the another conference from the
+current conference.
+<dl compact>
+<dt>1)<dd>Shows the file $DAYDREAM/display/[mode]/joinconference.txt/gfx.
+
+<dt>2)<dd>Prompts for the conference  user wishes to join.  User must have access
+   to the conference he tries to join.
+
+<dt>3)<dd>Shows [Conference]/display/[Mode]/conferencejoined.txt/gfx if exists.
+</dl>
+<h2><a name="sl">9 [ L ] - Local time</a></h2>
+
+<p>Just shows what time is it...
+
+<h2><a name="sm">10 [ M ] - Change message base</a></h2>
+
+<p>This command allows user to change to another message base.
+
+<dl compact>
+<dt>1)<dd>If  the conference doesn't have more than 1 message bases, informs user
+   that this command has no effect and quits.
+
+<dt>2)<dd>Shows file [Conf]/display/[Mode]/messagebases.txt/gfx.
+
+<dt>3)<dd>Prompts for the number of message base user wants to enter.
+</dl>
+<h2><a name="sn">11 [ N ] - New file scan</a></h2>
+
+<p>Scan conference for new files.  Uses the same routine for showing files as
+F-Command (File list).
+
+<dl compact><dt>1)<dd>If number of filedirectories is 0 in the conference, drops user back to
+   the main prompt.
+
+<dt>2)<dd>Asks date to start scanning from.
+
+<dt>3)<dd>Asks  for  filecatalogs to be  scanned for new  files:
+A=All, L=List or H=Help.
+If user requested for help, DayDream:Display/[mode]/CatalogHelp.TXT/GFX
+will be displayed.
+
+<dt>4)<dd>Scans new files from requested directories.
+</dl>
+<p>NOTE!   To  scan  new files in current conference, just type N S A in main
+prompt.
+
+<h2><a name="so">12 [ O ] - Operator Page</a></h2>
+
+<p>Pages sysop for chatting.
+
+<dl compact>
+<dt>1)<dd>Checks  if  SysOp  is available.  If there's yelld enabled 
+   and  $DAYDREAM/display/permanentlyaway.txt doesn't exist,
+   step  2 will take place. Otherwise permanentlyaway.txt will be displayed
+   or DD says that sysop has turned paging off.
+
+<dt>2)<dd>If /homr/bbs/display/[Mode]/beforechat.txt/gfx exist, DD displays it.
+
+<dt>3)<dd>If  SysOp  has enabled "Ask Reason"-flag in configuration, user will be
+   prompted for reason.
+
+<dt>4)<dd>Sends messages to yelld if it's running. Yelld announces local console
+   the sysop that the user wants to chat.
+</dl>
+<h2><a name="sr">13 [ R ] - Read Messages</a></h2>
+
+<p>This  command  allows user to read messages.  It also allows user to reply
+to a certain message.
+
+<p>Shows the read prompt, looks like this:
+<pre>
+  Message Read Command: (Enter) Next, (C)ommands (5/6;-):
+                                                  ^ ^ ^
+                                                  | | +- Reading direction
+                                                  | +--- Highest message
+                                                  +----- Current message
+</pre>
+<p>
+<h3>Available commands:</h3>
+<dl compact>
+<dt>A)gain<dd>Redisplay message
+
+<dt>D)elete<dd>Delete current message
+
+<dt>R)eply<dd>Reply to the current message. Same as  Enter  Message -
+                   command, but the receiver of the message is the  author
+                   of  the message to be replied and when entering message
+                   editor, lines to be quoted will be asked.
+
+<dt>Q)uit<dd>Quit reading messages
+<dt>K)eep<dd>Keep message. Deletes the message, but puts it to the end of
+the message base, so it is "new" message for next login. Only Sysop and
+message author+receiver.
+
+<dt>+<dd>Set reading direction forward (--&gt)
+  
+<dt>-<dd>Set reading direction backward (&lt--)
+
+<dt>(Number)<dd>Read specified message (if available)
+
+<dt>(CR)<dd>Read next message 
+</dl>
+
+<h2><a name="ss">14 [ S ] - User statistics</a></h2>
+
+<p>Shows  information  about  user,  eg.   his/her name, organization, upload
+bytes etc.
+
+<h2><a name="st">15 [ T ] - Tag editor</a></h2>
+
+<p>Allows user to edit  his/her  download  batch.  User  can add/remove files
+to/from download  batch using this  command. This also  displays the total
+size of files in the batch and an estimated transfer time.
+
+<h2><a name="su">16 [ U ] - Upload</a></h2>
+
+<p>Allows user to send files to the system.
+<dl compact>
+<dt>1)<dd>If number of filedirectories is 0 in the conference, drops user back to
+   the main prompt and informs that uploads are not allowed in the current
+   conference.
+
+<dt>2)<dd>Displays  upload.gfx/txt from the display directory of the confernce or
+   from  $DAYDREAM/display/[Mode]/.   Useful  for  telling  users what they
+   should and should not upload.
+
+<dt>3)<dd>Checks  free  space  on  hard  disk.  If there's not enough free space,
+   drops user back to the main prompt.
+
+<dt>4)<dd>Asks  if user wants to Proceed, Disconnect after transfer or Abort.  If
+   user  decides  to  disconnect  after  transfer, archives should contain
+   FILE_ID.DIZ.   Otherwise  descriptions will be asked next time the user
+   calls.
+
+<dt>5)<dd>Cleans up the temp directory. Uploads will be placed here. Make sure
+   that temp dir of the node DOES exist.
+
+<dt>6)<dd>DD starts the transfer.
+
+<dt>7)<dd>Checks  if  there are any files in temporary directory to be processed,
+   and if there's not, exits.
+
+<dt>8)<dd>Checks if filename is longer than allowed. If it is, asks user to
+   rename it.
+
+<dt>9)<dd>Executes doors  listed  in [CONF]/data/filecheck.dat. If  file  doesn't
+   exist after this procedure, jumps to step 7.
+
+<dt>10)<dd>Scans BBS  for duplicates. If  file already exists, it will be deleted.
+
+<dt>11)<dd>Tests archive integrity. If offline  checking is enabled, this will be
+    done after the user has disconnected.
+
+<dt>12)<dd>Checks if archive contains file_id.diz.  If it  does, then DD displays
+    it and  asks  if user  wants to save it,  edit it,  discard  it,  save
+    upload  to  SysOp's  private  directory or  turn autosave  mode on. In
+    autosave mode, file_id.diz will  be used  automatically from the  next
+    archives.
+
+    <p>If  archive  doesn't contain  file_id.diz,  description will be asked.
+    Description may contain up to 13 lines.
+
+<dt>13)<dd>Executes doors  listed  in  [CONF]/data/examine.dat. If  file  doesn't
+    exist after this procedure, jumps to step 7.
+
+<dt>14)<dd>Saves file and adds credits to the user.
+ 
+<dt>15)<dd>Jump to step 7.
+</dl>
+<h2><a name="sv">17 [ V ] - View file</a></h2>
+
+<p>Allows user to view  archive contests.  Executes VIEW-command and displays
+output to the user.
+
+<h2><a name="sx">18 [ X ] - Expert mode toggle</a></h2>
+
+<p>Turns  expert mode on/off.  In expertmode, menu will be shown only if user
+requests it with ?-command.
+
+<h2><a name="sz">19 [ Z ] - Zippy Search</a></h2>
+
+<p>Scans  file  catalogs  for  a match for a specified string.  When match is
+found, it will display the whole entry to the user.
+
+<h2><a name="sprec">20 [ &lt ] - Previous Conference</a></h2>
+
+<p>Joins  previous   conference user has access to.  Very fast method to move
+around the BBS.
+
+<h2><a name="snexc">21 [ &gt ] - Next Conference</a></h2>
+
+<p>Joins next conference user has access to.  Very fast method to move around
+the BBS.
+
+<h2><a name="smenu">22 [ ? ] - Show Mainmenu</a></h2>
+
+<p>Shows the mainmenu.
+
+<h2><a name="spreb">23 [ &lt&lt ] - Previous message base</a></h2>
+
+<p>Joins previous message base in the current conference.
+
+<h2><a name="snexb">24 [ &gt&gt ] - Next message base</a></h2>
+
+<p>Joins next message base in the current conference.
+
+<h2><a name="sgr">25 [ GR ] - Global read</a></h2>
+
+<p>Read new messages globally from selected message bases. Works like R-command.
+
+<h2><a name="sms">26 [ MS ] - Mail scan</a></h2>
+
+<p>Scans selected message bases for new mail addressed to the user.  When new
+message is found, it will be shown to the user.
+
+<h2><a name="sns">27 [ NS ] - New files scan</a></h2>
+
+<p>Scans selected conferences for new files. Uses N-Command.
+
+<h2><a name="sver">28 [ VER ] - Version information</a></h2>
+
+<p>Shows some version specific information.
+
+<h2><a name="solm">29 [ OLM ] - Online message</a></h2>
+
+<p>Send line of text to the user on the another node.  If user on the another
+node has disabled OLMs, then message won't be sent.
+
+<h2><a name="ssf">30 [ SF ] - Select file conferences</a></h2>
+
+<p>This  command allows user to select conferences he/she wants to be scanned
+in the new files scan during logon or when he/she enters the NS-command.
+
+<h2><a name="ssm">31 [ SM ] - Select messagebases</a></h2>
+
+<p>This command allows user to select messagebases he/she wants to be scanned
+in the new mail scan and to be grabbed for offline reading.
+
+<h2><a name="suserlist">32 [ USERLIST ] - List of users</a></h2>
+
+<p>Lists users that has access to the system. 
+
+<h2><a name="smode">33 [ MODE ] - Change displaymode</a></h2>
+
+<p>Exactly the same as the first question after handshaking.
+
+<h2><a name="swho">34 [ WHO ] - Who's online</a></h2>
+
+<p>Displays  users that are using the systemipped off.
+
+<h2><a name="scls">35 [ CLS ] - Clear Screen</a></h2>
+
+<p>Clears the display.

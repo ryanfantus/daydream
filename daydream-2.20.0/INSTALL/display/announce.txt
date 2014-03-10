@@ -1,0 +1,7 @@
+The following files has been recieved:
+
+@@FILES@@
+
+Call our BBS at XXX.XXX port 23.
+
+

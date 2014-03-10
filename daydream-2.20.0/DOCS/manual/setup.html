@@ -1,0 +1,396 @@
+<title>Installation and files</title>
+
+<h1>1 <a name="s1"> Installation</h1></a>
+<dl compact>
+<h3><dt>0.</h3> <dd>Refer to README or UPGRADE in root dd dir and skip the rest :)
+<h3><dt>1.</h3> <dd>type "make" in root dir.
+
+<h3><dt>2.</h3> <dd>Create user "bbs". (shell = compiled daydream executable). 
+
+<h3><dt>3.</h3> <dd>Set environment variable DAYDREAM to point to bbs'es home dir.
+   (eg. export DAYDREAM=/home/bbs or setenv DAYDREAM /home/bbs)
+
+<h3><dt>4.</h3> <dd>Copy dirs questionnaiore, display and data to $DAYDREAM. Make sure
+   dirs+files belong to user "bbs".
+
+<h3><dt>5.</h3> <dd>edit daydream.cfg and compile it with utils/ddcfg. Most of the stuff
+   in daydream.cfg are introduced in the daydream.cfg and doesn't require
+   additional help if you own brains :)
+
+<h3><dt>6.</h3> <dd>Install protocols. Create $DAYDREAM/utils and copy ddrz, ddsz and
+   hydracom to it.
+
+<h3><dt>7.</h3> <dd>Try logging in as bbs.
+
+<h3><dt>8.</h3> <dd>First created user will get full sysop access, so you can use sysop
+   commands like usered :)
+</dl>
+
+<h1>2 <a name="s2"> Directories</h1></a>
+<dl compact>
+<h3><dt><dt>data/</h3><dd>Includes all the  configuration  and datafiles (like UserBase etc)
+
+<h3><dt><dt>batch/</h3><dd>Includes logoff-batch files.
+
+<h3><dt>utils/</h3><dd>Includes DayDream BBS utilities.</dd>
+
+<h3><dt>temp/</h3><dd>Required for uploads.</dd>
+
+<h3><dt>display/</h3><dd>Contains most of the textfiles that are showed to the
+user when he's cruising in the BBS. </dd>
+
+<h3><dt>doors/</h3><dd>Contains external  program modules,  commands,
+games etc. that can be executed from the BBS.</dd>
+
+<h3><dt>hold/</h3><dd>Private uploads  to  the SysOp  are  placed in
+here.</dd>
+
+<h3><dt>logfiles/</h3><dd>Contains your logfiles.</dd></dl>
+
+<h1>3 <a name="s3"> BBS Files</h1></a>
+
+<h2>3.1<a name="s3.1"> [Conference]/Data/</h2></a>
+
+<P>This  directory  includes  some  conference-specific  data,  such  as File
+catalogs,  list  of  free downloads, list of paths that are used to access
+downloadable files etc.
+<dl compact>
+
+<h3><dt>directory.XXX</h3><dd>File-catalog of XXX - filearea.
+
+<h3><dt>paths.dat</h3><dd>This file is used  to define  directories that  are
+used  for  searching files.  First line=Area 1 etc.
+Amount of lines can be unlimited. If there are more
+lines  in  this  file  than filedirectories  in the
+conference, rest of the lines are extra dl-paths.
+
+<h3><dt>freedownloads.dat</h3><dd>Contains list of Free downloads. Wildcards allowed.
+NOTE!  Global  freedownloads  can  be  specified in
+$DAYDREAM/data/freedownloads.DAT.
+
+<h3><dt>examine.dat</dt></h3>
+<dd>Contains list  of  doors to be launched in  upload-
+checking after user has verified that upload is ok.
+It can be used for conf top utils, if someone codes
+one. </dd>
+
+<p>Here's an example of examine.dat:
+
+<pre>--------------------------------------------cut------------------
+/home/bbs/doors/conftop %N
+/home/bbs/doors/svenskatoppen %N
+--------------------------------------------cut------------------
+</pre>
+
+</dl>
+<h2>3.2 <a name="s3.2">[Conference]/bulletins/</h2></a>
+<dl compact>
+<p>This directory includes bulletins,  such as top uploader list or otherwise
+useful information. Add .gfx or .txt suffix.
+
+<h3><dt>bulletinmenu</h3><dd>List of available bulletins
+
+<h3><dt>bulletin.x</h3><dd>Should be selfexplaining.
+</dl>
+<h2>3.3 <a name="s3.3">[Conference]/display/[Displaymode]/</h2></a>
+<dl compact>
+<p>This directory contains the conference-specific textfiles displayed to the
+user.     If    file    is    not    found,    it    is    searched   from
+$DAYDREAM/display/[Displaymode]/.  Add .gfx or .txt suffix.
+
+<h3><dt>commands</h3><dd>List of commands.
+
+<h3><dt>filecatalogs</h3><dd>List of file-areas in the current conference.
+
+<h3><dt>messagebases</h3><dd>List of messagebases in the current conference.
+
+<h3><dt>upload</h3><dd>Showed to the user before uploading. Useful if  you
+want to show some upload-rules etc.
+
+<h3><dt>download</h3><dd>Showed to the user before downloading.
+
+<h3><dt>conferencejoined</h3><dd>Showed   to   the   user   when  he/she  joins  the
+conference.
+
+<h3><dt>conferencepw</h3><dd>Showed   to   the   user   before asking conference
+password.
+
+<h3><dt>autorejoin</h3><dd>Showed to the user after JoinConference.TXT in login..
+
+</dl>
+<h2>3.4 <a name="s3.4">[Conference]/messages/[baseXXX]</h2></a>
+<dl compact><p>
+Contains messages and their headers.
+
+<h3><dt>msgbase.dat</h3><dd>Headers of the messages in the current base.
+
+<h3><dt>msgbase.lrp</h3><dd>Autoscan and lastread pointers.
+
+<h3><dt>msgXXXXX</h3><dd>Standard messagefile.
+</dl>
+
+<h2>3.5 <a name="s3.5">$DAYDREAM/[DisplayMode]/</h2></a>
+<dl compact><p>
+Contains  most  of  the  textfiles  that  are showed to the user when he's
+cruising in the BBS.
+
+<h3><dt>autosigtop</h3><dd>Shown when user launches autosig door, typically from
+the "A"lter user info main menu command.
+
+<h3><dt>accountfrozen</h3><dd>Shown  when user  whose  account  has  been  frozen 
+tries to login.
+
+<h3><dt>banner</h3><dd>Shown before the login prompt.
+
+<h3><dt>beforegoodbye</h3><dd>Shown to the user when he/she enters G-command.
+
+<h3><dt>commands</h3><dd> List of available commands
+
+<h3><dt>conferences</h3><dd>List of available conferences
+
+<h3><dt>download</h3><dd>Shown to the user before download
+
+<h3><dt>edituser</h3><dd> Shown to the  user when he/she's  modifying account
+info.
+
+<h3><dt>filecatalogs</h3><dd>Shown  to  the  user  when he/she's listing  files.
+
+<h3><dt>goodbye</h3><dd>Logoff screen
+
+<h3><dt>linechaton </h3><dd>Shown to the user when sysop enters chat mode.
+
+<h3><dt>linechatoff</h3><dd>Shown to the user when sysop exits chat mode.
+
+<h3><dt>lineedcommands</h3><dd>List of available commands in message-editor.
+
+<h3><dt>morehelp</h3><dd>Shown when user requests help in more-prompt.
+
+<h3><dt>movefiles</h3><dd>Shown before asking files to move.
+
+<h3><dt>msgreadcommands</h3><dd>List of available commands when reading messages.
+
+<h3><dt>newuser</h3><dd>Displayed to the user when he/she decides to create
+a new account. Useful for rules etc.
+
+<h3><dt>newuserpassword</h3><dd>Shown  to  the user  if  he/she  decides to  create
+new  account  and  the system  requires  a New User
+Password.
+
+<h3><dt>passwordfailure</h3><dd>Displayed  to  the  user  if  he fails  3  times in
+the password checking.
+
+<h3><dt>protocolmenu</h3><dd>List of available protocols.
+
+<h3><dt>reg_realname</h3><dd>Shown to the user  before asking  his/her real name
+during the registration.
+
+<h3><dt>reg_handle</h3><dd>Shown  to  the user  before  asking  his/her handle
+during the registration.
+
+<h3><dt>reg_zip+city</h3><dd>Shown  to the  user before  asking  his/her Zipcode
+during the registration.
+
+<h3><dt>reg_voicenumber</h3><dd>Shown  to  the  user  before asking  his/her  Voice
+phone number during the registration.
+
+<h3><dt>reg_password</h3><dd>Shown to  the user  before asking  his/her password 
+during the registration.
+
+<h3><dt>reg_computermodel</h3><dd>Shown to the user  before  asking his/her computer-
+model during the registration.
+
+<h3><dt>reg_screenlength</h3><dd>Shown  to the  user before  asking  his/her  Screen
+length during the registration.
+
+<h3><dt>scandatehelp</h3><dd>Shown  to the user when  he  requests  help  during
+new file scan.
+
+<h3><dt>systempassword</h3><dd>Shown  to  the  user  before  asking for the System
+Password (if SystemPassword is enabled)
+
+<h3><dt>upload</h3><dd>Shown to the user before uploading.
+
+<h3><dt>uploadcommands</h3><dd>Commandlist on prompt requesting save etc.
+
+<h3><dt>welcome</h3><dd> Displayed to the user after logon.
+
+<h3><dt>zippysearch</h3><dd>Showed  to  the user  if he/she  didn't  enter  any
+                       parameters for Z-command.
+
+<p>NOTE!  Some of these files can be different for every security level.  Eg.
+Commands.255.GFX  will  be  showed  to the user if his/her access level is
+255.
+</dl>
+<h2>3.6 <a name="s3.6">$DAYDREAM/display/</h2></a>
+<dl compact><p>
+<h3><dt>displaymodehelp.txt</h3><dd>List of available display modes.
+
+<h3><dt>strings.XXX</h3><dd>Contains nearly all strings and prompts in BBS.
+One string per line. It's possible to replace a 
+string with textfile by changing it to
+"\a[textfile]". DD will look for [textfile].gfx/txt
+from conference and global display dirs.
+
+<h3><dt>boardclosed.txt</h3><dd>If   exists,   DayDream   will  display   this  and
+disconnect the user before logon.
+
+<h3><dt>permanentlyaway.txt</h3><dd>If  exists,  will  be  displayed  to  the user when 
+he/she requests chatting.  Useful if you are ie. on
+vacation.
+</dl>
+<h2>3.7 <a name="s3.7">$DAYDREAM/data/</h2></a>
+<dl compact><p>
+This directory contains some binary files which are generated by 
+ddcfg or DayDream itself. There's also some textfiles that can be
+edited using Texteditor and they are:
+
+<h3><dt>trashcan.dat</h3><dd>List of names that are not allowed in the system.
+Wildcards allowed.
+
+<h3><dt>freedownloads.dat</h3><dd>List of free downloads (all conferences).
+Wildcards allowed.
+
+<h3><dt>frontends.dat</h3><dd>Contains list  of  doors to be launched before asking
+displaymode from user.
+Note that doors listed in here MUST be DDDP-doors.
+
+<p>If door uses changes displaymode using
+intcommand "mode ??" or similar command, DD doesn't
+ask for display mode.
+
+<h3><dt>logindoors.dat</h3><dd>Contains list  of  doors to be launched after showing
+Welcome.TXT. Useful if you want to force a door to be
+run on startup. (One can abort welcome.txt with
+^C.)
+
+<h3><dt>logoffdoors.dat</h3><dd>Optional file for running doors at logoff which
+don't seem to get along with the batchX.logoff files.
+
+</dl>
+<h2>3.8 <a name="s3.8">$DAYDREAM/batch/</h2></a>
+<dl compact>
+This  directory  contains  batch  files.   You  must  chmod +x them, so
+daydream can execute then.  Currently supported files are:
+
+<h3><dt>batchX.logoff</h3><dd>This will be executed  everytime user leaves a BBS.
+Useful, if you  want to  have  up-to-date top users
+list etc in your board etc.
+
+<p>X stands for node.
+</dl>
+<h1>4 <a name="s4">Control Codes</h1></a>
+
+<dd><p>You can have the following control codes in your text files:
+
+<h2>4.1 <a name="s4.1">Action codes</h2></a>
+<dl compact>
+<h3><dt>~#PA</h3><dd>Pause (No text)
+<h3><dt>~#RE</h3><dd>Any key to resume (Pause)
+<h3><dt>~#NM</h3><dd>Turn more-prompts off
+<h3><dt>~#MC[COMMAND]|</h3><dd>Menu command
+<h3><dt>~#LF</h3><dd>Remove linefeed/carriage return.
+<h3><dt>~#NC</h3><dd>Disable codes for the rest of text (For security)
+<h3><dt>~#TF[FILE]|</h3><dd>Show textfile
+<h3><dt>~#RA[FILE]|[max]|</h3><dd>Show a random text file. [FILE] is the 
+prefix for the filename. After the prefix a random number between 1 and [max]
+(inclusive) is appended. Note that the filenames cannot contain any suffix,
+for example, the .gfx extension. The [max] parameter must be between 1
+and 16777216 (inclusive).</dd>
+</dl>
+<h2>4.2 <a name="s4.2">String codes</h2></a>
+<dl compact><p>
+<h3><dt>~#RN</h3><dd>Real name
+<h3><dt>~#HA</h3><dd>Handle
+<h3><dt>~#OR</h3><dd>Organization
+<h3><dt>~#LO</h3><dd>Location
+<h3><dt>~#PH</h3><dd>Voice Phone
+<h3><dt>~#SL</h3><dd>Screen length
+<h3><dt>~#PR</h3><dd>Protocol ID
+<h3><dt>~#SI</h3><dd>
+Upload Signature
+<h3><dt>~#CM</h3><dd>
+Computer Model
+<h3><dt>~#DA</h3><dd>
+Current Date
+<h3><dt>~#ID</h3><dd>
+User Id Number      
+<h3><dt>~#DT</h3><dd>
+Daily Time          
+<h3><dt>~#FC</h3><dd>
+First Date On          
+<h3><dt>~#LC</h3><dd>
+Last Date On         
+<h3><dt>~#OL</h3><dd>
+Online Baud          
+<h3><dt>~#SE</h3><dd>
+Security Level      
+<h3><dt>~#UB</h3><dd>
+Uploaded Bytes       
+<h3><dt>~#UF</h3><dd>
+Uploaded Files       
+<h3><dt>~#DB</h3><dd>
+Downloaded Bytes     
+<h3><dt>~#DF</h3><dd>
+Downloaded Files     
+<h3><dt>~#BA</h3><dd>
+Bytes Avail          
+<h3><dt>~#FA</h3><dd>
+Files Avail          
+<h3><dt>~#MP</h3><dd>
+Messages Posted      
+<h3><dt>~#TC</h3><dd>
+Times Called         
+<h3><dt>~#PG</h3><dd>
+Sysop Pages Remaining 
+<h3><dt>~#CN</h3><dd>
+Conf. name           
+<h3><dt>~#CU</h3><dd>
+Conf. number         
+<h3><dt>~#ML</h3><dd>
+Max lines in file descriptions
+</dl>
+<h2>4.3 <a name="s4.3">Custom main prompt</h2></a>
+<dl compact><p>
+DayDream main prompt has special control codes too. Main prompt is located
+at the line 296 of strings.XXX. Codes are:
+
+<h3><dt>~~</h3><dd>
+Print ~-char
+<h3><dt>~A</h3><dd>
+Last read pointer
+<h3><dt>~C</h3><dd>
+Conference name
+<h3><dt>~E</h3><dd>
+Highest message
+<h3><dt>~L</h3><dd>
+Message base number
+<h3><dt>~M</h3><dd>
+Message base name
+<h3><dt>~N</h3><dd>
+Conference number
+<h3><dt>~T</h3><dd>
+Time left in minutes
+<h3><dt>~B</h3><dd>
+Node number
+<h3><dt>~S</h3><dd>
+BBS Name						  
+</dl>
+
+<h2>4.4 <a name="s4.4">Door parameters</a></h2>
+<dl compact><p>
+Doors that are declared in "daydream.cfg", can be given a number of
+optional parameters. Some special tokens are interpreted as follows:
+
+<h3><dt>%N</h3><dd>
+The number of the current node
+<h3><dt>%R</h3><dd>
+User's real name
+<h3><dt>%H</h3><dd>
+User's handle
+<h3><dt>%O</h3><dd>
+User's organization
+<h3><dt>%Z</h3><dd>
+User's Zipcode
+<h3><dt>%S</h3><dd>
+User's current security level
+</dl>

@@ -1,0 +1,17 @@
+[36m----------------------------------------------------
+[31mATTENTION: Remember to log off properly using /q or
+otherwise your session will be locked until it times 
+out, which usually takes about five minutes. Thanks!
+[36m----------------------------------------------------[37m
+[33m/help[37m         - command list
+[33m/server[37m       - information about server
+[33m/clear[37m        - clear main window
+[33m/sclear[37m       - clear status bar
+[33m/away[37m         - switch to 'away' mode
+[33m/msg[37m          - send private message
+[33m/online[37m       - show users in chat
+[33m/otime[37m        - show remaining online time
+[33m/whois [nick][37m - simple information about user
+[33m/about[37m        - about ntalk
+[33m/q[37m            - quit ntalk
+[36m----------------------------------------------------[37m

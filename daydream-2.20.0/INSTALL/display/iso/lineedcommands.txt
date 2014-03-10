@@ -1,0 +1,12 @@
+
+ S <=> Save message
+ A <=> Abort writing message
+
+ R <=> Resume editing
+ E <=> Edit a single line in the message
+ D <=> Delete specified lines
+ L <=> List editor buffer contents
+ I <=> Insert line(s)
+
+ Q <=> Insert quote
+ P <=> Equip message with a password

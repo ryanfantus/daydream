@@ -1,0 +1,90 @@
+Quick install
+=============
+
+ - become the superuser
+
+$ su -
+[type your root password here]
+
+ - create a group "zipcheck". This is the group ID for the 
+   temporary files during the archive validity checking. 
+
+# groupadd zipcheck
+
+ - create a new user "zipcheck" that has "zipcheck" as its primary
+   group ID and an invalid shell:
+
+# useradd -g zipcheck -s /bin/false zipcheck
+
+ - create a new user "bbsadmin". You will need this account when
+   performing administrative tasks on your board. This user should
+   have "bbs" as group and "/home/bbs" as home directory. It should
+   also have "zipcheck" in its supplementary group. The password
+   should be known only by you.
+
+# groupadd bbs
+# useradd -d /home/bbs -m -G zipcheck -g bbs bbsadmin
+# passwd bbsadmin
+[type any password here]
+
+ - create another user "bbs" with a group "bbs" and a home directory
+   "/home/bbs". Remember to set the password as well. You may want
+   to choose a complex one for a while and remove the password when
+   your board is ready to handle users. This user needs to have 
+   "zipcheck" in its supplementary group as well.
+
+# useradd -d /home/bbs -G zipcheck -g bbs bbs 
+# passwd bbs
+[type any password here]
+
+ - make sure that "/home/bbs" is owned by "bbsadmin" and has
+   permissions 750:
+
+# chown bbsadmin:bbs /home/bbs
+# chmod 750 /home/bbs
+
+ - now log in as "bbsadmin", create directory "src" and change
+   to it:
+
+$ mkdir src
+$ cd src
+
+ - Get the daydream etc package and unpack it:
+
+$ unzip daydream-2.15-etc.zip
+$ cd INSTALL
+$ sh install_me.sh /home/bbs/
+
+ - Get the daydream source package and unpack it:
+ 
+$ unzip daydream-2.15-src.zip
+$ cd daydream_src
+$ sh make.sh build
+$ INSTALL_PATH=/home/bbs/ sh make.sh install
+
+ - If everything works out ok, do
+
+$ cd ~
+$ source scripts/ddenv.sh
+$ utils/ddcfg daydream.cfg
+
+ - now become the superuser again and execute the script that
+   armors the installation, that is, makes the permissions
+   and ownerships of files and directories somewhat safer.
+
+$ su -
+[type your root password here]
+# /home/bbs/src/daydream_src/secure.sh /home/bbs
+
+ - make DayDream's login script a valid shell by adding the
+   following line to "/etc/shells":
+
+/home/bbs/scripts/ddlogin.sh
+
+ - change the login shell of "bbs" to "/home/bbs/scripts/ddlogin":
+
+# usermod -s /home/bbs/scripts/ddlogin.sh bbs
+
+ - Finally, see xinetd.howto in the docs directory for enabling xinetd.
+   If you are going to allow ssh connections to the bbs, TURN OF SFTP!
+   I can't stress this enough!

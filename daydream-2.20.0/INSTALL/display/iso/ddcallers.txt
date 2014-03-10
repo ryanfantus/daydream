@@ -1,0 +1,29 @@
+[2J[H
+Last callers
+
+ N   Bps Name             Organization           Logon    On Upkb:Dnkb Flags
+-----------------------------------------------------------------------------
+01 14400 Mr.Wishbone      Outlaws                22:44 00:01 0000M:0000M -----
+01 14400 Mane             -HaULikK0 pR0dUkTi0Ns- 18:37 00:59 0000M:5611M -D--P
+01 14400 Mane             -HaULikK0 pR0dUkTi0Ns- 18:28 00:08 0000M:0680M -D--P
+01 28800 Carnifex         kSM!^vORTEX^oRKESTERi  18:00 00:05 0000M:0266M -D--P
+01 14400 mRm              .SeLLeRi.              17:29 00:08 -1073743788:-1073
+01  9600 dR.dOOM          !PURE!LØVE!            03:53 00:06 0204:0000 U-----
+01  9600 dR.dOOM          PURE·HATE!             02:37 00:44 0000:0865 -D----
+01 28800 Handy Man        None                   01:20 00:14 0000:0055 -D----
+01 14400 Mane             -HaULikK0 pR0dUkTi0Ns- 23:45 01:03 0000:8372 -D--P-
+01 28800 bris             nope                   22:45 00:06 0000:0000 ----P-
+01 28800 Carnifex         kSM!^vORTEX^oRKESTERi  18:42 00:06 0000:0000 ----P-
+01 28800 Carnifex         kSM!^vORTEX^oRKESTERi  18:03 00:15 0000:0489 -D--P-
+01 28800 Carnifex         kSM!^vORTEX^oRKESTERi  13:22 00:01 0000:0029 -D--P-
+01 14400 Cyborg           Mistery                01:56 01:17 0091:3570 UD----
+01 28800 Joo              ToyTools               01:40 00:11 0000:0439 -D----
+01 28800 bUtChEr          tL¶                    22:06 00:05 0000:0336 -D--P-
+01 28800 Vissy            WB/CP^HiRMU!           15:35 00:03 0000:0013 -D----
+01 24000 tHrEAz           => hEAD! <=            10:23 00:11 0000:0000 -----H
+01 28800 Loner            THP                    22:01 00:12 0000:0000 ---N--
+01 28800 Carnifex         kSM!^vORTEX^oRKESTERi  21:28 00:06 0000:0802 -D--P-
+-----------------------------------------------------------------------------
+[ D ] - Download             [ U ] - Upload              [ C ] - Carrier lost
+[ H ] - Password Failure     [ P ] - Paged Sysop         [ N ] - New user
+-----------------------------[ DDCallers V1.0 - Coded by Antti Häyrynen ]----

@@ -1,0 +1,16 @@
+
+[37m                           [33mUser Data For ~#HA[0m
+[35m----------------------------------------------------------------------------[0m
+ [32m 1)[37m Real Name............:[36m ~#RN[0m
+[36m [32m 2)[37m Handle...............:[36m ~#HA[0m
+[36m [32m 3)[37m Organization.........:[36m ~#OR[0m
+[36m [32m 4)[37m Zip Code And City....:[36m ~#LO[0m
+[36m [32m 5)[37m Voice Phone Number...:[36m ~#PH[0m
+[36m [32m 6)[37m PassWord.............:[36m (encrypted)[0m
+[36m [32m 7)[37m Screen Lenght........:[36m ~#SL[0m
+[36m [32m 8)[37m Default Protocol.....:[36m ~#PR[0m
+[36m [32m 9)[37m UpLoad Signature.....:[36m ~#SI[0m
+[36m [32m10)[37m Computer Model.......:[36m ~#CM[0m
+[36m [32m11)[37m Max lines in descs...:[36m ~#ML[0m
+[1C[32m12) [37mChange message signature
+[35m----------------------------------------------------------------------------[0m

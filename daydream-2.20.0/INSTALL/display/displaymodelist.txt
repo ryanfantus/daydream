@@ -1,0 +1,4 @@
+1) Latin-1 + Color   2) Latin-1 + Ascii   3) IBM + Color      4) IBM + Ascii
+
+         Se dos-peelo joka ei tajua laittaa IBM:iä, saa kirveestä.
+

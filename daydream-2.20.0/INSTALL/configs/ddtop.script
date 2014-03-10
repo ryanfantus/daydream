@@ -1,0 +1,14 @@
+; Format: [design] [output] [weektop store]. .gfx and .txt are added
+; automatically to the output. [weektop store] is optional.
+/home/bbs/configs/ddtop_designs/boboulbytes1.dsg /home/bbs/bulletins/bulletin.2
+/home/bbs/configs/ddtop_designs/boboulfiles1.dsg /home/bbs/bulletins/bulletin.3
+/home/bbs/configs/ddtop_designs/bobodlbytes1.dsg /home/bbs/bulletins/bulletin.4
+/home/bbs/configs/ddtop_designs/bobodlfiles1.dsg /home/bbs/bulletins/bulletin.5
+/home/bbs/configs/ddtop_designs/bobocalls1.dsg /home/bbs/bulletins/bulletin.6
+/home/bbs/configs/ddtop_designs/bobomsgs1.dsg /home/bbs/bulletins/bulletin.7
+/home/bbs/configs/ddtop_designs/bobowulbytes1.dsg /home/bbs/bulletins/bulletin.8 /home/bbs/bulletins/bulletin.14
+/home/bbs/configs/ddtop_designs/bobowulfiles1.dsg /home/bbs/bulletins/bulletin.9 /home/bbs/bulletins/bulletin.15
+/home/bbs/configs/ddtop_designs/bobowdlbytes1.dsg /home/bbs/bulletins/bulletin.10 /home/bbs/bulletins/bulletin.16
+/home/bbs/configs/ddtop_designs/bobowdlfiles1.dsg /home/bbs/bulletins/bulletin.11 /home/bbs/bulletins/bulletin.17
+/home/bbs/configs/ddtop_designs/bobowcalls1.dsg /home/bbs/bulletins/bulletin.12 /home/bbs/bulletins/bulletin.18
+/home/bbs/configs/ddtop_designs/bobowmsgs1.dsg /home/bbs/bulletins/bulletin.13 /home/bbs/bulletins/bulletin.19

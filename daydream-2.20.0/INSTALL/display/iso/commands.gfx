@@ -1,0 +1,21 @@
+[0m[15C[33m_ _____  _________________ ___ ______   _ _/____
+[16C[36m_____ \[33m/ [36m____[33m\  [36m________/[33m/   [36m\[33m_    [36m/_____[33m/    [36m/
+[17C[33m/   \[36m__/   /[33m/\[36m/ ____/[33m_ /   \[36m__   /[33m/    /    [36m/
+[16C[33m/    [36m/[33m/    [36m/[33m/    [36m/    /[33m/    [36m/    /[33m/    /    [36m/
+[15C[33m/[36m____/[33m/    [36m/[33m/[36m_________/[33m/[36m____/____/[33m/[36m_________/
+[20C[33m/[36m____/ [32m[AdK]
+
+ [36mFile Commands[14CMessage Commands[10COther
+
+ [34m[ [36mD [34m]  [35m- [0mDownload[10C[34m[ [36mC [34m]  [35m- [0mComment[10C[34m[ [36mA [34m] [35m- [0mAlter userdata
+ [34m[ [36mF [34m]  [35m- [0mList Files[8C[34m[ [36mE [34m]  [35m- [0mEnter message    [34m[ [36mB [34m] [35m- [0mBulletins
+ [34m[ [36mN [34m]  [35m- [0mNew file scan[5C[34m[ [36mR [34m]  [35m- [0mRead messages    [34m[ [36mG [34m] [35m- [0mDisconnect
+ [34m[ [36mT [34m]  [35m- [0mTag Editor[8C[34m[ [36mM [34m]  [35m- [0mChange base[6C[34m[ [36mJ [34m] [35m- [0mChange conf
+ [34m[ [36mU [34m]  [35m- [0mUpload[12C[34m[ [36m>> [34m] [35m- [0mNext base[8C[34m[ [36mL [34m] [35m- [0mLocal time
+ [34m[ [36mZ [34m]  [35m- [0mZippy search[6C[34m[ [36m<< [34m] [35m- [0mPrev base[8C[34m[ [36mO [34m] [35m- [0mPage SysOp
+ [34m[ [36mNS [34m] [35m- [0mGlobal new scan   [34m[ [36mMS [34m] [35m- [0mMail scan[8C[34m[ [36mS [34m] [35m- [0mStatistics
+ [34m[ [36mSF [34m] [35m- [0mSelect file confs [34m[ [36mSM [34m] [35m- [0mSelect msg bases [34m[ [36mX [34m] [35m- [0mExpertmode
+ [34m[ [36mUD [34m] [35m- [0mHydra transfer[30C[34m[ [36m> [34m] [35m- [0mNext conf
+[54C[34m[ [36m< [34m] [35m- [0mPrev conf
+[54C[34m[ [36mMORE [34m] [35m- [0mMore commands
+

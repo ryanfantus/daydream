@@ -1,0 +1,762 @@
+2004-01-05  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed uploads on FreeBSD.
+
+2004-01-03  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * merged the security patches for libdd from Jann Fischer.
+
+        * FTP background checker was broken in 2.14.8, probably due
+          to lack of sleep.
+
+2004-01-01  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * DayDream and the FTP daemon create the temporary directory
+          if it does not exist. Removed the obsolete --with-tempdir
+          option from 'configure'.
+
+        * buffer overflow in main menu prompt building code.
+
+2003-12-29  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * FTP daemon no longer writes to wtmp, it was useless for
+          real logging purposes.
+
+2003-12-26  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * added the -v option to runas to fix the incorrect "archive
+          check failed" error message when viewing archive contents.
+
+        * fixed the archive checker which passed all archives,
+          faulty or not.
+
+2003-12-25  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * checking of duplicate files in temporary directories before
+          upload was broken for dialup lines.
+
+2003-12-21  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * FTP daemon no longer supports the -u switch. The umask
+          should have been 007 anyway.
+
+2003-12-13  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * the ~#NC display code caused the reading of a text file 
+          to stop on the next display code, while it should have 
+          only inhibited their interpretation.
+
+        * format string vulnerability in the ~#RA display code.
+
+        * format string vulnerability in the FTP daemon.
+
+        * FTP background checker read its input from the FTP session
+          control stream.
+
+2003-11-15  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * FTP daemon does not rely on vfork() semantics anymore.
+
+2003-07-25  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * FTP daemon leaked file descriptors, causing eventually
+          a hang, fixed.
+
+        * added configuration item to provide the correct runtime
+          library path for doors even when they are invoked from
+          a DayDream process invoked from the FTP daemon. Read
+          'docs/UPDATING' for more information.
+
+	* door programs could hang the board if they did not
+          connect the door socket, fixed.
+
+2002-12-31  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed the creation of temporary directory.
+
+2002-12-30  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * sometimes file_id.diz files were not extracted 
+          correctly when using ftp and background checker.
+
+        * uploaded files with no file_id.diz are no longer
+          deleted when using 'site upload' feature on ftp.
+
+        * date extraction from file_id.diz files somehow
+          got broken in 2.14.5, fixed.
+
+        * fixed Y2k bug in ddftpd's MDTM command.
+
+2002-12-25  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed curses problem in NetBSD.
+
+        * rewrote utmp handling code for NetBSD.
+
+2002-12-23  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * eliminated the haunting yacc dependency at last.
+
+        * fixed compiling problems on OpenBSD 3.2.
+
+        * running now on a new platform, Solaris 8.
+
+2002-12-01  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * wrote workaround for using ddftpd behind NAT,
+          read 'docs/HOWTO-ftp' for further information.
+
+2002-11-29  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed compiling problems on current Linux distributions.
+
+2002-05-27  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed race conditions in the upload checker.
+
+        * fixed a race condition in the 'view' command.
+
+        * fixed a file descriptor leak in find_file().
+
+2002-05-15  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * optimizations in zmodem resulted in massive speed gain.
+
+2002-05-12  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * ddwho and ddftpwho did not work unless they were
+          run as 'bbs' user.
+
+2002-05-09  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed a symlink vulnerability in the upload checker.
+
+        * linked statically to libddcommon to increase security in
+          telnetd and ftpd.
+
+        * removed operating system banner from ddtelnetd.
+
+        * fixed the handshaking bug in ddtelnetd which prevented 
+          Amiga users connecting via telnet.
+
+        * the upload statistics screen was messed up due to incorrect
+          length computation for strings containing ANSI control codes.
+
+2002-05-05  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed another segmentation fault, as a side effect
+          viewing text one screen at a time works again.
+
+        * doors died in 2.14.4-rc2 after the idle timeout
+          had elapsed and "disconnect on timeout" was disabled.
+
+2002-05-04  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+	* fixed segmentation fault in strndup() emulation.
+
+        * fixed broken "disable idle timeout" feature, patch
+          submitted by PinkFreud <pf-daydream@mirkwood.net>.
+
+        * FTP daemon claimed that all nodes are full because
+          it did not setegid() before trying to write /tmp/dd.
+
+2002-04-27  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed the "cannot open console" problem.
+
+2002-03-29  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+ 
+        * fixed tosser's erroneous open(..., O_RDONLY).
+
+2002-03-28  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * 'secure.sh' asks the user whether the ownerships of
+          the temporary directory should be modified.
+
+2001-12-31  Jann Fischer  <rezine@criminology.de>
+
+        * wrote a login wrapper "ddlogin".
+
+2001-12-31  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * the archive checking is implemented more securely.
+
+        * wrote an armoring script to set up the correct
+          ownerships and permissions for files and directories. 
+
+        * coded a small wrapper 'runas', which can used to
+          execute programs with different UID or GID.
+
+        * wrote a guide about recommended permissions and
+          ownerships of files, read 'docs/SECURITY'.
+
+        * drop privileges as soon as possible. 
+
+        * text search worked only in the current message base.
+
+        * some messages could have been unreadable due to
+          typo in 'readmsgs.c'.
+
+2001-12-30  Jann Fischer  <rezine@criminology.de>
+
+        * restricted access to "$" command to sysops only.
+
+2001-12-30  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * password prompt was displayed even if the door had
+          not password.
+
+2001-12-29  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed prevention of multiple logins if ALLOW2LOGINS
+          is set to 'N'.
+
+        * text file control codes ~#MC, ~#TF and ~#RA were
+          vulnerable to buffer overflow attack. Although there 
+          are no known exploits, an attacker could run arbitrary
+          code on whatever UID DayDream was running on.
+
+        * a typo slipped into tosser's sources.
+
+2001-12-27  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed buffer overflow bug in ~#MC command.
+
+        * fixed tosser's outbound mail handler.
+
+        * deprecated CHATCMD, CHATMODE, DISABLEWILDS, QUESTIONS,
+          QUICKLINEED, ARC_TYPE and ARC_OFFLINE in 
+          'daydream.cfg'.
+
+        * fixed ddftpwho, ddftpd, server and yelld not 
+          to use procfs.
+
+2001-12-19  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * fixed ddwho not to use procfs.
+
+2001-11-18  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * missing .gfx/.txt files are syslogged on 'local2'
+          facility with 'debug' criticality.
+        
+        * added password support for doors.
+
+        * made it possible to keep DayDream silent about
+          invalid user accounts in login.
+
+        * the '\s' token can be used in strings.xxx to omit
+          the rest of the line, even newlines.
+
+        * new account creation can be completely disabled.
+
+2001-11-16  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+
+        * added ASKDISPLAY option to 'daydream.cfg'.
+
+2001-09-09  Hannu Lyytinen  <hlyytine@cs.uku.fi>
+ 
+        * daydream.m4 contains AM_PATH_DAYDREAM for easier
+          door programming.
+
+        * fixed C++ calling conventions in door library.
+
+2001-07-15  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * report verbosely if failed to execute a door. 
+
+2001-07-13  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * provided logout() from OpenBSD-current libutil
+          as an alternative for missing one. In other
+          words, libutil is not needed on Linux anymore.
+
+        * replaced the old telnet daemon with the one
+          checked out from OpenBSD-current CVS tree. 
+          It has been modified to negotiate the binary
+          transmission mode and to warn on failure.  
+
+2001-07-11  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * message reading command 'keep' was broken.
+
+        * fixed another file descriptor leak.
+
+2001-07-09  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * catalog-based dupechecker searched only the 
+          first conference for duplicate files. Fixed.
+
+        * ddftpd erroneously uploaded the file into user's
+          last joined conference, if SITE UPLOAD command
+          was not given.
+
+        * fixed Python-specific compilation problems.
+
+        * fixed Hydracom compilations problems on Linux.
+
+2001-07-06  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * fixed the stdio handler so that the child process
+          gets a controlling terminal of its own. Now the
+          control-C and such key combinations work and it 
+          does not die on OpenBSD anymore.
+
+        * disappearing uploads when using ddftpd is cured. 
+          Read "docs/HOWTO-ftp" for further information.
+
+        * fixed a printf() format bug that caused segmentation
+          fault on FreeBSD in stats screen. You should read
+          "docs/UPDATING".
+
+        * stdio handler code had a bug that prevented
+          the correct operation of background checker.
+
+2001-07-05  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * /proc not needed anymore, kill(2) is used instead.
+          A mounted procfs was a security issue on OpenBSD.
+
+        * traditional PTY allocation is attempted if the
+          /dev/ptmx-based allocation fails.   
+
+        * another possibility of segmentation fault 
+          eliminated in display.c, stripansi().
+
+        * fixed background checker bug, which corrupted
+          userbase on OpenBSD.
+
+2001-07-04  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* idle timeout on local nodes works again.
+
+        * fixed the nasty bug in background checker.
+
+2001-06-29  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * ddsnoop works now on OpenBSD 2.9 and FreeBSD 4.3.
+
+2001-06-28  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* telnet nodes do not jam on startup on OpenBSD 2.9.
+	  Jann Fischer provided the bug fix.
+
+	* fixed ddcfg's file permissions.
+
+        * file descriptor leak fixed in the userbase code.
+
+2001-03-03  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * DayDream 2.13 released.
+
+2001-03-01  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * ddcfg used erroneously umask 0.
+
+2001-02-21  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * fixed the 'sysop login' and 'usered' options
+          in the builtin frontdoor. 
+
+2001-02-20  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+        * the telnet connections do not jam anymore on
+	  NetBSD and OpenBSD.
+
+        * the whole login session was terminated on NetBSD
+	  or OpenBSD when one logged out of DayDream. Fixed.
+
+2001-01-26  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed problems in ddtelnetd (missing _PATH_LOGIN).
+
+2001-01-15  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed documentation (correct TTY type enumeration).
+
+2001-01-07  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* ddcallers didn't update the list at all on FreeBSD.	  
+
+2001-01-01  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* stdio code had a bug that caused typed characters
+	  appear too slowly. 
+
+2000-12-02  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* Phillip O'Donnell wrote the dosdoor support code.
+	  Merged the patch into source tree.
+
+2000-11-19  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed last callers display in built-in front door.
+          The contents were bogus on FreeBSD.
+
+2000-10-07  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* Charles Mauch sent a diff containing new commands for
+	  readmsgs.c. Two commands merged from diff, namely 
+	  "jump to previous/next message base" while reading
+	  messages.
+
+2000-09-23  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* corrected handling of CR/LF for connections coming
+	  from Microsoft Windows clients.
+
+2000-08-19  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed buffer overflow in stats screen.
+
+2000-08-18  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* deleted users were shown in the userlist.
+
+2000-08-12  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* hanging up after daily time limit fixed.
+
+2000-07-12  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* 2.11 released.
+
+	* fixed a file descriptor leak in userbase code.
+
+	* fixed the hangup bug under NetBSD and OpenBSD.
+
+2000-07-10  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* added '--with-server' to 'configure'.
+
+2000-07-09  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* made command history private.
+
+	* fixed cosmetic bug in login screen.
+
+2000-07-08  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* enterbbs() had segmentation fault bug.
+
+	* fixed the bug in strspace() and strtoken().
+
+2000-06-30  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed another overflow bug in 'doorport.c'.
+
+	* NetBSD and OpenBSD compatibility announcement.
+
+	* made lots of global symbols local.
+
+2000-06-04  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* added configure-test for O_SYNC.
+
+2000-06-03  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed a logical mistake in main/unix.c, O_NONBLOCK
+	  was not set on node's communication socket.
+
+2000-05-28  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* "add to top" feature removed.
+
+2000-05-27  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* replaced getwd()'s with getcwd() in ftp-daemon.
+
+	* wrote 'daydream-config' for makefiles.
+
+2000-05-26  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* strspa() does now check the length of destination string.
+
+	* wrote 'configure' test for IUCLC and XCASE in 'termios.h'.
+
+2000-04-29  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed the upload code which messed with the stack and
+	  caused a segfault after upload.
+
+2000-04-24  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* ddftpd was never compiled.
+
+2000-04-07  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* default configuration file allows new users to join
+	  conference #1.
+
+	* files of exactly 10000000 bytes long weren't added 
+	  correctly into file catalogs.
+
+	* fixed segfaulting new user search in usered.
+
+2000-04-05  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* userbase code rewritten again.
+
+2000-03-23  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* documented the door parameter tokens into 
+	  'docs/html/setup.html'.
+
+	* added the need for 'chown bbs:bbs /tmp/dd' to 'INSTALL'.
+
+	* fixed the stdio handling code, the output of very quick
+	  programs (e.g. '/bin/echo') was not shown at all.
+
+	* made the command line tokens available for DDDI doors 
+	  in daydream.cfg applicable to stdio programs as well.
+
+2000-03-01  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* added possibility to add new files to the top of the
+	  file catalog.
+
+2000-02-22  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* first steps towards the use of syslog.
+
+2000-02-21  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* new file scan was still broken by Y2k in the conferences
+	  using long file names.
+
+2000-02-13  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* rewrote some of the tests in 'configure' to keep some
+	  old shells quiet.
+
+	* ^C did not interrupt the disconnection sequence in
+	  case the background checker was used.
+
+	* fixed a bug that caused the program to loop infinitely
+	  in automatic disconnect after upload.
+
+	* automatic disconnect after upload was broken due to the
+	  buffer overflow bug in DDPut(), namely it segfaulted.
+
+	* fixed a buffer overflow which caused a segfault whenever
+	  a string consisting only of carriage returns was printed.	 
+
+2000-01-23  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* added an option for alternative temporary directory 
+	  into configure.
+
+2000-01-22  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* ddftpd is not compiled if yacc is not found.
+
+	* added check for libtermcap, telnetd requires it.
+
+2000-01-20  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* rewrote user handling code.
+
+2000-01-13  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* added HOWTO-telnet to distribution.
+
+2000-01-08  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* user was not disconnected correctly in case of wrong 
+	  system password.
+
+	* added panic() for emergency situations.
+
+	* fixed the Unix98 PTY support.
+
+	* fixed the built-in frontdoor that didn't invoke the board
+	  at all.
+
+2000-01-07  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* ddsz and ddrz were not symlinked by the installer.
+
+2000-01-04  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* nodemessages are send via non blocking sockets in order
+	  to avoid the malfunction of the whole board in case a
+ 	  single node locks up.
+
+	* fixed telnetd, it didn't do anything but dumped core.
+
+2000-01-03  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed a socket descriptor leak in doorport.
+
+2000-01-02  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* aliens/ is now created by the installer for new
+	  installations.
+
+	* coded the "$"-command.
+
+	* implemented the "log"-command at last.
+
+	* text files were always viewed without any pause.
+
+	* found and fixed a segmentation fault in the menu code.
+
+	* fixed Y2K problems.
+
+1999-12-28  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed the failing compile on glibc 2.0.
+
+1999-12-24  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed a bug that broke the expansion of the %e token in 
+	  filenames and therefore only .gfx files were shown.
+
+	* removed all Windows and OS/2 related code and got rid of
+	  unnecessary -DUNIX define.
+
+1999-12-23  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed the "continue" selection in userdata editor.
+
+	* rewrote HotKey() for better understanding of it.
+
+	* default menu bindings were not provided for local or sysop logins
+	  from the build-in frontdoor.
+
+	* serial TTY is opened in non-blocking mode, since open() jammed.
+
+	* local or sysop login from the built-in frontdoor dumped core.
+
+1999-12-21  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* eliminated half the goto statements in the source code.
+
+	* entering a message to a user, who has been granted access to
+	  the conference but who has never joined into it works now OK.
+
+	* moved access controlling code to "access.c". Access control
+	  data is reread from disk every time it is needed. 
+
+	* wrote "user.c", setpwent()-like userbase routines and removed
+ 	  direct accesses to the userbase file from the rest of code.
+
+1999-12-19  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* fixed the initial strings in ddcallers' slots.
+
+	* fixed a bug in ddcallers that caused the yesterday's statistics
+	  to accumulate into today's statistics.
+
+	* fixed the option `-e' (exclude sysop) in ddcallers.	
+
+1999-12-04  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* view-command works again.
+
+	* getdd.py gets installed if Python support is compiled.
+
+	* fixed broken Python support.
+
+1999-12-01  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* traced down many memory leaks in menus.c, typetext.c and
+	  display.c.
+
+	* fixed a bug in the menu code, pop_menu was still broken.
+
+	* added ddfv to the supplied "daydream.cfg".
+
+1999-11-29  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* wrote HOWTO-telnet.
+
+	* wrote spec-file for RPM packaging.
+
+	* compile with -D_GNU_SOURCE to include the declaration of getpt(). 
+
+1999-11-24  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* getpty() supports Unix98 pty's as well.
+
+1999-11-09  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* when creating a doorport, malfunctioning doors that continued
+	  to run even if socket binding failed were not killed properly.
+
+1999-11-03  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* the doorport is now re-entrant, so invoking a door within
+	  a running door does not cause lock-ups.
+
+1999-11-02  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* dumped 'mklinks', 'make install' does the job now. Old links
+	  are removed befored creating symlinks. No unnecessary links
+	  are made.
+
+	* changed the maximum number of fileareas per conference back
+	  to 256, since some old binary-only doors (e.g. saturnjoin) 
+	  didn't like the changed field size.
+
+1999-10-31  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* modified the menu code a bit; default menu bindings are provided
+	  by the program, instead of forcing the user to supply them. Thus,
+	  one doesn't need to know about the new menu system at all.
+
+1999-09-26  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* symlinks are created by 'mklinks'. Symlinks and ownerships should
+	  be set correctly now.
+
+	* some weird segfaults found in usered and filelist under FreeBSD.
+	  They are fixed now, but I don't know the real reason behind them.
+
+1999-09-25  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* FreeBSD support reincarnated.
+
+1999-09-23  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* pop_menu-command was broken.
+
+	* better fix for argument passing in the menu code.
+
+1999-09-21  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* autojoinconf-feature was completely broken.
+
+	* menu commands "internal" and "door" pass the command
+	  arguments correctly; userlist was broken because of this.
+
+1999-09-20  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* 'make new-board' works ok for different source & compile paths.
+
+	* ddcfg creates all directories correctly now.
+
+1999-09-19  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* "command" didn't pass the arguments correctly.
+
+	* command redefinition didn't work in the menu code.
+
+	* added support for multiple concurrent compiles.
+
+1999-08-08  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* TypeFile(): TYPE_SEC flag wasn't handled correctly, namely it
+	  attempted to print the file without security extension first.
+	 
+	* TypeFile() and friends: cleaned and generalized a bit. The
+	  filename tokens are handled here, not in menus.c (they
+	  appeared originally there).
+
+1999-08-01  Hannu Lyytinen  <hlyytine@masto.uku.fi>
+
+	* Started this ChangeLog.
+
+	* Converted the whole package to use Automake.
+
+	* Python module is now called `libddpython.so', not `_dd.so'.

@@ -1,0 +1,330 @@
+msgreadnmb:\e[35mNo messagebases in this conference.\e[0m\n\n
+mmfloodkillstr:\e[31mExcessive carriage return.\e[0m\n\n
+mmunknowncmd:\e[31mUnknown cmd!\e[0m\n\n
+usernamestr:\e[36mUsername: \e[0m
+passwordstr:\e[36mPassword: \e[0m
+tryagainstr:\e[35mTry again!\n
+excessivepwfailstr:\n\e[35mExcessive password failure!\n\n
+unknownuserstr:\n\e[33mNo such user. Type \e[32mNEW\e[33m if you're a new one!\n\n
+disconnectingstr:\e[35mDisconnecting...\n\n\e[0m
+missingtextstr:%s: cannot locate textfile\n
+pausestr:[34m([35mPaused[34m)[0m
+morepromptstr:[0mMore: [35mY[36m)[0mes, [35mN[36m)[0mo, [35mC[36m)[0montinuous?: 
+yesstr:Yes\n
+nostr:No\n
+accountedstr:[33mPlease wait while sysop is editing userdata...
+newsure1str:[0mAre you sure to register? [35m([36mYes[35m/[36mno[35m)[0m: 
+newalreadystr:[35mAlready exists user with that name!\n
+newrealstr:\e[32mReal Name   : \e[33m
+newhandlestr:\e[32mHandle      : \e[33m
+neworgstr:\e[32mOrganization: \e[33m
+newzipstr:\e[32mZip & City  : \e[33m
+newphonestr:\e[32mPhonenumber : \e[33m
+newpasswdstr:\e[32mPassword    : \e[33m
+newcpustr:\e[32mComputer    : \e[33m
+newslstr:\e[32mScreenlength: \e[33m
+newminslstr:[35mMinimum screenlength is 10!\n\n
+newsavingstr:[36m\nSaving account...
+newsaveokstr:[0m Ok!\n\n
+newslhelpstr:\n[35mNumber at the top of your screen indicates screenlength\n
+newqerrorstr:\nCan't open questionnaire/questions\n\n
+newverifystr:[0mAre these answers ok? [35m([36mYes[35m/[36mno[35m)[0m: 
+wildverstr: [0;32m([33m%s[32m/[33m%s[32m)[36m? [32m([33mY[32m/[33mn[32m)[36m:[0m 
+uberrstr:[0mCan not open data/userbase.dat\n
+ubrerrstr:\n[35mReading userbase failed!\n
+secerrstr:Can't find security information...\n\n
+selerrstr:\n\nCan't open selected.dat!\n\n
+scanformailstr:\n[36mScan for mail? [32m([33mYes[32m/[33mno[32m)[36m:[0m 
+scanforfilesstr:\n[36mScan for new files? [32m([33mYes[32m/[33mno[32m)[36m:[0m 
+joinconferrstr:Cannot join any conference. Byebye!\n\n
+pause2str:[35m([34m...[36mPress any key[34m...[35m)
+obso1str:[0m[[32m%ld[0m] [35m%s [0m[[36m%ld:%s[0m] [[36m%ld[0m/[36m%ld[0m] [[33m%ld[0m]: 
+accessdeniedstr:\nAccess denied!\n\n
+expertoffstr:\n[0mExpert mode off!\n\n
+expertonstr:\n[0mExpert mode on!\n\n
+ltimestr:\n[36mLocal time is [0m%s[36m.\n
+uepwstr:\n[0mPassword: [36m
+accden2str:\n[0mAccess Denied!\n\n
+stats1str:[2J[H[0;32mName         [33m: [0m%-26.26s[32mScreen Length  [33m: [0m%03.d\n
+stats2str:[32mHandle       [33m: [0m%-26.26s[32mSecurity Level [33m: [0m%03.d\n\n
+stats3str:[32mZip And City [33m: [0m%-26.26s[32mTime [33m/ [32mPages   [33m: [0m%d [33m/ [0m%d\n
+stats4str:[32mOrganization [33m: [0m%-26.26s\n
+stats5str:[32mMsgs Written [33m: [0m%d [32mPublic And [0m%d [32mPrivate\n\n
+stats6str:[32mUploads      [33m: [0m%11.11qu [32mBytes <[33m*[32m> [0m%10.10hu [32mFiles[0m ([32mFile Ratio [36mUL[0m:[36m%s[0m)\n
+stats7str:[32mDownloads    [33m: [0m%11.11qu [32mBytes <[33m*[32m> [0m%10.10hu [32mFiles[0m ([32mByte Ratio [36mUL[0m:[36m%s[0m)\n\n
+stats8str:[32mLogin History[33m: [36mFirst [0m%-20.20s [36mLast [0m%20.20s ([32mT[33m: [0m%ld)\n\n
+stats9str:[32mVoice Number [33m: [0m%-26.26s [32mXPR Protocol  [33m : [0m%s\n\n
+stats10str:[32mComputer[33m     : [0m%s\n
+stats11str:[32mUL Signature [33m: [0m%s\n\n
+disastr:Disabled
+togglinestr:[33m%3.1ld[32m) [36m%-25.25s : [0m%-3.3s 
+ontlinestr:\n[0m%s is now turned on!\n
+offtlinestr:\n[0m%s is now turned off!\n
+asktlinestr:\n[0m%s is now asked everytime!\n
+eupromptstr:[36mUser Data Editor [32m([33m1[32m-[33m10[36m, [32m([33mA[32m)[36mbort, [32m[[33mC[32m][36montinue, [32m([33mS[32m)[36mwitches, [32m([33mV[32m)[36miew[32m)[36m:[0m 
+eu1str:[32mReal Name : [33m
+eu2str:[32mHandle : [33m
+eu3str:[32mOrganization : [33m
+eu4str:[32mLocation : [33m
+eu5str:[32mPhonenumber : [33m
+eu6str:[32mPassword : [33m
+eu7str:[32mScreen length : [33m
+eu8str:[36mSelect your default transfer protocol [32m([33mEnter [32m= [33mQuit[32m)[36m:[0m 
+eu9str:[32mSignature : [33m
+eu10str:[32mComputer : [33m
+euabortedstr:[0mAborted...\n
+eusavedstr:[0mSaved.\n
+ts1str:Mailscan
+ts2str:Filescan
+ts3str:Full screen editor
+ts4str:Allow nodemessages
+ts5str:Quick uploading
+tsyesstr:YES
+tsnostr:NO
+tsaskstr:ASK
+tspromptstr:\n[36mField to change or [32m[[33mS[32m][36mave, [32m([33mA[32m)[36mbort, [32m([33mV[32m)[36miew: [0m
+tbclinestr:[33m%3.ld[32m) [36m%-25.25s : [0m%-3.3s 
+tbpromptstr:\n[36mMsgbase number(s) to toggle[34m, [33m+ [32m= [36mturn all ON [34mor [33m- [32m= [36mturn all OFF[34m,\n[33mC[32m)[36mancel, [33mS[32m)[36mave or [33mV[32m)[36miew:[0m 
+tballoffstr:[0m\nAll message bases in this conference are now turned off!\n
+tballonstr:[0m\nAll message bases in this conference are now turned on!\n
+tcpromptstr:\n[36mConference number(s) to toggle[34m, [33m+ [32m= [36mturn all ON [34mor [33m- [32m= [36mturn all OFF[34m,\n[33mC[32m)[36mancel, [33mS[32m)[36mave or [33mV[32m)[36miew:[0m 
+tcalloffstr:[0m\nAll conferences are now turned off!\n
+tcallonstr:[0m\nAll conferences are now turned on!\n
+userlheadstr:\n[35mNAME                  HANDLE                ORGANIZATION              SEC CALLS\n[34m-------------------------------------------------------------------------------\n
+userllinestr:%-21.21s %-21.21s %-25.25s %3.3ld %5.5ld\n
+userltailstr:\n[35mAccount Listing Summary\n[34m-----------------------\n[32mSystem Operators    [33m: [0m%5.5ld       [32mTotal Listed    [33m: [0m%5.5ld\n[32mCo-System Operators [33m: [0m%5.5ld       [32mFrozen Accounts [33m: [0m%5.5ld\n
+jcpromptstr:[0mSelect a conference to join (L for list): [36m
+jcnoaccessstr:[0mYou have no access to join that conference.\n\n
+jcnoconfstr:[0mConference not found!\n\n
+cmbonlymsgsstr:\n[35mOnly one messagebase in this conference!\n\n
+cmbselectstr:\n[36mSelect one of the message bases [32m([33mL[32m)[36mist[36m:[0m 
+cmberrlrpstr:ERROR! Can't access lastreadpointers!\n\n
+cmbstat1str:\n[0;32mMessage Base       [33m: [0m%-20.20s      [32mTotal Messages      [33m: [0m%ld\n
+cmbstat2str:[32mLast Message Read  [33m: [0m%-9d                 [32mAuto Scanned        [33m: [0m%ld\n
+cmbstat3str:[32mLowest Message     [33m: [0m%-9d                 [32mHighest message     [33m: [0m%ld\n\n
+cmbunkbasestr:\n[35mCannot locate specified message base!\n\n
+emnomsgsstr:\nNo messages allowed in this base...\n\n
+emhead1str:[2J[H\n[0;34m--[36m[ [0m
+emhead2str: [36m][34m
+emhead3str:[36m[ [0m%5.5lu [36m][34m--\n\n[32mAuthor   [33m:                           [32mStatus   [33m:\n[32mReceiver [33m:                           [32mCreation [33m:\n                                     [32mReceived [33m:\n\n[32mSubject  [33m:\n\n
+emhead4str:[34m------------------------------------------------------------------------------\n[4;49H[0m
+empubstr:Public
+emprvstr:Private
+emhead5str:[5;49H
+emhead6str:[6;49H-[4;12H
+emhead7str:[11;1H[36mEnter name of the receiver [32m([33mEnter [32m= [33mAll Users[36m, [33mSysOp[32m = [33mSystem Operator[32m)[0m      [5;12H          [5;12H
+emhead8str:[11;1H[35mOnly private messages are allowed in this message base! [0m[[36mENTER[0m][35m to proceed.[0m
+emhead9str:[5;12HAll users
+emhead10str:[5;12H<*> All users <*>
+emnopoststr:[11;1H[35mYou are not allowed to post EALL-messages [0m[[36mENTER[0m][35m to proceed.[0m             
+emnouserstr:[11;1H[35mCannot find specified user from the user database. Press [0m[[36mENTER[0m] [35mto proceed.
+emnoaccessstr:[11;1H[35mSpecified user has no access to this conference. Press [0m[[36mENTER[0m] [35mto proceed.
+emsubjectstr:[11;1H[36mEnter subject for the message [32m([33mEnter [32m= [33mAbort Message Entry[32m)[0m                    [8;12H
+emabortedstr:[11;1H[0mMessage entry aborted...                                                   \n\n
+emisprivatestr:[11;1H[0mPrivate message (yes/No)? :
+emnopubstr:\nYou are not allowed to post public messages...\n\n
+emfsedstr:[36mUse full screen editor? [32m([33mYes[32m/[33mno[32m)[36m:[0m 
+emaborted2str:Message entry aborted..\n\n
+emsavingstr:\n[36mSaving message...
+emwriteerrstr:*FATAL* error.. Can't write message!\n\n
+emdonestr:[0mDone!\n\n
+setptrserrstr:*FATAL* error.. Can't write message pointers!\n\n
+leheadstr:\n[33mDayDream BBS Line-Editor v1.00\n[35mEnter your message or [36m'$'[35m alone to enter command mode.\n[34m(----|----------------------------------------------------------------------)\n
+lelinestr:[36m%2.2ld> [0m
+lepromptstr:\n[36mDayDream BBS Line Editor: [32m([33mS[32m)[36mave, [32m([33mA[32m)[36mbort, [32m([33mC[32m)[36mommands:[0m 
+lesureabortstr:\n[36mAre you sure you want to abort? [32m([33myes[32m/[33mNo[32m)[36m: [0m
+ledelstr:\n[36mDelete from line #[0m
+ledeltostr:[36m to line #[0m
+leedlinstr:\n[36mEdit line number: [0m
+leedpstr:[35m%2.2ld> [0m
+lellinestr:[36m%2.2ld[33m> [0m%s\n
+lereperrorstr:\n\n[35mNot replying!\n\n
+lenoquotestr:[0m\n\nQuote not available!\n\n
+lel2str:[36m%3.3ld[32m>[0m%s
+lequotestr:[36mQuote start line [32m([33m1[32m-[33m%ld, [ENTER][36m=All, [33mL[34m)[36mist, [33mA[34m)[36mbort[32m)[36m: [0m
+rmnomsgsstr:\nThis messagebase contains no messages...\n\n
+rmpromptstr:\r[36mMessage Read Options: [32m([33mEnter[32m) [34m= [36mNext, [32m([33mC[32m)[36mommands [32m([33m%ld[32m/[33m%ld[36m;[0m%c[32m)[36m:[0m      [5D
+rmoutstr:\n\nMessage out of range!\n\n
+rmdeletestr:\n\n[35mMessage has been deleted!\n\n
+rmprivatestr:\n\n[35mMessage is private and addressed to someone else!\n\n
+rmallstr:All users
+rmeallstr:<*> ALL USERS <*>
+rmhead1str:[2J[H\n[0;32mAuthor [33m : [0m%-26.26s  [32mStatus  [33m: [0m%s\n
+rmhead2str:[32mReceiver[33m: [0m%-26.26s  [32mCreation[33m: [0m%s
+rmhead3str:[32mMsgBase [33m: [0m%-26.26s  [32mReceived[33m: [0m%s
+rmhead4str:[32mR. Count[33m: [0m%5.5ld\n\n
+rmhead5str:[34m--[36m[ [0m%s [36m][34m
+rmdeletewhatstr:\n\n[35mDelete what???\n\n
+rmdeletealrstr:\n\n[35mMessage already deleted!\n\n
+rmdeletedstr:\n\n[35mMessage deleted!!\n\n
+rmdelnostr:\n\n[35mYou are not allowed to do that!!\n\n
+rmreplynostr:\n\n[35mNo message to reply!\n\n
+psreasonstr:\n[36mEnter the reason: [0m
+pspageoffstr:[35m\nSysOp has turned paging off.\n\n
+pspagingstr:[36m\nPaging %s..
+psabortstr: [0mAborted!\n\n
+psnosysopstr:[0mCouldn't reach sysop!\n\n
+msheadstr:\n[35mScanning for new messages\n\nConference                           Message Base          Progress\n[34m---------------------------------------------------------------------------\n
+mslheadstr:\n\n[35mNumber    From                      Subject                            Status\n[34m------------------------------------------------------------------------------\n
+mslliststr:[33m%5.5ld     [32m%-25.25s [36m%-34.34s [0m%s\n
+mslpromptstr:\n[36mDo you want to read these messages? [32m([33mYes[32m/[33mno[32m/[33mmark them as read[32m)[36m: [0m
+msnewstr:%ld new message(s)\n
+msnonewstr:No new messages!\n
+mstailstr:[34m---------------------------------------------------------------------------\n\n
+dckstr:Checking for duplicate files...
+dckfailedstr:Duplicate found...\n\n	
+nofileareasstr:\n[35mNo fileareas in this conference!\n\n
+nouploadsstr:\n[35mNo uploads allowed in this conference!\n\n
+fnamelenstr:Filename lengths above %d characters are not allowed!\n
+proceedtransferstr:[32m[[33mP[32m][36mroceed - [32m([33mD[32m)[36misconnect after transfer - [32m([33mA[32m)[36mbort: [0m
+localulstr:Local upload: Copy files to %s\n, chown them to bbs and press any key!
+longfstr:[2J[H\n[0m[0;35mFILENAME                           BITS   SIZE  DATE\n[34m--------------------------------------------------------------------------\n[0m
+shortfstr:[2J[H\n[0m[0;35mFILENAME     BITS    SIZE    DATE  DESCRIPTION (44x15 CHARACTERS)\n[34m--------------------------------------------------------------------------\n[0m
+tempemptystr:[35mNo files found in temporary upload directory![0m\n
+linvalidstr:Filename %s is invalid. Rename: [%34.34s][35D
+sinvalidstr:Filename %s is invalid. Rename: [            ][13D
+ullinestr:                          Line #01 
+checkdizstr:Checking for file_id.diz...
+gotdizstr:file_id.diz found!\n\n[35mListing file_id.diz\n\n
+dizlinestr:[0m %2d [34m[[36m%-44.44s[34m]\n
+dizwaitstr:\n[36mWait 3 secs or press enter to save, [33mE[32m)[36mdit, [33mN[32m)[36mew desc, [33mP[32m)[36mrivate, [33mQ[32m)[36muick:[0m 
+lineistr:                          Line #%2.2d 
+entrymenustr:\n[36mFile List Entry [32m[[33mS[32m][36mave, [32m([33mD[32m)[36melete, [32m([33mC[32m)[36mommands:[0m 
+ullineedstr:\n[36mLine number to edit: [0m
+ullineeditingstr:\n[35mEditing: [33m
+unknownlinestr:\n[35mNo such line!\n
+descliststr:\n[35mListing current filedescription\n\n
+testsepastr:\n[34m---------------------------------------------------------------------------[0m\n
+testingarcstr:[35mTesting archive...[0m
+arcokstr:[0mArchive is OK!\n
+arcbrokenstr:[0mArchive is broken! Deleting...\n\n
+arcbroken2str:[0mArchive is broken!\n
+savingulstr:[35mSaving...
+ulerrwritedescstr:Can't write filedesc!\n
+ulokstr:[0mOK!\n\n
+tempcleanerrstr:Cannot clean or create temporary directory!\n
+notfreespacestr:\n[35mNot enough free space for uploading!\n\n
+obso2str:\n[36mFree uploading space: %u bytes (%u bytes at once!)\n\n
+flnoareasstr:[35m\nNo fileareas in this conference!\n\n
+fldatestr:\n[36mStart Scan From [32m([33m-X[34m = [36mX Days Ago, [32m([33mEnter[32m) [34m= [36m%2.2d%2.2d%2.2d, [32m([33mH[32m)[36melp[32m)[36m: [0m
+flzippystr:\n[36mEnter string to search: [0m
+fldirsstr:[36m\nDirectories [32m([33m1[32m-[33m%ld[32m)[36m, [32m([33mA[32m)[36mll, [32m([33mU[32m)[36mpload, [32m([33mL[32m)[36mist, [32m([33mH[32m)[36melp, [32m([33mEnter[32m)[34m=[36mExit: [0m
+flscanningstr:[2J[H\n[33mScanning directory #%3.3ld
+flnoentriesstr:[35m\rNo filecatalog entries found to be listed!\n\n
+flmorestr:[0mMore? [33mY[32m)[36mes, [33mN[32m)[36mo, [33mC[32m)[36montinuous, [33mT[32m)[36mag Files, [33mE[32m)[36mdir, Cursor: 
+flflagstr:\r[0;36mCursor keys to move, Q to quit or <-' to toggle.              
+fltagstr:[%ld;1H[44;36m%s[0m
+fltagoffstr:[%ld;1H[36m%s[0m
+flglobhstr:\n[35mScanning for new files\n[34m-----------------------------------------------------------------------------[0m\n
+flconfstr:[2J[H\n[33mScanning Conference %s[0m\n
+flcol1str:[36m
+flcol2str:[32m
+flcol3str:[33m
+flcol4str:[35m
+flcol5str:[0m
+flz1str:[44;36m
+flz2str:[0;36m
+flz3str:[0;44m
+flz4str:[0m
+tepromptstr:\n[32m([33mR[32m)[36memove, [32m([33mL[32m)[36mist or [32m[[33mQ[32m][36muit: [0m
+teremprstr:\n[36mEnter filename(s) to remove from the list: [0m
+teremovedstr:[36mFile '[0m%s[36m' has been removed from the download request.[0m\n
+tetaggedstr:[36mFile [0m%s [36m([0m%ld bytes[36m) has been added to the download request. 
+tefreestr:[34m([35mFREE[34m)[0m\n
+teulratstr:[35mYou UL:DL FILE ratio is too low for downloading '[0m%s[35m'. Upload![0m\n
+teulbratstr:[35mYou UL:DL BYTE ratio is too low for downloading '[0m%s[35m'. Upload![0m\n
+tealflagstr:[35mYou have already flagged file [0m%s[35m for downloading.\n
+telisthstr:[2J[H[0;32mFILE NAME        LENGTH        TRANSFER TIME ([33m%ld [33mBPS[32m / [33m%s[32m)\n[34m-----------------------------------------------------------------------------\n
+tetailstr:[34m-----------------------------------------------------------------------------\n
+tetotstr:[0mTOTAL            %-13.ld %s\n
+dlnoareasstr:\n[35mNo fileareas in current conference!\n\n
+dlnouploadsstr:\n[35mNo uploads allowed in this conference!\n\n
+dlnotimestr:\n[35mSorry, You do not have enough time remaining to proceed with the download.\n\n
+dlproceedstr:\n[32m[[33mP[32m][36mroceed, [32m([33mD[32m)[36misconnect afterwards, [32m([33mE[32m)[36mdit download request, [32m([33mA[32m)[36mbort:[0m 
+dlautodcstr:[0m[36mYou may abort by pressing [0mCTRL-C\n[36mConnection will be closed in [0m-> [36m10 [0m<- [36mseconds..[0m
+dlclosecstr:Connection closed by automatic disconnection at %s\n
+dlpromptstr:[0;36mDownload [32m[[33m%ld[32m/[33m%s[32m] [[33m%ld[32m/[33m%s[32m][36m: [0m
+dlunlimitedstr:Unlimited!
+dlkillfloodstr:[33mKilling protocol flood...
+gbprstr:\n[36mDisconnect? [32m([33mY[32m/[33mn[32m)[36m:[0m 
+bunobullsstr:[35m\nNo bulletins found!\n\n
+bumenustr:\n[36mSelect bulletin: [33m?[34m=[36mList :[0m 
+whheadstr:\n[32mN  Account Name         Org. / Location           Activity             Bps\n[34m-----------------------------------------------------------------------------\n
+whlinestr:[32m%-2.2d [33m%-20.20s [35m%-25.25s [36m%-20.20s [0m%s\n
+whtailstr:[34m-----------------------------------------------------------------------------\n\n[0m
+syspwstr:[36mSystem password: [0m
+partstr:[0m\nFound partial upload called [36m%s[0m.\n
+res1str:\nUse [36mU[0m-command to resume!\n
+res2str:Resume transfer? [32m([33mYes[32m/[33mno[32m)[36m:[0m 
+resdelstr:[0mDelete file? [32m([33mYes[32m/[33mno[32m)[36m:[0m 
+lcfstr:\n[35mSome losscarrier files found! Copying...
+dltstr:\n[31mDaily time limit exceeded!\n
+timeoutstr:\n[31mTimeout in 30 secs!\n
+noattachstr:\n[35mFile attach not available.\n\n
+insertstr:\n[36mInsert after line: [0m
+afqstr:\n[0mAttach file [36m%s[0m? [32m([33myes[32m/[33mNo[32m)[36m: [0m
+ms1str:[33m%-37.37s
+ms2str:[32m%-21.21s[36m 
+ms3str:[33m%-37.37s[32m%-21.21s [36m
+move1str:\n[36mMove flagged files? [32m([33mY[32m/[33mn[32m)[36m:[0m 
+move2str:\n[36mFiles to move: [0m
+moveerrstr:[35mCan't find file %s\n
+movedstr:\n[36mDestination Conference (L for list): [0m
+movenodstr:\n[35mDestination Conference not found![0m\n
+movenodcstr:\n[35mNo fileareas in destination conference!\n[0m
+movedfstr:[36mDestination Filearea [32m([33m1[32m-[33m%d[32m)[36m:[0m 
+nupstr:[36mNew user password: [0m
+olmdstr:\n[36mEnter the node to send the message to [32m([33mV[32m=[36mView nodes, [33m*[32m=[36mAll Nodes[32m)[36m:[0m 
+olmnouserstr:\n[35mNo user on that node\n
+attachhdstr:\n[36mFollowing files have been attached to this message:\n[34m==========================================================================\n
+attachestr:[0m%s [32m([33m%d [32mbytes)\n
+attachtstr:[34m==========================================================================\n[0mDo you want to download them [32m([33myes[32m/[33mNo[32m)[36m:[0m 
+edhfstr:[36mFrom: [0m
+edhtstr:[36mTo  : [0m
+edhsstr:[36mSubj: [0m
+edhpstr:[36mPrivate (yes/No): [0m
+uldeststr:[36mDestination filearea [34m([35m1-%d, U=upload, L=list[34m)[36m?: [0m
+viewstr:\n[36mFiles to view: [0m
+viewunkastr:[35mUnknown archive type (%s)\n
+viewnosupstr:[35mViewing is not supported for %s\n
+viewlamerstr:[35mYou are not authorized to view %ss\n
+viewnostr:[35mCouldn't find or access %s\n
+flflag2str:\r                                                                      \r[36mFilename(s) to flag: [0m
+flresstr:\r                                                                    \r[36m%d [0mfiles successfully flagged! [35m<ENTER>[35m
+alreadyonlinestr:[35mYou're already logged on. \n\n
+newucstr:\n\e[33mNo such user. Do you want to create an account? [32m([33myes[32m/[33mNo[32m)[36m: [0m
+eu11str:[36mMax lines in file descriptions [32m([33m0 [32m= [33mUnlimited[32m)[36m:[0m 
+olmnomsgstr:\n[35mUser is refusing messages\n
+mainmenustr:[0m[[32m~N[0m] [35m~C [0m[[36m~L:~M[0m] [[36m~A[0m/[36m~E[0m] [[33m~T[0m]: 
+mainmenustrnmb:[0m[[32m~N[0m] [35m~C [0m[[36mno messagebases[0m] [[33m~T[0m]: 
+ftp1str:[0m\nFound file(s) in incoming ftp-directory.\n\nUse [36mU[0m-command to put them online!\n
+ftp2str:[0m\nFound file(s) in incoming ftp-directory.\n\nDo you want to put them online now? [32m([33mY[32m/[33mn[32m)[36m:[0m
+ts6str:Background checker
+w4bgcheckstr:[33mPlease wait while background checker is being finished...
+emnofidomsgstr:\n[0mYou are not authorized to post echomail.\n
+emnonetmsgstr:\n[0mYou are not authorized to post netmail.\n
+emnetaddstr:[36mDestination address ([35mzone:net/node.point[36m): [0m
+emnetcrashstr:\e[36mCrash mail?\e[35m
+emnetkillstr:\e[36mKill mail?\e[35m
+starstr:[0m*
+gbpr2str:\n[35mThere are files flagged.\n\n[36mDisconnect? [32m([33mY[34m)[35mes, keep them flagged[32m/[33mn[34m)[35mo[32m/[33mc[34m)[35mlear list and logoff[32m)[36m:[0m 
+clearfstr:Clear and go!
+alreadyflagstr:[35mSome previously flagged files found. Checking...
+alrdonestr: [36mDone. %d files flagged.\n
+freespacestr:\n[36mFree uploading space: %qu bytes (%qu bytes at once!)\n\n
+flfrater2str:\e[32mYour fileratio doesn't allow downloading. \e[35mUpload! \e[36m<PAUSE>
+flbrater2str:\e[32mYour byteratio doesn't allow downloading. \e[35mUpload! \e[36m<PAUSE>
+flexister2str:\e[32mFile doesn't exist on hard disk. \e[36m<PAUSE>                       
+maxattemptsstr:\n\e[31mMaximum attempts reached.\n\n
+delorigstr:\e[0mDelete original message? [32m([33mYes[32m/[33mno[32m)[36m: [0m
+ulstathdrstr:\n\e[0mUpload statistics\n\e[36m=================\n\e[32mType              Files         Bytes       Dupes      OK Files    OK Bytes\n\e[33m---------------------------------------------------------------------------\n
+ulstatlinestr:\e[35m%-12.12s \e[36m%10d %13d \e[31m%11d \e[0m%13d %11d\n
+ulstattailstr:\e[33m---------------------------------------------------------------------------\n\e[35mTOTAL \e[36m%17d %13d \e[31m%11d \e[0m%13d %11d\n
+ulstatnormstr:Normal
+ulstatbackstr:Background
+retrypasswdstr:\e[32mVerify      : \e[33m
+nomatchretrystr:[35mPassword mismatch\n
+euverifypwstr:[32mVerify : [33m
+eunomatchstr:[35mPassword mismatch\n
+msllheadstr:\n\n[35mNumber  From               To                 Subject      \n[34m------------------------------------------------------------------------------\n
+msllliststr:[33m%5.5ld   [32m%-18.18s [36m%-18.18s [0m%-30.30s\n

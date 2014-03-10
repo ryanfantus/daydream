@@ -1,0 +1,9 @@
+Your message signature (autosig) will be displayed below.
+
+You may optionally create a new sig, up to 3 lines.
+
+Blank signatures will be ignored.
+
+Here is your autosig:
+
+

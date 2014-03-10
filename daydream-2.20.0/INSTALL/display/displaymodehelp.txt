@@ -1,0 +1,6 @@
+
+1) Latin-1 + ANSI
+2) Latin-1 + ASCII
+3) IBM     + ANSI
+4) IBM     + ASCII
+

@@ -1,0 +1,12 @@
+
+ [33mS [0m<=> [32mSave message
+ [33mA [0m<=> [32mAbort writing message
+
+ [33mR [0m<=> [32mResume editing
+ [33mE [0m<=> [32mEdit a single line in the message
+ [33mD [0m<=> [32mDelete specified lines
+ [33mL [0m<=> [32mList editor buffer contents
+ [33mI [0m<=> [32mInsert line(s)
+
+ [33mQ [0m<=> [32mInsert quote
+ [33mP [0m<=> [32mEquip message with a password

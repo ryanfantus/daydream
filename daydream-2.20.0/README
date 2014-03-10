@@ -1,0 +1,10 @@
+For first time installation only!
+
+As root,
+
+sh install.sh
+
+And follow the instructions.  :)
+
+
+For upgrades, refer to UPGRADE

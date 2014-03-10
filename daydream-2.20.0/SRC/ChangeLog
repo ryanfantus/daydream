@@ -1,0 +1,201 @@
+Fri Jul 19 21:58:00 EST 2013
+
+* Removed all POR code.  This is easily a patch or something, but the original
+  developers were kind of opposed to this idea for now (unless we can make
+  it REALLY clean).
+
+* Began implementing sexyz 32 bit zmodem/ymodem-g transfers.  This is a beta
+  feature and not production.
+
+* Began building SQL support into beta versions
+
+* Registered daydreambbs.com and threw a git repo on there
+
+Tue Nov 22 01:45:00 MST 2011
+
+* Added preliminary glftpd support along the lines of Project Oldskool Revenge.
+  Added a lot of code thanks to glAsh.  Temporarily broke the diz checker for
+  zmodem and ddftpd uploads.  Hopefully fixed now.
+
+  ** I can't test glftpd - don't have / want it set up on monterey! **
+  ** Need glftpd / POR testers!!! **
+
+  ** See file "UPGRADE" !!! **
+
+* Fixed a few install time issues.  Hopefully will run smoother now.
+
+Thu Nov 10 13:46:00 MST 2011
+
+* Added autosig support.  Checks for a file, $DAYDREAM/users/#/autosig.dat
+  with # being the user #'s dir.  If found, dded gives option to append
+  sig to message.  Also, added a door, "autosig", and a graphics file,
+  autosigtop.gfx|txt, for the door.  It is launched by default as option
+  #12 in the "A"lter user data from main menu.
+
+Thu Nov 03 21:46:00 MST 2011
+
+* Reimplemented "old" ddftpd.  Back by popular demand.  :)  Complete with
+  "SITE UPLOAD #" working.  Woohoo!
+
+Tue Nov 01 12:36:00 MST 2011
+
+* Added some features to the user editor.  Now it has a built in user lister
+  with user numbers.  You can search by user number as well.  Also, you may
+  scroll back and forth between users with [ and ] keys.
+
+Mon Oct 31 08:52:00 MST 2011
+
+* Added a line to dd-echo.cfg - StrictInboundChecking
+  This fixes an issue where dd-echo was being very strict with how it handles
+  incoming mail and checking the flags for secure vs insecure, etc.  This is
+  a nice feature but impossible to take advantage of if you automate your
+  echomail process with bash scripts.  This line, when commented, will allow
+  unsecure mail in the secure dirs to still be tossed.
+
+Sat Oct 29 17:46:00 MST 2011
+
+* Fixed an uploading bug.  ddrz would often fail on uploads because of some
+  issues with it trying to receive a file before the uploader actually starts
+  sending it.  Fixed now.
+
+Fri Oct 28 17:52:00 MST 2011
+
+* Messages now parse |## color codes, renegade style.  May add a cfg option
+  for this in the future.  For now, all messages will be parsed, and quoting
+  will always remove the pipes.
+
+Fri Oct 7 14:22:00 MST 2011
+
+* Message quoting now truncates anything past column 75.  I'll make an option
+  in daydream.cfg later to do the new, truncated way, or the old way.
+
+Thu Oct 6 17:40:00 MST 2011
+
+* Added StripPipes() and implemented it directly after StripAnsi() in the
+  message replying option.  This will strip pipe codes from ansis that are
+  used in replies.  I plan to parse the color codes for viewing in the future
+  but think that it's silly to keep the codes in tact for message replies.
+
+Tue Oct 4 17:01:00 MST 2011
+
+* Daydream like to keep original messages in tact, without truncation of text
+  in messages beyond column 79.  Instead, it would reformat messages in an
+  ugly fashion to display small chunks on the next line.  This change simply
+  truncates all text past column 79.  In the future, I plan to add an option
+  in daydream.cfg's message bases, to turn this on or off, additionally I plan
+  to make a new method of linewrapping messages and keeping thread integrity.
+  This is only a fix for message reading, not yet a fix for responding!
+
+Mon Oct 3 16:05:00 MST 2011
+
+* Added ability to use logoffdoors.dat for logoff, same as logindoors.dat
+  during login procedure.  This fixes a bug where some programs wouldn't
+  function properly in logoff batch files.  Not sure the reason, but here's
+  a workaround anyway.
+
+Thu May 19 21:20:00 MST 2011
+
+* Various BSD fixes implemented by Deuce aka Stephen Hurd.  Fixes to allow
+  make instead of gmake on BSD to compile.
+
+* Various pieces of code moved into the config.h for more global availability.
+  This is also thanks to Stephen Hurd.
+
+* Also thanks to Stephen Hurd there should be more ddftp/ddftpd compatibility
+  across *BSD.
+
+* DDChat can now use '-4' as an argument to listen to a specific address:
+  -4 127.0.0.1
+  Also, -d runs it daemonized, and there is daemonization code as well.
+
+* secure.sh now looks to username:group instead of username.group.  This has
+  not been an issue thus far for anyone that I've dealt with, but now it
+  is more standards compliant.
+
+* Lib functions strlcpy, strlcap, setenv, unsetenv, and vasprintf are default
+  internal linux C library functions, and daydream was compiling a separate
+  function for each into its binaries.  Now it will smartly figure out if it
+  needs to make those functions, so there isn't a duplication of efforts.
+
+* Now, in ddlogin.sh, instead of the last line simply launching the daydream
+  binary, it'll precede it with 'exec', to free up an instance of sh and
+  save some (probably negligeable) overhead :)
+
+Sun May 8 22:48:12 MST 2011
+
+* Fixed dded to not boot users pressing the enter key in the fullscreen
+  editor.  This was a simple issue of clearing out the \r's and making
+  them all \n's instead.  Thanks to Mercyful Fate for pointing this out and
+  helping me test.
+
+* Added docs/xinetd.howto and changed some of the INSTALL.  Now xinetd should
+  be straightforward, as well as dealing with permissions issues right
+  off the bat.
+
+* Very crudely modified the install script to make a $DAYDREAM/include
+  dir and put all the *.h files in there, so that writing daydream doors
+  and compiling old daydream doors is that much easier.
+
+Tue Feb 23 16:04:50 CET 2010
+
+* Wrote ddnntp and ddtelnetd. ddtelnetd should utilize the 
+  available bandwith when performing zmodem filetransfers.
+  I feel that daydream 2.15 is mature enough for release.
+  
+* Added pausing on select messages / conferences.
+
+Sun Feb 14 02:43:21 CET 2010
+
+* "<esc^> the error I was talking about before with the file listings...
+   it seems that the directory.### files aren't being written properly when 
+   one file has too long of a .diz, the next file in the list begins with the 
+   filename spaced out 6 spaces from the left instead of left justified, 
+   which screw up file listing :)"
+   
+   Fixed! :)
+   
+* "<esc^> paltas- also I remember you saying something about mmap.  
+   I have an interesting bug that I found...if I move all files out of one dir and into another, 
+   then scan the original dir (which now has empty directory file) the error is like this:
+   Scanning directory #001Cannot mmap();"
+   
+   Fixed! :)
+   
+   Thank you esc^.
+
+Tue Feb  9 22:09:57 CET 2010
+
+* Daydream now shows a screenlength and not a screenlength+1
+
+Mon Feb  8 13:35:32 CET 2010
+
+* Fixed a bug in dd-echo, simply forgot to close some files which made
+  it crash during to too many open files (I learned that this number
+  is 1024).
+  
+* Fixed a bug in fixbases. If the messagebase was non-existing a random
+  number would be in the lastread pointers.
+
+* Rewrote parts of create_directory in order to allow local login from
+  "bbsadmin".
+
+Mon May 11 23:05:23 CEST 2009
+
+* Used a lot of time to locate a bug in ddz, it's related to 
+memory mapping in ddsz. It works great without memory map support,
+so at the moment memory map support will be disabled.
+
+Mon May 11 11:53:18 CEST 2009
+
+* Included muggichat in the source. The only door which is really missing.
+
+* Fixed stdiohan.c such that dosdoors / stdio doors is also snoopable from 
+  ddsnoop 
+
+* Fixed a performance loss in stdiohan.c, when running doors daydream used
+  25% of my capacity due to non-blocking io with short timeout. The DOS
+  doors does actually run faster!
+  
+* Thought there was a bug related to Zmodem but it was simply syncterm
+  which was malfunctioning
+  

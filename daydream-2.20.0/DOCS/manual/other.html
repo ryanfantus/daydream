@@ -1,0 +1,28 @@
+<title>Other stuff</title>
+<h1><a name="s1">1 Making DayDream answer the phonecalls</a></h1>
+
+<p>It's not required to have mgetty to answer phone calls. From version 2.04
+DayDream has been able to answer phonecalls by itself. Run DayDream with
+command line parameter <kbd>daydream -n &lt;node&gt;</kbd>. Note that you need a console or
+xterm to run a node. Modem is configured in
+<kbd>$DAYDREAM/configs/modem&lt;node&gt;.cfg</kbd>.
+
+<p>See example <kbd>modem1.cfg</kbd>, it is quite self-explanatory.
+
+<p>DDSnoop is not supported on nodes that are answering the calls by themselves.
+
+<p>It's not advicable to make DD answer the phonecalls. If DD crashes, it
+dies and there's nothing that will answer the phone after this.
+
+<p>This is just for those who are too stupid to configure mgetty correctly :)
+
+<p>If DD says that it can't open serial port, make sure user bbs can access 
+/dev/tty?? of the node.
+<hr>
+<h1><a name="s2">2 Contacting author</a></h1>
+
+  <h3>WWW</h3>
+  http://daydreambbs.org
+  
+  <h3>E-Mail</h3>
+  esc@daydreambbs.org

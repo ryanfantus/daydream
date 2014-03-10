@@ -1,0 +1,236 @@
+<title>Fidonet</title>
+
+<p>These docs desperately need to be updated!  DD-Echo works fine!
+WARNING! Fidonet support is in ALPHA-stage. DD supports
+<strong>ONLY</strong> echomail.
+Netmail is <strong>NOT</strong> supported yet.
+
+<h1><a name="s1">1 Requirements</h1></a>
+
+   <ul>
+   <li>FTN address and a host for polling messages.
+   <li>Mailer software. DayDream has been tested on ifmail, and it's probably
+      the only software that DD supports. </ul>
+
+<h1><a name="s2">2 Installation</h1></a>
+
+<p>First install <strong>ifmail</strong>. Read the manual of it. Note that you need ONLY
+ifindex and ifcico for DD. iftoss/ifpack etc are useless as they are used
+for fido&lt-&gtusenet gateway.
+
+<p>Then edit configs/tosser.cfg -file.
+
+  <h2>Akas</h2>
+
+    <p>Tosser supports multiple AKA-addresses, so you can have multiple
+    networks. Standard aka-like looks like this:
+ 
+    <pre>  AKA<N> <zone:net/node.point>
+    </pre>
+    <p>Where N is the number of AKA and the rest if self-explanatory.
+
+    <p>AKA1 is the primary address. So if your primary address is 45:8/19.0,
+    put this to configfile: "AKA1 45:8/19.0".
+
+  <h2>Bad messages</h2>
+
+    <p>There can be some bad messages in the message packet, for
+    example there might be message to the area you have not
+    configured. That kind of messages are imported to the area,
+    you have defined as a bad message base. It should be local
+    area because then you know what went wrong from the message
+    kludges, and so you can configure DayDream so it will work.
+
+    <p>Standard BAD-line looks like this:
+
+      <pre>BAD [CONF]:[BASE]</pre>
+
+    <p>For example, if you want to have base 6 of conference 10 as
+    a bad base, put to your config file:
+
+    <pre>  BAD 10:6</pre>
+  
+  <h2>Netmail</h2>
+
+    <p>There might be a message in the inbound directory, that
+    doesn't have an AREA:-kludge. This kind of messages will be
+    imported as Netmail. Netmail can be sent anywhere on the globe,
+    and is always private. Line NETMAIL in config-file defines
+    the base to be used for Netmail messages.
+
+    <p>Standard NETMAIL-line looks like this:
+
+      <pre>NETMAIL [CONF]:[BASE]</pre>
+
+    <p>For example, if you want to have base 5 of conference 10 as
+    a netmail base, put to your config file:
+
+      <pre>NETMAIL 10:5</pre>
+
+
+  <h2>Inbound & Outbound directories</h2>
+
+    <p>Tosser needs to know, where the received messages are
+    located. It also needs to know, where you want to pack
+    outgoing messages. Path for received messages is defined
+    in INBOUND-line and for outgoing in OUTBOUND-line.
+
+    <p>Here are examples:
+
+<pre>INBOUND "/var/spool/ifmail/inb/"
+OUTBOUND "/var/spool/ifmail/outb"</pre>
+
+    <p>INBOUND requires /, OUTBOUND must NOT have /, because of the naming
+    system of outgoing message packets.
+
+  <h2>Packer definitions</h2>
+
+    <p>You can have multiple packers for packing outgoing mail,
+    but only 1 for decrunching mail. If you want to have more
+    decrunchers, get a extracter, which detects which packer is
+    used for packing message packets.
+
+    <p>Standard packer line looks like this:
+ 
+    <p>PACK[PACKERNUMBER] "[Commandline]". First %s is for name of
+    archive and the second %s is for source file.
+ 
+    <p>Eg:
+
+    <pre>PACK1 "Lha a %s %s"</pre>
+
+    <p>Standard unpack line looks like this:
+
+    <p>UNPACK "[Commandline]". %s is a archive name to extract.
+
+    <p>Eg:
+
+    <pre>UNPACK "Lha e %s"</pre>
+  
+
+<h2>  Outgoing echo</h2>
+
+   <p> To specify nodes/points which get some mail from you, you need
+    to use list of outbound nodes. List begins with line "OUT:".
+    The next lines are for specifications about nodes/points which
+    get the mail packets from you. The line format is:
+
+    <p>[4D ADDRESS] [TYPE] [PACKER] [AKA] [CONVERSION TABLE]
+
+    <p>4D Address is a typical fidonet 4D address, eg. 9:866/3.0.
+    Type specifies the method which is used to deliver packets to
+    the current node. If it's H, node will call you to exchange the
+    packets. If it's N, you will call the current node to exchange
+    packets.
+
+    <p>Packer specifies packer number to use.
+
+    <p>Aka specifies aka to use in messages to this node.
+
+    <p>Conversion table specifies outgoing conversion table ID
+    (<kbd>$DAYDREAM/data/conversiontableXX.dat</kbd>) to use for outgoing message
+    conversion. If your host/nodes want to use those perverted IBM-chars,
+    this should be 2 if you're using default conversion tables, otherwise 0.
+
+    <p>~ is end of the outbound definitions.
+
+    <p>Example list:
+
+<pre>OUT:
+9:866/1.0 N 1 1 0
+9:866/2.0 H 1 1 2
+~</pre>
+
+  <h2>Inbound conversion</h2>
+
+    <p>It's possible to convert incoming messages. If you live in
+    Scandinavia and you are member of dos-network, those linefeeds
+    are really annoying. If you want to use conversion table, specify
+    the conversion table number in "CONVERSION" line. Table will
+    be taken from $DAYDREAM/data/-directory.
+
+  <h2>Area definitions</h2>
+
+    <p>To export echomail messages, you need to specify nodes who are
+    polling area. Every area requires this. Format for AREA-line is
+
+    <p>AREA [CONF]:[BASE] [List of 4d-addresses].
+
+    <p>Eg:
+
+    <pre>AREA 4:5 9:866/1.0 9:866/2.0</pre>
+
+  <h2>Routing</h2>
+
+    <p>Routing is required for sending netmail via many nodes, not directly
+    to the destination. This makes netmail transferring cheaper and slower.
+
+    <p>This is how it works:
+<pre>
+.--------------------------------.
+| Netmail for eg. node 2:447/3.0.|
+`--------------------------------'
+                |
+     Is this defined in outbound nodes?   eg. 2:477/3.0 N 1 1
+                |
+                +------------- yes -- Send it directly to it.
+                |
+                no
+                |
+Is there route entry for dest?       eg. 2:477/* 2:477/2.0
+                |
+		+------------- yes -- Send it to 2:477/2.0
+		|
+		no
+		|
+     Crashmail it to 2:477/3.0
+</pre>
+
+    <p>To specify routing, you'll need a table of route entries.
+    List begins with line "ROUTE:" and next lines are for specifications
+    about nodes to use for routing.
+
+    <p>Format for lines is:
+
+    <p>[PATTERN] [4D ADDRESS]
+
+    <p>If destination matches with pattern, netmail will be sent to [4D ADDRESS].
+
+    <p>4D Address is a typical fidonet 4D address, eg. 9:866/3.0.
+    If it's -, mail won't be sent. First lines of the routetable
+    should be used for your addresses to prevent tosser from sending your
+    netmails forward.
+
+    <p>~ is end of the routing definitions.
+
+    <p>Example list:
+
+<pre>ROUTE:
+9:866/3.0 -
+9:* 9:866/1.0
+~</pre>
+
+<h1><a name="s3">3 IFMail</a></h1>
+
+  <p>It's VERY important that you change the files owned by ifmail to bbs.
+  So, do <kbd>chown -R bbs /usr/lib/ifmail</kbd>, <kbd>chown -R bbs
+/var/spool/ifmail</kbd>,
+  <kbd>chmod -R bbs /var/logs/ifmail</kbd>.
+
+  <p>This will make all the outgoing packets accessable for both, ifmail
+  and DayDream.
+
+  <p>For some strange reason ifcico chowns the incoming packets to root,
+  if you run ifcico as a root, so chown them to bbs before running tosser
+  or the tosser can't access them. Thank you.
+
+
+
+
+
+
+
+
+
+
+

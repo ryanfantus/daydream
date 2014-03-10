@@ -1,0 +1,14 @@
+Uploading instructions
+======================
+type SITE UPLOAD <conf> before uploading files. DD-ftpd posts the files
+to the destination conference while you're uploading them.
+
+If you don't specify upload conference, telnet and hit U in the
+destination conference. Thank you.
+
+Confs
+=====
+2 -- Unix     3 -- Guitar   4 -- Digital-Audio   5 -- DayDream
+
+
+

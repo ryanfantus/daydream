@@ -1,0 +1,307 @@
+<title>Python</title>
+<h1><a name="s1">1 Python interface</a></h1>
+
+<p>DayDream BBS has a python module (dd.py, _dd.so) that allows easy door-writing
+and scripting using <a href="http://www.python.org">Python</a> language.
+
+<hr>
+<h1><a name="s2">2 Commands</a></h1> 
+<p>
+<dl><dt><strong>initdoor</strong>(<var>node</var>)
+<dd>
+Start the communication with DayDream. <var>node</var> is usually supplied by
+<code>sys.argv[1]</code>.
+</dl>
+<dl><dt><strong>sendstring</strong>(<var>string</var>)
+<dd>
+Output <var>string</var> to the user.
+</dl>
+<dl><dt><strong>hotkey</strong>(<var>flags</var>)
+<dd>
+Wait for a keypress from the user. Returns the character received or 0 if carrier lost.
+Following <var>flags</var> are available:
+<li><code>HOTKEY_CURSOR</code> - detect cursor keys. returns ascii code 250 if up, 251
+                              if down, 252 if left, 253 if right.
+<li><code>HOTKEY_YESNO</code> - Yes/no mode
+<li><code>HOTKEY_NOYES</code> - yes/No mode (<strong>if <code>HOTKEY_YESNO</code> or
+<code>HOTKEY_NOYES</code> is specified, integer is returned. 0 = carrier lost, 1 = yes, 2 = no</strong>).
+<li><code>HOTKEY_QUICK</code> - return instantly. (get a char from serial/console buffer)
+</dl>
+<dl><dt><strong>typefile</strong>(<var>file, flags</var>)
+<dd>
+Shows <var>file</var> to the user. Following <var>flags</var> are supported:
+<li><code>TYPE_WARN</code> - warn user if the file is not found
+<li><code>TYPE_MAKE</code> - Format the filename (add .txt/.gfx extension and path)
+<li><code>TYPE_NOCODES</code> - Disable control codes (~#)
+<li><code>TYPE_CONF</code> - Look for the file from conference's display dir
+<li><code>TYPE_NOSTRIP</code> - Don't strip ansi codes even if the user is in ascii mode
+<li><code>TYPE_SEC</code> - Check if there's file for user's security.
+<p>Returns 0 if file not found, 1 if success. 
+</dl>
+<dl><dt><strong>prompt</strong>(<var>default,maxlen,flags</var>)
+<dd>
+Prompts user for a string. <var>default</var> can be the default string or
+0, <var>maxlen</var> is the maximum length (in bytes) of the string.
+Following <var>flags</var> are available:
+<li><code>PROMPT_SECRET</code> - hide input
+<li><code>PROMPT_NOCRLF</code> - don't write crlf when user presses enter
+<li><code>PROMPT_FILE</code> - don't allow '/'.
+<p>Returns 0 if carrier lost, otherwise 1. 
+</dl>
+<dl><dt><strong>closedoor</strong>(<var>.</var>)
+<dd>
+Close the doorport. After closing the doorport, you are not able to send commands
+to DD.
+</dl>
+<dl><dt><strong>getvar</strong>(<var>var</var>)
+<dd>
+Return a variable <var>var</var>. <code>getvar</code> may
+return you a string, integer, long integer or a char, depending on <var>type</var>.
+
+<h4>strings</h4>
+<li><code>BBS_NAME</code> - BBS Name
+<li><code>BBS_SYSOP</code> - SysOp's Name
+<li><code>USER_REALNAME</code> - Real name of the user
+<li><code>USER_HANDLE</code> - Handle of the user
+<li><code>USER_ORGANIZATION</code> - Organization of the user
+<li><code>USER_ZIPCITY</code> - Zip & City of the user
+<li><code>USER_VOICEPHONE</code> - Voice phone number of the user
+<li><code>USER_COMPUTERMODEL</code> - Computer model of the user
+<li><code>USER_SIGNATURE</code> - Upload signature of the user
+<li><code>DOOR_PARAMS</code> - Command line parameters from main prompt
+<li><code>DD_ORIGDIR</code> - same as getenv("DAYDREAM"), the dir where DD stuff is.
+<li><code>USER_CONFERENCEACC1</code> - Conference access for confs 1-32, 
+in format <kbd>"X----X---"</kbd>, where X is yes and - is no.
+<li><code>USER_CONFERENCEACC2</code> - Conference access for confs 33-64, 
+in format <kbd>"X----X---"</kbd>, where X is yes and - is no.
+<li><code>USER_FIRSTCALL</code> - Date of the first call by the user, in ctime()-format.
+<li><code>USER_LASTCALL</code> - Date of the last call by the user, in ctime()-format.
+<li><code>CONF_NAME</code> - Name of the current conference
+<li><code>CONF_PATH</code> - Path to the current conference
+<li><code>CONF_ULPATH</code> - Upload path of the current conference 
+<li><code>CONF_NEWSCANAREAS</code> - New file scan areas 
+<li><code>CONF_PASSWD</code> - Conference password
+<li><code>MSGBASE_NAME</code> - Name of the current message base
+<li><code>MSGBASE_FN_TAG</code> - Fidonet tag of the current message base
+<li><code>MSGBASE_FN_ORIGIN</code> - Origin line
+<li><code>MSGBASE_FN_ADDRESS</code> - Address
+
+<h4>integers</h4>
+<li><code>USER_SCREENLENGTH</code> - Screen length of the user (lines)
+<li><code>USER_ULFILES</code> - Number of files uploaded by the user
+<li><code>USER_DLFILES</code> - Number of files downloaded by the user
+<li><code>USER_PUBMESSAGES</code> - Number of public messages written by the user.
+<li><code>USER_PVTMESSAGES</code> - Number of private messages written by the user.
+<li><code>USER_CONNECTIONS</code> - Number of calls by the user.
+<li><code>USER_FILERATIO</code> - File ratio of the user 
+<li><code>USER_BYTERATIO</code> - Byte ratio of the user
+<li><code>USER_FREEDLBYTES</code> - Free download bytes of the user
+<li><code>USER_FREEDLFILES</code> - Free download files of the user
+<li><code>USER_SECURITYLEVEL</code> - Security level of the user
+<li><code>USER_JOINCONFERENCE</code> - Auto-join conference
+<li><code>USER_DAILYTIMELIMIT</code> - Daily time limit (minutes)
+<li><code>USER_ACCOUNT_ID</code> - User account id
+<li><code>USER_TIMELEFT</code> - Remaining time
+<li><code>SYS_CONF</code> - Current conference number
+<li><code>USER_FAKEDFILES</code> - Number of faked files
+<li><code>USER_FAKEDBYTES</code> - Number of faked bytes
+<li><code>SYS_FLAGGEDFILES</code> - Number of files flagged for downloading
+<li><code>SYS_FLAGGEDBYTES</code> - Number of bytes flagged for downloading
+<li><code>SYS_FLAGERROR</code> - Error code of the last file flagging attempt (See libdd.doc for more info)
+<li><code>SYS_MSGBASE</code> - Number of the current message base
+<li><code>CONF_FILEAREAS</code> - Number of fileareas in current conference
+<li><code>CONF_UPLOADAREA</code> - Upload area number of the current conference 
+<li><code>CONF_MSGBASES</code> - Message base in the current conference
+<li><code>CONF_COMMENTAREA</code> - Comment base number of the current conference
+<li><code>MSGBASE_MSGLIMIT</code> - Message limit in the current message base
+
+<h4>long integers</h4>
+<li><code>USER_ULBYTES</code> - Number of bytes uploaded by the user
+<li><code>USER_DLBYTES</code> - Number of bytes downloaded by the user
+
+<h4>chars</h4>
+<li><code>USER_PROTOCOL</code> - Protocol ID char of the user
+
+</dl>
+<dl><dt><strong>setvar</strong>(<var>var, newvalue</var>)
+<dd>
+<p>Set variable <var>var</var>. <var>newvalue</var> must be supplied as string.
+Possible <var>var</var>'s are:
+<p><li><code>BBS_NAME</code> - BBS Name
+<li><code>BBS_SYSOP</code> - SysOp's Name
+<li><code>USER_REALNAME</code> - Real name of the user
+<li><code>USER_HANDLE</code> - Handle of the user
+<li><code>USER_ORGANIZATION</code> - Organization of the user
+<li><code>USER_ZIPCITY</code> - Zip & City of the user
+<li><code>USER_VOICEPHONE</code> - Voice phone number of the user
+<li><code>USER_COMPUTERMODEL</code> - Computer model of the user
+<li><code>USER_SIGNATURE</code> - Upload signature of the user
+<li><code>USER_CONFERENCEACC1</code> - Conference access for confs 1-32, 
+in format <kbd>"X----X---"</kbd>, where X is yes and - is no.
+<li><code>USER_CONFERENCEACC2</code> - Conference access for confs 33-64, 
+in format <kbd>"X----X---"</kbd>, where X is yes and - is no.
+
+<p>
+To change the value of an integer value, do it like this:
+<pre>
+spam=dd.getvar(dd.ULFILES)
+spam=spam+1;
+dd.setvar(dd.ULFILES,`spam`)
+</pre>
+
+<li><code>USER_SCREENLENGTH</code> - Screen length of the user (lines)
+<li><code>USER_ULFILES</code> - Number of files uploaded by the user
+<li><code>USER_DLFILES</code> - Number of files downloaded by the user
+<li><code>USER_PUBMESSAGES</code> - Number of public messages written by the user.
+<li><code>USER_PVTMESSAGES</code> - Number of private messages written by the user.
+<li><code>USER_CONNECTIONS</code> - Number of calls by the user.
+<li><code>USER_FILERATIO</code> - File ratio of the user 
+<li><code>USER_BYTERATIO</code> - Byte ratio of the user
+<li><code>USER_FREEDLBYTES</code> - Free download bytes of the user
+<li><code>USER_FREEDLFILES</code> - Free download files of the user
+<li><code>USER_SECURITYLEVEL</code> - Security level of the user
+<li><code>USER_JOINCONFERENCE</code> - Auto-join conference
+<li><code>USER_DAILYTIMELIMIT</code> - Daily time limit (minutes)
+<li><code>USER_TIMELEFT</code> - Remaining time
+<li><code>USER_FAKEDFILES</code> - Number of faked files
+<li><code>USER_FAKEDBYTES</code> - Number of faked bytes
+
+<p>
+<li><code>USER_ULBYTES</code> - Number of bytes uploaded by the user
+<li><code>USER_DLBYTES</code> - Number of bytes downloaded by the user
+
+<p>
+<li><code>USER_PROTOCOL</code> - Protocol ID char of the user
+
+</dl>
+<dl><dt><strong>flagsingle</strong>(<var>file, res</var>)
+<dd>
+Flag a single file. <var>file</var> is the filename, and must be case sensitive.
+If <var>res</var> is 1, DD tells the user what happened. Returncodes are:
+<p><li>0 = success
+<li>1 = fileratio doesn't allow flagging
+<li>2 = byteratio doesn't allow flagging
+<li>3 = file already flagged
+<li>4 = success (free download)
+<li>-1 = file not found
+
+
+</dl>
+<dl><dt><strong>finduser</strong>(<var>name</var>)
+<dd>
+Find user looks for user called <var>name</var>, and returns the user if of the user or -1 if user not found.
+</dl>
+<dl><dt><strong>system</strong>(<var>command,input</var>)
+<dd>
+Run an executable and print the output to the user. If <var>input</var> is 1,
+reads the user input to stdin.
+</dl>
+<dl><dt><strong>cmd</strong>(<var>command</var>)
+<dd>
+Execute internal DD command or door <var>cmd</var>. Returns 0 if carrier lost, otherwise 1.
+</dl>
+<dl><dt><strong>writelog</strong>(<var>string</var>)
+<dd>
+Writes <var>string</var> to DD logfile.
+</dl>
+<dl><dt><strong>changestatus</strong>(<var>new</var>)
+<dd>
+Change node status (shown in <kbd>WHO</kbd> etc) to <var>new</var>.
+</dl>
+<dl><dt><strong>pause</strong>(<var></var>)
+<dd>
+Show default pause prompt and wait for any key.
+</dl>
+<dl><dt><strong>joinconf</strong>(<var>conf,flags</var>)
+<dd>
+Change the active conference to <var>conf</var>. Allowed values for flags are:
+<p>
+<li><code>JC_LIST</code> - if <var>conf</var> = 0, show list of conferences
+<li><code>JC_SHUTUP</code> - don't tell user if anything goes wrong..
+<li><code>JC_QUICK</code> - don't show conference information..
+<p>Returns 1 if success, otherwise 0.
+
+</dl>
+<dl><dt><strong>isfreedl</strong>(<var>file</var>)
+<dd>
+Returns 1 if <var>file</var> is free download in the current conference, 2 if all
+the files are free in the current conference or otherwise 0.
+
+</dl>
+<dl><dt><strong>flagfile</strong>(<var>pattern, res</var>)
+<dd>
+Flags files matching to <var>pattern</var> in the current conference.
+If <var>res</var> is 1, list the progress to the user.
+Returns number of files flagged.
+</dl>
+<dl><dt><strong>isconfaccess</strong>(<var>conference</var>)
+<dd>
+Return 1 if user has access to the <var>conference</var>.
+</dl>
+<dl><dt><strong>isanybasestagged</strong>(<var>conf</var>)
+<dd>
+Return 1 if user has any of the messagebases tagged in the <var>conference</var>.
+</dl>
+<dl><dt><strong>isconftagged</strong>(<var>conference</var>)
+<dd>
+Return 1 if user has the <var>conference</var> tagged for file scanning.
+</dl>
+<dl><dt><strong>isbasetagged</strong>(<var>conference, msgbase</var>)
+<dd>
+Return 1 if user has the <var>msgbase</var> tagged in the <var>conference</var>.
+</dl>
+<dl><dt><strong>changemsgbase</strong>(<var>msgbase, flags</var>)
+<dd>
+Change message base to <var>msgbase</var> in current conference. Following
+<var>flags</var> are available:
+<p>
+<li><code>MC_QUICK</code> - don't tell anything if failed to join
+<li><code>MC_NOSTAT</code> - don't display msgbase stats
+</dl>
+<dl><dt><strong>sendfiles</strong>(<var>list</var>)
+<dd>
+Send files to the user using the selected file transfer protocol. <var>list</var> 
+is the name of file containing full paths to the files to be sent. One file per line.
+</dl>
+<dl><dt><strong>getfiles</strong>(<var>directory</var>)
+<dd>
+Receive files using selected file transfer protocol to the <var>directory</var>.
+</dl>
+<dl><dt><strong>unflagfiles</strong>(<var>pattern</var>)
+<dd>
+Unflags flagged files matching with the <var>pattern</var>. Returns number
+of files unflagged. 
+</dl>
+<dl><dt><strong>findfilestolist</strong>(<var>pattern, list</var>)
+<dd>
+Find the files in current conference matching with <var>pattern</var> and
+put the to the <var>list</var>. One line per file. Returns number of
+matches.
+</dl>
+<dl><dt><strong>dumpfilestolist</strong>(<var>list</var>)
+<dd>
+Dump the names and paths of flagged files to <var>list</var>. One file per line.
+</dl>
+<hr>
+<h1><a name="s3">3 Usage</a></h1> 
+
+<p>To be able to access DD commands, you have to import 2 modules in the
+beginning of your script. These two modules are <code>dd and sys</code>.
+When importing module <code>dd</code>, c-routines are being loaded automatically. Connection with DD is established with dd.initdoor-routine, and if it fails,
+your script is NOT launced from DD. Here's an example of a simple script:
+<p><pre>
+import dd
+import sys
+
+if (dd.initdoor(sys.argv[1])==0):
+    print "Ugh. Run me from DD\n"
+    sys.exit(-1)
+else:
+    dd.sendstring ("Hello, World and ")
+    name=dd.getvar(dd.USER_HANDLE)
+    dd.sendstring (name + "\n")
+    calls=dd.getvar(dd.USER_CONNECTIONS)
+    dd.sendstring ("You have called this system " + `calls` + " times.\n")
+</pre>
+
+Simple, huh? :)

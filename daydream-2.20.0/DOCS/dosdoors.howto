@@ -1,0 +1,158 @@
+Getting Dos Doors running on Daydream
+
+First, install dosemu.  I use 1.4.0.1.  
+
+Also, install a program called 'todos'.  
+You should have it in whatever style of portage or package management you use.  
+
+As root, modify your /etc/dosemu/dosemu.conf file.  
+Add the following toward the beginning:
+
+ifdef u_virtual
+serial { virtual com 1 }
+endif
+
+Now scroll through the dosemu.conf and make all these selections both 
+uncommented and make them look the same as mine:
+
+$_cpu = "80586"
+$_hogthreshold = (10)
+$_dpmi_base = (0x10000000)
+$_external_char_set = "cp437"
+$_internal_char_set = "cp437"
+$_layout = "us"
+
+That should be it for that file.  Now check out dosemu.users.  
+On a line by itself, put:
+
+bbs c_all
+
+Note, this 'bbs' user is what I use for my daydream setup.  You can use 
+whatever your bbs user is there.  
+
+Next, as root, launch dosemu.  This will place all your dosemu files 
+into ~/.dosemu.  Exit out of dosemu and move over to ~/.dosemu/drive_c.  
+Let's modify your autoexec.bat to look like this:
+
+@echo off
+path z:\bin;z:\gnu;z:\dosemu;f:\
+set HELPPATH=z:\help
+set TEMP=c:\tmp
+prompt $p$g
+lredir d: linux\fs/home/bbs
+lredir f: linux\fs/home/bbs/doors/dos
+
+Ok, a quick explanation.  Essentially this is a barebones autoexec.bat 
+that is merely used to redirect your /home/bbs (use your own equivalent here) 
+to d:\, and /home/bbs/doors/dos (the path where I install all of my dos 
+door games) as f:\.  So now, as root, d:\ will be /home/bbs, and f:\ will 
+be /home/bbs/doors/dos.  Last thing you need to do is exit out of dosemu 
+and type 'todos ~/.dosemu/drive_c/autoexec.bat'.  
+
+	This is important!  
+
+Linux and dos interpret linefeeds and carriage returns differently.
+Next, login to your bbs.  Run 'shell' from main, and launch dosemu.  
+You have just created all the dosemu dirs for your bbs user, and now we get 
+to go and modify those as well.  Are we having fun yet???  :)
+
+As root or bbsadmin or however you prefer to do these types of things, 
+move over to /home/bbs/.dosemu/drive_c.  First make your autoexec.bat 
+look identical to the one we are using for the root user, but then append 
+the following lines to the end:
+
+c:
+cd \bnu
+call bnu.com /L0:57600,8N1 /F
+f:
+cd \
+rundoor.bat
+
+Basically, what this does is make your d:\ and f:\ reflect what we set up 
+for the root user.  Then, we launch bnu, a fossil driver, to handle the 
+communications.  Then, we launch a batch file, f:\rundoor.bat.  
+We'll get into rundoor.bat shortly.
+
+Go online and download bnu 1.70 or whatever the latest version is.  
+Unarchive it and throw it in /home/bbs/.dosemu/drive_c/bnu.  Remember to 
+do 'todos /home/bbs/.dosemu/drive_c/autoexec.bat'!
+
+Your config.sys doesn't NEED to be modified, but I grabbed a driver called 
+'nansi.sys' online and threw it in /home/bbs/.dosemu/drive_c/ and at the 
+end of my config.sys I placed 'device=nansi.sys'.  Dosemu seems to do much 
+better with ansi escape sequences now.  But that's optional, unless you are 
+having display issues.
+
+Now, download whatever door games you want, and throw them in 
+/home/bbs/doors/dos.  Run dosemu as root and set the doors up to use fossil, 
+multitasking, multinode, and to look for the dropfile in f:\.  Note that we 
+are only using door.sys, so ensure that you specify door.sys to the doorgame.  
+Some doors require that specification to be made in the batch file, so keep 
+that in mind!
+
+The next logical step would be to make commands for daydream to launch the 
+games in daydream.cfg.  Here's my example for LORD:
+
+DOOR_COMMAND LORD
+DOOR_TYPE 8
+DOOR_EXECUTE /home/bbs/doors/door_script %N LORD
+
+So, when a user types LORD, for instance, a script (door_script) is launched, 
+with two command line arguments.  It stores %N (the node number) as $1, and 
+LORD (following the %N) as $2.  I don't want to insult anyone's intelligence 
+here, but I assume I don't need to get very in depth with bash scripting if 
+you've been able to run daydream!  
+Now, let's check out /home/bbs/doors/door_script.  Here's what it needs to 
+look like:
+
+#!/bin/bash
+printf "
+Loading $2...
+"
+todos /home/bbs/doors/door.sys
+cp /home/bbs/doors/door.sys /home/bbs/doors/dos/door.sys
+
+if [ -f /home/bbs/doors/dos/rundoor.bat ]
+then
+rm /home/bbs/doors/dos/rundoor.bat
+fi
+
+echo -e "\r@echo off \r" >> /home/bbs/doors/dos/rundoor.bat
+echo -e "f: \r" >> /home/bbs/doors/dos/rundoor.bat
+echo -e "cd $2 \r" >> /home/bbs/doors/dos/rundoor.bat
+echo -e "call start.bat $1 \r" >> /home/bbs/doors/dos/rundoor.bat
+
+todos /home/bbs/doors/dos/rundoor.bat
+
+/usr/bin/dosemu -u virtual -dumb 2>/dev/null /dev/null >/dev/null
+
+if [ -f /home/bbs/doors/dos/rundoor.bat ]
+then
+rm /home/bbs/doors/dos/rundoor.bat
+fi
+
+So basically, this script checks for the existence of rundoor.bat.  If it 
+finds it, it erases it.  Then it creates a new rundoor.bat, which in the case 
+of LORD on node 1, would essentially make dosemu go to f:\lord and run 
+start.bat 1.  So, what we have to do for each game is put it in a directory 
+that matches the command you're giving to door_script from daydream.cfg, 
+i.e. /home/bbs/doors/dos/lord for LORD, /home/bbs/doors/dos/bre for BRE, 
+/home/bbs/doors/dos/usurper for USURPER.  Next, in each doorgame that you 
+have installed, you have to make a start.bat, because that's what rundoor.bat 
+is going to look for.  Here's the basic synopsis:
+
+@echo off
+f:
+cd \(doorgame)
+(game-executable).exe /NODE=%1
+exitemu
+
+Important things to remember, start.bat will always see %1 as the node number.  
+Doors should all look for f:\door.sys, they should all use fossil drivers, 
+and you must must MUST put exitemu as the last line of every start.bat or 
+your users will be stuck in dosemu.  If you have any issues at all, try 
+running todos on all your dos batch files and see if that clears things up.  
+
+Hope I was able to help out!  For help with interbbs doors, shoot me a message
+and I'll see if I can help you out, but I am currently having some issues of 
+my own.

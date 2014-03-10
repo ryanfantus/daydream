@@ -1,0 +1,48 @@
+Safety wrapper for archivers
+============================
+
+DayDream uses external third-party archivers for checking the validity
+of uploaded archives. An old technique for cracking boards is to archive
+some files and change the pathnames inside the archive, for example, 
+with a hex editor. Therefore, it may be possible that the malicious
+attacker could overwrite files even in parent directories. 
+
+With the aid of the UNIX security model this can be easily prevented.
+While anything else in owned by the users "bbs" and "bbsadmin" in the
+"/home/bbs", the temporary directories used by the archive validity
+checking should provide write permissions for user "zipcheck". This
+way, attacker has no possibility to overwrite anything outside the
+temporary directories. 
+
+So, if you are updating from a previous release of DayDream, you are
+recommended to read the file "INSTALL" and perform any steps described
+there. Most importantly, you should add the safety wrapper "runas" to
+the archiver commands in your "daydream.cfg". Additionally, you have
+to specify the full path to your archiver binaries. Relying on $PATH
+(who knows what the value of $PATH is) makes system a little bit more
+vulnerable to cracking attempts. 
+
+"runas" is intended to be owned by "zipcheck" and to have its setuid
+bit set. You also have to specify the group used by archivers in
+"daydream.cfg". Please note that setting this to "bbs" would defeat
+the purpose of this wrapper and therefore it is not allowed to use
+the same group for OWNERGROUP and ZIPGROUP. So, in addition to 
+performing the steps described in "INSTALL", you have to add the
+following line to the beginning of your "daydream.cfg":
+
+ZIPGROUP zipcheck
+
+Also modify the archiver commands, like
+
+ARC_TEST...... unzip -t %A
+ARC_FIDEXTRACT unzip -qqLC %A file_id.diz
+ARC_FIDADD.... zip %A file_id.diz
+ARC_VIEW...... unzip -l %A
+
+should be rewritten as:
+
+ARC_TEST...... /home/bbs/bin/runas /usr/bin/unzip -t %A
+ARC_FIDEXTRACT /home/bbs/bin/runas /usr/bin/unzip -qqLC %A file_id.diz
+ARC_FIDADD.... /home/bbs/bin/runas /usr/bin/zip %A file_id.diz
+ARC_VIEW...... /home/bbs/bin/runas /usr/bin/unzip -l %A
+

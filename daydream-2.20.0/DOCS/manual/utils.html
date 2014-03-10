@@ -1,0 +1,235 @@
+<TITLE>DayDream Utilities</TITLE>
+<h1>Utilities</h1>
+
+<p>This document describes and documents included utilities (found in utils/).
+
+<h1><a name="s1">1 18to34</a></h1>
+<p>18to34 is used to convert filelists from long DD 1.xx format to 
+DD 2.xx format. Run it for usage.
+
+<hr>
+<h1><a name="s2">2 ax2dd</a></h1>
+<p>ax2dd is an util to convert AmiExpress/SigmaExpress userbases for DD
+format. ax2dd is not able to dig AmiExpress passwords, so if you convert
+your userbase for /X use -n option to disable password conversion. S!X
+base converts pretty well.
+<hr>
+<h1><a name="s3">3 ddcallers</a></h1>
+<p>DDCallers is a last N callers lister for DD. Run it for usage.
+It is invoked in batch/batch[node].logoff. Typical invoking line looks like 
+this:
+
+<pre>
+utils/ddcallers -o display/iso/ddcallers -n 1 -a 20 -h display/iso/ddcallersheader -w /home/bbs/bulletins/bulletin.20 -e
+</pre>
+<hr>
+<h1><a name="s4">4 ddcfg</a></h1>
+<p>ddcfg is a config file converter. It compiles ascii config file to binary
+files that DD and utils use. See <a href="config.html">chapter 3</a> for
+more info.
+<hr>
+<h1><a name="s5">5 ddtop</a></h1>
+
+<p>DDTop is a fast and very configurable chart-generator for DayDream.
+It creates statistical charts (both total and weekly) using
+user-definable design-files. This means for example that the sysop
+can virtually design his own total-uploads with customized design!
+
+<p>Most of the stuff is ripped from excellent MegaTop by Looby/Insane.
+Hi Looby :D
+<h2>Configuration</h2>
+
+<p>DDTop depends on script file. Name of script file is given in the
+commandline. Format of script file is as follows:
+
+<pre>--------------------------------------------------------
+[design file] [output] [weektop storage]
+[design file 2] [output 2] [weektop storage 2]
+    ......
+--------------------------------------------------------
+</pre>
+
+<p>  Weektop storage is optional. .gfx and .txt extensions are added to output
+  and storage. Design file may contain ansi codes. Ansi codes will be stripped
+  for .txt's.
+
+<p>  You may add following flags for ddtop commandline:
+
+<pre>  -r  -- use realnames instead of handles
+  -l  -- use location instead of group
+  -e  -- exclude sysop
+</pre>
+
+<h2>Design files</h2>
+
+<p>Design file is a normal text/ansi file which has so called cells for
+information. Format of a cell is
+
+ <pre> %[POSITION.WIDTH.ITEM]</pre>
+
+<p>    NOTE! The cell MUST contain at least two dots '.' (Used as seperators).
+
+<pre>  Eg. %[1.10.UL_TOT_NAME]  : Valid
+      %[..SYSSUM_AUTHOR]   : Valid
+      %[.UL_TOT_NAME]      : Seg fault :Q
+</pre>
+<p>  Position defines the user position in list. 
+
+<p>  Possible formats for WIDTH are:
+<pre>
+    -n     Right justified
+    n-     Left justified
+</pre><p>  
+n stands for width :)
+
+<p>    If there's nothing in width field, DDTop doesn't format entry.
+
+<p>  There exists many types of items. Major types are:
+<pre>
+    SYSSUM_        -- all time total values. Allowed subitems for SYSSUM_
+                      are:
+
+       BYTESUP                  -- Upload bytes
+       BYTESDOWN                -- Download bytes
+       FILESUP                  -- Upload files
+       FILESDOWN                -- Download files
+       CALLS                    -- Calls
+       MESSAGES                 -- Messages posted
+       USERS                    -- Total accounts
+       DATE                     -- Date when top was generated, e.g. '22-04-95'
+       TIME                     -- Time when top was generated, e.g. '18:01:49'
+       PROGNAME                 -- Name of program
+       AUTHOR                   -- Name of author
+
+    WEEKSUM_       -- week period summary. Allowed subitems:
+
+       BYTESUP                  -- Upload bytes
+       BYTESDOWN                -- Download bytes
+       FILESUP                  -- Upload files
+       FILESDOWN                -- Download files
+       CALLS                    -- Calls
+       MESSAGES                 -- Messages posted
+       DAYSLEFT                 -- Days left on week inkl. current day
+       DAYSPASSED               -- Passed days on week including current day
+</pre>
+<p>
+    Other major types describe the sort order:
+<pre>
+    UL_            -- Upload bytes
+    DL_            -- Download bytes
+    ULS_           -- Upload files
+    DLS_           -- Download files
+    CALL_          -- Calls
+    MESS_          -- Messages posted
+    SLOT_          -- Sort on users slotnumber
+
+       Types describing sort order must have a descriptor which tells the
+       date type to use:
+
+       WEEK        -- Week totals. Get the user entry from week datas.
+
+       TOT_        -- System totals. Get the user entry from all time datas.
+
+       Then comes "data subitem" which tells what to insert about previously
+       described user. Possible values are:
+
+         SLOTNR                   -- Slot number
+         NAME                     -- Name
+         LOCATION                 -- Location
+         BYTESUP                  -- Upload bytes
+         BYTESDOWN                -- Download bytes
+         FILESUP                  -- Upload files
+         FILESDOWN                -- Download files
+         CALLS                    -- Calls
+         MESSAGES                 -- Messages posted
+         BYTERATIO                -- ** for excellent, * for good, ! for
+                                     "not so good" and !! for leech :D
+         FILERATIO                -- same as byteratio, except for files.
+
+    For example, %[10.-12.UL_TOT_NAME] will insert name of the user, who
+    is tenth in the list of top uploaders... I hope you got the point :D
+</pre>
+<h2>Weektop message</h2>
+
+<p>    If the first line of design file contains @MSG -string, DDTop posts a
+    message everytime week changes. Naturally message includes the chart
+    file that design file describes. For example:
+
+<pre>@MSG utils/robowriter -f Weektop -r eall -s "Weekly top uploaders" -c 2 -b 1 %t</pre>
+
+<p>    posts message to conf 2, base 1 about weekly top uploaders..
+    %t == txt, %g == gfx (ansi).
+
+
+
+<hr>
+<h1><a name="s6">6 ddwho</h1></a>
+<p>ddwho is a commandline util that lists status of nodes (who's online).
+
+<hr>
+<h1><a name="s7">7 fixbases</h1></a>
+<p>"fixbases" scans your messagebases and fixes high/low message pointers if
+they are set incorrectly.
+
+<hr>
+<h1><a name="s8">8 listclean</h1></a>
+<p><strong>listclean</strong> cleans up filelists. It marks missing files
+with D-flag or kills file completely if invoked with -k flag.
+Run it for full usage.
+
+<hr>
+<h1><a name="s9">9 msgbaseopt</h1></a>
+<p><strong>msgbaseopt</strong> cleans up message bases. It turns old EALL
+messages to ALL messages, recycles the message base by BASE_MAXMSGS, corrects
+broken last read pointers and deletes unused headers. Run it for full usage.
+
+<hr>
+<h1><a name="s10">10 pcb2ansi</h1></a>
+<p><strong>pcb2ansi</strong> converts PCB-@XX -color codes to ANSI.
+
+<hr>
+<h1><a name="s11">11 robowriter</h1></a>
+<p><strong>robowriter</strong> is an util to post messages from commandline
+or from a door. You may find it useful for scripts etc. Run it for full usage.
+
+<hr>
+<h1><a name="s12">12 stripansi</h1></a>
+<p><strong>stripansi</strong> eats text files with ansi codes from stdin and
+barfs them to stdout -- without ansi :)
+
+<hr>
+<h1><a name="s13">13 tosser</h1></a>
+<p><strong>ddecho</strong> is a fidonet tosser/scanner. See <a href="fidonet.html">chapter 6</a> for more info.
+
+<hr>
+<h1><a name="s14">14 txtdiz</h1></a>
+<p><strong>txtdiz</strong> extracts a file_id.diz from textfile. Run it for
+usage.
+
+<hr>
+<h1><a name="s15">15 yelld</h1></a>
+<p><strong>yelld</strong> is a pager. It kicks local console, /dev/audio or
+whatever when user tries to reach the sysop. It must be run by a superuser.
+
+<hr>
+<h1><a name="s16">16 zipadder</h1></a>
+<p><strong>zipadder</strong> tests and archive and adds an advert to it. Usage:
+zipadder &ltarchive&gt &ltadvert&gt.
+
+<hr>
+<h1><a name="s17">17 logrot</h1></a>
+<p><strong>logrot</strong> "rotates" the binary logfiles <kbd>uploadlog.dat,
+downloadlog.dat and callerslog.dat</kbd>. It also fixes the logfile if it has
+been corrupted somehow. Run it for usage.
+
+<hr> 
+<h1><a name="s18">18 strconv</h1></a>
+<p><strong>strconv</strong> converts the old-style display/strings.* to new keyword
+indexed format. It is written in Perl, but if you have Perl in /usr/bin,
+it can be invoked by simply typing its name followed by the directory containing
+latest DayDream sources and the name of the string definition file to be
+processed, for example:
+<PRE>strconv /usr/src/daydream /home/bbs/display/strings.001</PRE>
+If the above complains about missing Perl, type "perl" in front of command
+line above (provided that you have installed Perl). Consult 'UPDATING'
+for further information.

@@ -1,0 +1,18 @@
+Address all requests to 'AreaFix' (without quotes).
+Your Area Manager password goes on the subject line.
+
+In the body of the message to Area Manager:
+
+[+]<areaname>         Connect an area
+-<areaname>           Disconnect an area
+%HELP                 Request this message
+%LIST                 Request a list of areas available to you
+%QUERY                Request a list of areas to which you are connected
+%LINKED               --------------""----------------
+%UNLINKED             --------------""----------------
+%RESCAN <areaname>    Request a rescan of <areaname>
+
+The areanames for connection/disconnection of areas may contain 
+wildchar (? and *).
+
+

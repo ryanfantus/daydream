@@ -1,0 +1,4 @@
+#!/bin/sh
+
+unzip -t $1
+zip </dev/null >/dev/null $1 $2

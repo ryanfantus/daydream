@@ -1,0 +1,8 @@
+
+ID  PROTOCOL & COMMENT                      APPROXIMATE EFFICIENCY
+==========================================================================
+Z)  Z-Modem, Very fast and reliable                  97%
+H)  Hydra                                            98%
+S)  Smodem, kick ass protocol                      ~100%
+==========================================================================
+

@@ -1,0 +1,881 @@
+<title>Configuring DayDream BBS</title>
+<h1>Configuring DayDream</h1>
+
+<p>Configuration   of  DayDream  BBS  is  done  via  external  configprogram,
+ddcfg.   It  compilies  specified ascii file to the datafiles,  that
+can be found in $DAYDREAM/data/-directory. Order of stuff inside "blocks"
+is not important, but all the fields MUST be present. Configprogram gently
+informs what field is missing, if it is missing.
+
+<p>The basic configfile is included in distribution archive, just look at the
+examples to get the idea.
+
+<h2><a name="s1">1 Main Configuration</a></h2>
+<pre>
+---------------------------------------- example
+!DAYDREAM.DAT
+BBSNAME...... Humanoid Invasion
+SYSOP........ Hydra
+CHATDLPATH... /home/bbs/hold
+SYSTEM_PW.... -
+NEWUSER_PW... -
+USERED_PW.... FALLOS
+NEW_PRESET... 1
+IDLE......... 180
+AUTOCONF..... 1
+FREEFORUL.... 2000000
+ASK_REASON... Y
+NAMEMODE..... H
+LOCATION..... O
+ASKHANDLE1ST. N
+SYSOP_COL.... [36m
+USER_COL..... [35m
+ALIENS....... /home/bbs/aliens/
+LINE_EDCOM... $
+FSED......... /home/bbs/doors/dded %N
+SCREENLENGTH. 30
+FREEDLLINE... [-] FREE DOWNLOAD -------- FREE DOWNLOAD [-]
+COSYSOPACCESS 250
+HOLDDIR...... /home/bbs/hold/
+TELNETNODEPAT /dev/ttyp* /dev/ttys*
+TELNETNODE1ST 10
+TELNETNODEMAX 4
+LOCALNODEPAT. /dev/tty* 
+LOCALNODE1ST. 3
+LOCALNODEMAX. 2
+ASKDISPLAY... Y
+ALLOW2LOGINS. N
+ASKNEWUSER... Y
+LOGINSTYLE... Y
+DEF_EXPERT... N
+DEF_MAILSCAN. Y
+DEF_NEWFILESC N
+DEF_ALLOWNODE Y
+DEF_EDITOR... F
+DEF_AUTOQUICK N
+DEF_BGCHECKER Y
+CATALOGDUPECK N
+BGCHECKER.... Y
+MAXFTPUSERS.. 3
+PYTHON....... /usr/bin/python
+FLOODKILLTRIG 10
+DOORLIBPATH.. /home/bbs/lib
+~
+---------------------------------------- example
+</pre>
+<dl compact>
+<h3><dt>BBSNAME</h3><dd>
+Name of your system
+<h3><dt>SYSOP</h3><dd>
+Name of system operator.. (Your name :)
+
+<h3><dt>CHATDLPATH</h3><dd>
+Path of directory where the files downloaded during a chat will be
+placed.
+
+<h3><dt>SYSTEM_PW</h3><dd>
+System password (if any)
+
+<h3><dt>NEWUSER_PW</h3><dd>
+New user password (if any)
+
+<h3><dt>USERED_PW</h3><dd>
+User editor password (if any)
+
+<h3><dt>NEW_PRESET</h3><dd>
+Access preset for new users. See below for information about
+presets.
+
+<h3><dt>IDLE</h3><dd>
+Idle timeout..
+
+<h3><dt>AUTOCONF</h3><dd>
+Auto-join conference. If user is unable to join the conference he
+was on last time he called, he will join this.
+
+
+<h3><dt>FREEFORUL</h3><dd>
+Free HDD space required for uploads (bytes)
+
+<h3><dt>ASK_REASON</h3><dd>
+Ask chat reason (Y/N)
+
+<h3><dt>NAMEMODE</h3><dd>
+Default name mode (H=Handles, R=Real names)
+
+<h3><dt>LOCATION</h3><dd>
+Default location mode (O=Organization/Group, Z=Zip code)
+
+<h3><dt>ASKHANDLE1ST</h3><dd>
+Y/N switch. If this is Y,  Handle will be asked before real name when
+a user is about to create account.
+
+<h3><dt>SYSOP_COL</h3><dd>
+SysOp color in chat.
+
+<h3><dt>USER_COL</h3><dd>
+User color in chat.
+
+<h3><dt>ALIENS</h3><dd>
+Path to place  files that are found  in Temporary directory when  it
+needs to be cleaned. There  can be files  eg. if system  has crashed 
+during uploading. If this is -, files in temporary directory will be
+deleted.
+
+<h3><dt>LINE_EDCOM</h3><dd>
+Character that activates the command mode in line editor.
+
+<h3><dt>FSED</h3><dd>
+Command to be executed to start FullScreen Editor or - if you don't
+want to have FullScreen Editor.
+
+<h3><dt>SCREENLENGTH</h3><dd>
+Screen length of the local screen.
+
+<h3><dt>FREEDLLINE</h3><dd>
+Line to be added after free downloads or -. (In file listing)
+
+<h3><dt>COSYSOPACCESS</h3><dd>
+Security level of co-sysops.
+ 
+<h3><dt>HOLDDIR</h3><dd>
+Place private uploads in this dir
+
+<h3><dt>TELNETNODEPATH</h3><dd>
+Pattern for telnet nodes.. (ttys). If this pattern matches with
+the tty user is attached in, it's considered as a telnet call..
+
+<h3><dt>TELNETNODE1ST</h3><dd>
+DD allocates telnet nodes dynamically. This is number of first 
+telnet node. If this is 10, then first telnet caller will be in
+node 10, next on 11.. etc :)
+
+<h3><dt>TELNETNODEMAX</h3><dd>
+Maximum number of telnet connections running at the same time.
+
+<h3><dt>LOCALNODEPAT</h3><dd>
+Same as TELNETNODEPATH, except for local connections.
+
+<h3><dt>LOCALNODE1ST</h3><dd>
+1st local node.
+
+<h3><dt>LOCALNODEMAX</h3><dd>
+Max number of local nodes.
+
+<h3><dt>ASKDISPLAY</h3><dd>
+This setting controls whether to ask the number of incoming/outgoing
+conversion tables on login. If this is set to N, the default is 1.
+
+<h3><dt>ALLOW2LOGINS</h3><dd>
+Y/N. Allow multiple logins at once.
+
+<h3><dt>ASKNEWUSER</h3><dd>
+Y/N/D. If user tries to login with non-existing account, ask if
+he/she wants to create a new one. Setting this to 'D' disables
+new account creation completely.
+
+<h3><dt>LOGINSTYLE</h3><dd>
+Y/N. If this is set to 'N', login password will not be asked if
+the user account does not exist. Setting this to 'Y' will make it
+a bit more difficult for an attacker to probe the valid accounts
+in the system. On other words, password will asked even if the
+account does not exist.
+	
+<h3><dt>DEF_EXPERT</h3><dd>
+Y/N. Enable expert mode as default.
+	
+<h3><dt>DEF_MAILSCAN</h3><dd>
+Y/N/A. Enable mail scan as default. A for ASK.
+	
+<h3><dt>DEF_NEWFILESC</h3><dd>
+Y/N/A. Enable new file scan as default. A for ASK.
+
+<h3><dt>DEF_ALLOWNODE</h3><dd>
+Y/N. Allow node messages as default.
+	
+<h3><dt>DEF_EDITOR</h3><dd>
+F/L/A. Default message editor. F=Full screen, L=line, A=Ask.
+	
+<h3><dt>DEF_AUTOQUICK</h3><dd>
+Y/N. Enable auto quick-uploading as default.
+
+<h3><dt>DEF_BGCHECKER</h3><dd>
+Y/N. Enable background upload checker/poster as default.
+
+<h3><dt>CATALOGDUPECK</h3><dd>
+Y/N. Look for dupes in uploadlog.dat. If this is ON, DD will discard already
+uploaded files even if they are no longer online.
+<h3><dt>BGCHECKER</h3><dd>
+Y/N. Enable BGChecker. Because background upload checker is a bit experimental,
+you may want to turn it off. Also it eats a bit more CPU, so it might be a
+stupid idea to enable background checker on a slow 386.
+<h3><dt>MAXFTPUSERS</h3><dd>
+Amount of FTP users at once.
+<h3><dt>PYTHON</h3><dd>
+Path to python executable.
+<h3><dt>FLOODKILLTRIG</h3><dd>
+Number of bare linefeeds received before the user is kicked out. Maybe 
+not that useful thing taken from PCB.
+<h3><dt>DOORLIBPATH</h3><dd>
+Some doors are dynamically linked but the runtime library path may be 
+missing, for example, when the doors are invoked during archive checking
+after a FTP upload. You can use this to provide the correct path, 
+usually /home/bbs/lib.
+</dl>
+
+<h2><a name="s2">2 Conferences</h2></a>
+
+<pre>-------------------------------- example
+!CONFERENCES.DAT
+CONF_NUMB..... 1
+CONF_NAME..... Ro&oslash;kIEs
+CONF_PATH..... /home/bbs/confs/newusers
+CONF_FILEAREAS 0
+CONF_UPLOADSTO 0
+CONF_MSGBASES. 1
+CONF_COMMENTS. 1
+CONF_ULPATH... -
+CONF_NSAREAS.. -
+CONF_DEFFSCAN. N
+CONF_FREELEECH N
+CONF_NOCREDS.. N
+CONF_SENTBY... Y
+CONF_LONGNAMES N
+CONF_ASKDEST.. N
+CONF_NOWILDS.. Y
+CONF_NOWILDFLG N
+CONF_NODUPECHK N
+CONF_NOFILECHK N
+CONF_GLOBALDCK Y
+CONF_PASSWORD. -
++
+-------------------------- example
+</pre>
+<dl compact>
+<h3><dt>CONF_NUMB</h3><dd>
+	Conference number (1-64)
+
+<h3><dt>CONF_NAME</h3><dd>
+	Conference name
+
+<h3><dt>CONF_PATH</h3><dd>
+	Path to conferences datafiles. (data/, messages/ and display/ should
+	be in there)
+
+<h3><dt>CONF_FILEAREAS</h3><dd>
+	Number of fileareas in conference. (1-255)
+
+<h3><dt>CONF_UPLOADSTO</h3><dd>
+	Number of upload area.
+
+<h3><dt>CONF_MSGBASES</h3><dd>
+	Number of message bases. (1-255)
+
+<h3><dt>CONF_COMMENTS</h3><dd>
+	Number of the message base to place comments in. If 0, no comments
+	allowed in this conference.
+
+<h3><dt>CONF_ULPATH</h3><dd>
+	Path of the directory where uploads are moved after transfer. End
+	with /. If you want to specify multiple upload paths, do it like this:
+	<pre>
+	CONF_ULPATH.. @/space/bbs/conf2.dat
+	</pre>
+	This makes DD to look upload paths with free space from paths listed
+	in /space/bbs/conf2.dat. (Must be an ascii file, a path per line).
+	
+<h3><dt>CONF_NSAREAS</h3><dd>
+	Arealist for  global  new file scan. Area list uses the same routine
+	as N S [....]-menu command. [....] will be placed with this.
+
+<h3><dt>CONF_DEFFSCAN</h3><dd>
+	If  you  want  this conference  to be  turned  on as default for the
+	global file scan, use Y. If not, then N.
+
+<h3><dt>CONF_FREELEECH</h3><dd>
+	Y if the files in the conference are free downloads.
+
+<h3><dt>CONF_NOCREDS</h3><dd>
+	Y if you don't want to credit users for uploading stuff.
+
+<h3><dt>CONF_SENTBY</h3><dd>
+	Y if you want to add sent-by lines after file descriptions.
+
+<h3><dt>CONF_LONGNAMES</h3><dd>
+	Y if you want to have 34 characters long filenames instead on 18.
+
+<h3><dt>CONF_ASKDEST</h3><dd>
+	If you want that user will be asked for filearea for his/her upload
+	instead of placing it in upload directory, set this as Y.
+
+<h3><dt>CONF_NOWILDS</h3><dd>
+	Y if you don't want to allow wildcards in filenames.
+
+<h3><dt>CONF_NOWILDFLG</h3><dd>
+	Y if you want to disable fileflagging with wildcards.
+
+<h3><dt>CONF_NODUPECHK</h3><dd>
+	Y if you don't want to include the conference in global dupecheck.
+
+<h3><dt>CONF_NOFILECHK</h3><dd>
+	Y if you don't want to check the files that are uploaded to this
+	conference.
+<h3><dt>CONF_GLOBALDCK</h3><dd>
+	Y if you want to have global dupechecking in the conference. You may
+	want to turn this off in your request-conference. (Other conferences
+	are ignored in dupechecking if this is N)
+
+<h3><dt>CONF_PASSWORD</h3><dd>
+	Conference password (optional).
+</dl>
+
+<h2><a name="s3">3 Message bases</a></h2>
+
+<pre>BASE_NUMBER... 1
+BASE_TYPE..... L
+BASE_MAXMSGS.. 100
+BASE_NAME..... Mail
+BASE_FIDOTAG.. ROOKIES
+BASE_ORIGIN... -
+BASE_FIDOADD.. -
+BASE_ALLOWPBLC Y
+BASE_ALLOWPRIV Y
+BASE_FILEATTAC Y
+BASE_NAMES.... H
+BASE_ALL=EALL. N
+BASE_QUOTE.... L
+BASE_DEFGRAB.. Y
+</pre>
+<dl compact>
+<h3><dt>BASE_NUMBER<dd></h3>
+	Number of the message base.
+
+<h3><dt>BASE_TYPE</h3><dd>
+	Message base type. (L=Local, E=Echomail, N=Netmail).
+
+<h3><dt>BASE_MAXMSGS</h3><dd>
+	Max number of messages in message base.
+
+<h3><dt>BASE_NAME</h3><dd>
+	Name of the message base.
+	Currently, must not contain any spaces i.e. " " or things
+	that wouldn't work as a valid filename in order to use
+	echomail/netmail.
+
+<h3><dt>BASE_FIDOTAG</h3><dd>
+	Fidonet tag for messagebase. Note that QWK-door (grab) requires
+	this tag also for local area naming.
+
+<h3><dt>BASE_ORIGIN</h3><dd>
+	Fidonet origin of the message base.
+	No ansi or pipe colors.
+
+<h3><dt>BASE_FIDOADD</h3><dd>
+	Fidonet address for the base.
+
+<h3><dt>BASE_ALLOWPBLC</h3><dd>
+	Y to allow public messages in this base.
+
+<h3><dt>BASE_ALLOWPRIV</h3><dd>
+	Y to allow private messages in this base.
+
+<h3><dt>BASE_FILEATTAC</h3><dd>
+	Y to allow file attachs.
+
+<h3><dt>BASE_NAMES</h3><dd>
+	Namemode. H=Handles, R=Real names.
+
+<h3><dt>BASE_ALL=EALL</h3><dd>
+	Write ALL messages as EALL messages. BAH.
+
+<h3><dt>BASE_QUOTE</h3><dd>
+	Quoting  method.   If  L,  /X-like quoteline will be inserted after
+	quote.   If this is >, plain > will be inserted before each line of
+	the  quote.   If this is I, initials of the original message author
+	and ">" will be inserted before quote. EG.  "AH> DayDream KiX a$$!"
+	For echomail / netmail, only > or I are allowed.
+
+
+<h3><dt>BASE_DEFGRAB</h3><dd>
+	Y/N  switch.  Use Y, if  you want  this messagebase  to be turned on
+	as default for new mail scan and message grabbing.
+
+</dl>
+
+<h1><a name="s4">4 External commands</h1></a>
+
+<pre>DOOR_COMMAND.. WALL
+DOOR_TYPE..... 1
+DOOR_SECURITY. 5
+DOOR_EXECUTE.. /home/bbs/doors/wall %N
+DOOR_CONFS1... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+DOOR_CONFS2... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+DOOR_PASSWD... -
+</pre>
+
+<dl compact>
+<h3><dt>DOOR_COMMAND</h3><dd>
+	Command at main prompt to start this door.
+
+<h3><dt>DOOR_TYPE</h3><dd>
+	<li>1 = Normal DayDream door. See libdd.doc for info how to write 
+            DayDream doors.
+	<li>2 = stdio program. (eg. nethack :)
+	<li>3 = Text file
+	<li>4 = Bind to internal DD command
+        <li>5 = stdio program without user input
+	<li>6 = python script using dd-module
+
+<h3><dt>DOOR_SECURITY</h3><dd>
+	Minimum security level to start this door.
+
+<h3><dt>DOOR_EXECUTE</h3><dd>
+	Command or filename to run the door. %N required for all DayDream
+        doors. - to disable command (if doortype = 4). Some tokens in this
+	field are interpreted in a special way, see 
+	<a href="setup.html#s4.4">door parameters</a>.
+
+<h3><dt>DOOR_CONFS1</h3><dd>
+	Flags for conferences 1-32. If X, door is available in conf, if -
+        then it's not.
+
+<h3><dt>DOOR_CONFS2</h3><dd>
+        Flags for conferences 33-64. If X, door is available in conf, if -
+        then it's not.
+
+<h3><dt>DOOR_PASSWD</h3><dd>
+        The door's password, up to 15 characters, case insensitive. Can
+        be set to '-' to disable password. The prompt for this password
+        should be in a text file called 'doorpasswdXYZ.[gfx/txt]', where
+        XYZ is the name of the door in lower case. The alternatives for
+        user's security level and the current conference are checked 
+        before failing back to /home/bbs/display/iso. Look at 
+        'display/iso/doorpasswdshell.[gfx/txt]' for an example.
+
+</dl>
+<h2><a name="s5">5 Security presets</a></h2>
+
+<pre>PRESET_SEC.... 5
+PRESET_NUMBER. 1
+PRESET_FFILES. 0
+PRESET_FBYTES. 0
+PRESET_DESC... New User
+PRESET_STATUS. 3
+</pre>
+
+<dl compact>
+<h3><dt>PRESET_SEC</h3><dd>
+	Security level for the preset.
+
+<h3><dt>PRESET_NUMBER</h3><dd>
+	Number of preset.
+
+<h3><dt>PRESET_FFILES</h3><dd>
+	Free DL files.
+
+<h3><dt>PRESET_FBYTES</h3><dd>
+	Free DL bytes.
+
+<h3><dt>PRESET_DESC</h3><dd>
+	Preset description.
+
+<h3><dt>PRESET_STATUS</h3><dd>
+        Status of the preset. 0 = Active, 1 = Deleted, 2 = Frozen, 3 = New
+
+</dl>
+<h2><a name="s6">6 Archivers</a></h2>
+
+<pre>ARC_PATTERN... *.LHA
+ARC_NAME...... LHA
+ARC_TEST...... lha t %A
+ARC_FAIL1..... Error: 
+ARC_FAIL2..... -
+ARC_FAIL3..... -
+ARC_FIDEXTRACT lha eqf %A
+ARC_FIDADD.... lha a %A file_id.diz
+ARC_VIEW...... lha v %A
+ARC_GETDATE... Y
+ARC_DELETECOR. Y
+ARC_DISPLAY... Y
+ARC_VIEWSEC... 200
+</pre>
+
+<dl compact>
+<h3><dt>ARC_PATTERN</h3><dd>
+	Pattern for identifying file type.
+
+<h3><dt>ARC_NAME</h3><dd>
+	Archiver name.
+
+<h3><dt>ARC_TEST</h3><dd>
+	Command to test archive. %A == archive name.
+
+<h3><dt>ARC_FAIL1</h3><dd>
+        Keyword if archive is corrupted (- for none). Case-sensitive. 
+
+<h3><dt>ARC_FAIL2</h3><dd>
+        Keyword if archive is corrupted (- for none). Case-sensitive. 
+
+<h3><dt>ARC_FAIL3</h3><dd>
+        Keyword if archive is corrupted (- for none). Case-sensitive. 
+
+<h3><dt>ARC_FIDEXTRACT</h3><dd>
+	File_id.diz extraction command. %A = archive name.
+
+<h3><dt>ARC_FIDADD</h3><dd>
+	File_id.diz adding command. %A = archive name.
+
+<h3><dt>ARC_VIEW</h3><dd>
+	Command to view archive contents.
+
+<h3><dt>ARC_GETDATE</h3><dd>
+	Try to get date from file_id.diz.
+
+<h3><dt>ARC_DELETECOR</h3><dd>
+	Delete archive if corrupt.
+
+<h3><dt>ARC_DISPLAY</h3><dd>
+	Display output of testing to the user.
+
+<h3><dt>ARC_VIEWSEC</h3><dd>
+	Minimum security level to view archive contents.
+
+</dl>
+<h2><a name="s7">7 Display modes</a></h2>
+
+<pre>DPL_ID........ 1
+DPL_PATH...... iso/
+DPL_ANSI...... Y
+DPL_INCONV.... N
+DPL_OUTCONV... N
+DPL_FILESCONV. N
+DPL_STRIPANSI. N
+DPL_TRYTXT.... N
+DPL_INTABLE... 0
+DPL_OUTTABLE.. 0
+DPL_STRINGS... 1
+</pre>
+<dl compact>
+<h3><dt>DPL_ID</h3><dd>
+	Display mode number. (1-254)
+
+<h3><dt>DPL_PATH</h3><dd>
+	Path used by display mode to find menus and text files.  If this is
+        "iso/",        text        stuff       is       searched       from
+        $DAYDREAM/display/iso/-directory.
+
+<h3><dt>DPL_ANSI</h3><dd>
+	If this is Y, ansi colors are enabled.  If this is N, only 2 colors
+        are used.
+
+<h3><dt>DPL_INCONV</h3><dd>
+        Activate  incoming  conversion.   If this is Y, incoming characters
+        will be converted.
+
+<h3><dt>DPL_OUTCONV</h3><dd>
+        Activate  outgoing  conversion.   If this is Y, outgoing characters
+        will be converted.
+
+<h3><dt>DPL_FILESCONV</h3><dd>
+        Activate  textfile  conversion.   If  this is Y, outgoing textfiles
+        will be converted.
+
+<h3><dt>DPL_STRIPANSI</h3><dd>
+        Strip ansicodes from textfiles.
+
+<h3><dt>DPL_TRYTXT</h3><dd>
+        If GFX file doesn't exist, try TXT.
+
+<h3><dt>DPL_INTABLE</h3><dd>
+	Incoming conversion table number or 0.
+
+<h3><dt>DPL_OUTTABLE</h3><dd>
+	Outgoing conversion table number or 0.
+
+<h3><dt>DPL_STRINGS</h3><dd>
+	Number of string file (strings.xxx) to use.
+
+</dl>
+
+<h2><a name="s8">8 Node configuration</h2></a>
+
+<pre>MNODE_NODE.... 1
+MNODE_MBAUD... 1200
+MNODE_MNBAUD.. 1200
+MNODE_OWNDIR.. N
+MNODE_NOTIFY.. Y
+MNODE_HIDEINAC Y
+MNODE_HIDEWAIT N
+MNODE_HIDECALL N
+MNODE_NOPASSWD N
+MNODE_TEMP.... /home/bbs/temp/node1/
+MNODE_TTYNAME. /dev/ttyS0
+MNODE_TTYTYPE. 0
+MNODE_TTYSPEED 0
+</pre>
+
+<dl compact>
+<h3><dt>MNODE_NODE</h3><dd>
+	Node number (1-255). Telnet and local nodes need "general
+        preset", so if this is for Telnet node, use T. For local
+        node use L.
+
+<h3><dt>MNODE_MBAUD</h3><dd>
+	Minimum baudrate to logon.
+
+<h3><dt>MNODE_MNBAUD</h3><dd>
+	Minimum baudrate for new users.
+
+<h3><dt>MNODE_OWNDIR</h3><dd>
+	Y to Get Display stuff from  $DAYDREAM/node[number]/display/
+        instead of $DAYDREAM/display/.
+
+<h3><dt>MNODE_NOTIFY</h3><dd>
+	Y to notify other users online when someone logs on to this node.
+
+<h3><dt>MNODE_HIDEINAC</h3><dd>
+	Y to hide node when no one is online.
+
+<h3><dt>MNODE_HIDEWAIT</h3><dd>
+	Obsolete.
+
+<h3><dt>MNODE_HIDECALL</h3><dd>
+	Y to hide node when there's a caller online.
+ 
+<h3><dt>MNODE_NOPASSWD</h3><dd>
+	Obsolete.
+
+<h3><dt>MNODE_TEMP</h3><dd>
+	Path to temp dir. If this is a telnet or local node, use %d to
+        insert node number. (eg. /home/bbs/temp/node%d/)
+
+<h3><dt>MNODE_TTYNAME</h3><dd>
+	TTY-name for node or - if local/telnet node.
+
+<h3><dt>MNODE_TTYTYPE</h3><dd>
+	TTY type. 0 = Dial-up, 1 = Telnet, 2 = Local, 3 = FTP
+
+<h3><dt>MNODE_TTYSPEED</h3><dd>
+	Imaginary bps rate for local or telnet calls.
+
+</dl>
+<h2><a name="s9">9 Security levels</a></h2>
+
+<pre>SEC_LEVEL..... 1
+SEC_FRATIO.... 3
+SEC_BRATIO.... 3
+SEC_PAGES..... 3
+SEC_TIMELIMIT. 20
+SEC_CONFACC1.. XXXXXXXXXXXXXX------------------
+SEC_CONFACC2.. --------------------------------
+SECF_DOWNLOAD. N
+SECF_UPLOAD... N
+SECF_READMSGS. N
+SECF_ENTERMSG. N
+SECF_PAGE..... N
+SECF_COMMENT.. N
+SECF_BULLETINS N
+SECF_LISTFILES N
+SECF_NEWFILES. N
+SECF_ZIPPY.... N
+SECF_RUNDOOR.. N
+SECF_JOINCONF. N
+SECF_MSGAREAC. N
+SECF_CHANGEINF N
+SECF_RELOGIN.. N
+SECF_TAGED.... N
+SECF_VIEWSTATS N
+SECF_VIEWTIME. N
+SECF_HYDRA.... N
+SECF_EXPERT... N
+SECF_EALL..... N
+SECF_FIDOMSG.. N
+SECF_PRIVMSG.. N
+SECF_READALL.. N
+SECF_USERED... N
+SECF_VIEWLOG.. N
+SECF_SYSOPDL.. N
+SECF_USERLIST. N
+SECF_DELETEANY N
+SECF_SHELL.... N
+SECF_WHO...... N
+SECF_MOVE..... N
+SECF_SFCONFS.. N
+SECF_SMBASES.. N
+SECF_NETMAIL.. N
+SECF_OLM...... N
+SECF_PRVATTACH N
+SECF_PUBATTACH N
+SECF_VIEWFILE. N
+SECF_REALNAME. Y
+SECF_HANDLE... Y
+</pre>
+<dl compact>
+<h3><dt>SEC_LEVEL</h3><dd>
+	Security level.
+
+<h3><dt>SEC_FRATIO</h3><dd>
+	File ratio for this level. 0 for disabled.
+
+<h3><dt>SEC_BRATIO</h3><dd>
+	Byte ratio for this level. 0 for disabled.
+
+<h3><dt>SEC_PAGES</h3><dd>
+	Amount of sysop pages per call.
+
+<h3><dt>SEC_TIMELIMIT</h3><dd>
+	Time limit / day in minutes.
+
+<h3><dt>SEC_CONFACC1</h3><dd>
+	Access flags to conferences 1-32.
+
+<h3><dt>SEC_CONFACC2</h3><dd>
+	Access flags to conferences 33-64.
+ 
+<h3><dt>SECF_DOWNLOAD</h3><dd>
+	Y/N. Download files.
+
+<h3><dt>SECF_UPLOAD</h3><dd>
+	Y/N. Upload files.
+
+<h3><dt>SECF_READMSGS</h3><dd>
+	Y/N. Read messages.
+
+<h3><dt>SECF_ENTERMSG</h3><dd>
+	Y/N. Write messages.
+
+<h3><dt>SECF_PAGE</h3><dd>
+	Y/N. Page/yell sysop.
+
+<h3><dt>SECF_COMMENT</h3><dd>
+	Y/N. Comment to sysop.
+
+<h3><dt>SECF_BULLETINS</h3><dd>
+	Y/N. View bulletins.
+
+<h3><dt>SECF_LISTFILES</h3><dd>
+	Y/N. List files.
+
+<h3><dt>SECF_NEWFILES</h3><dd>
+	Y/N. View new files.
+
+<h3><dt>SECF_ZIPPY</h3><dd>
+	Y/N. Zippy search.
+
+<h3><dt>SECF_RUNDOOR</h3><dd>
+	Y/N. Run external programs.
+
+<h3><dt>SECF_JOINCONF</h3><dd>
+	Y/N. Join conference.
+
+<h3><dt>SECF_MSGAREAC</h3><dd>
+	Y/N. Change msg area.
+
+<h3><dt>SECF_CHANGEINF</h3><dd>
+	Y/N. Change user information.
+
+<h3><dt>SECF_RELOGIN</h3><dd>
+	Y/N. Relogin. (Not currently available).
+
+<h3><dt>SECF_TAGED</h3><dd>
+	Y/N. Tag editor.
+
+<h3><dt>SECF_VIEWSTATS</h3><dd>
+	Y/N. View user information.
+
+<h3><dt>SECF_VIEWTIME</h3><dd>
+	Y/N. View local time.
+
+<h3><dt>SECF_HYDRA</h3><dd>
+	Obsolete.
+
+<h3><dt>SECF_EXPERT</h3><dd>
+	Y/N. Turn expert mode on/off.
+
+<h3><dt>SECF_EALL</h3><dd>
+	Y/N. Write EALL messages.
+
+<h3><dt>SECF_FIDOMSG</h3><dd>
+	Y/N. Write fidonet messages. (Not currently available).
+
+<h3><dt>SECF_PRIVMSG</h3><dd>
+	Y/N. Write private messages.
+
+<h3><dt>SECF_READALL</h3><dd>
+	Y/N. Read ANY message. (Private to someone else).
+
+<h3><dt>SECF_USERED</h3><dd>
+	Y/N. User editor.
+
+<h3><dt>SECF_VIEWLOG</h3><dd>
+	Y/N. View log files.
+
+<h3><dt>SECF_SYSOPDL</h3><dd>
+	Y/N. SysOp download.
+
+<h3><dt>SECF_USERLIST</h3><dd>
+	Y/N. List users.
+
+<h3><dt>SECF_DELETEANY</h3><dd>
+	Y/N. Delete ANY message.
+
+<h3><dt>SECF_SHELL</h3><dd>
+	Y/N. Remote shell. (Not currently available)
+
+<h3><dt>SECF_WHO</h3><dd>
+	Y/N. View who is online.
+
+<h3><dt>SECF_MOVE</h3><dd>
+	Y/N. Move files.
+
+<h3><dt>SECF_SFCONFS</h3><dd>
+	Y/N. Select conferences to scan for new files.
+
+<h3><dt>SECF_SMBASES</h3><dd>
+	Y/N. Select messagebases for mailscan.
+
+<h3><dt>SECF_NETMAIL</h3><dd>
+	Y/N. Send netmail. (Not currently available)
+
+<h3><dt>SECF_OLM</h3><dd>
+	Y/N. Send online message.
+
+<h3><dt>SECF_PRVATTACH</h3><dd>
+	Y/N. Attach file to a private message.
+
+<h3><dt>SECF_PUBATTACH</h3><dd>
+	Y/N. Attach file to a public message.
+
+<h3><dt>SECF_VIEWFILE</h3><dd>
+	Y/N. View file.
+
+<h3><dt>SECF_REALNAME</h3><dd>
+	Y/N. Change real name.
+
+<h3><dt>SECF_HANDLE</h3><dd>
+	Y/N. Change handle.
+
+</dl>
+<h2><a name="s10">10 File Transfer protocols</a></h2>
+
+<pre>XPR_ID........ Z
+XPR_NAME...... Z-Modem
+XPR_EFFICIENCY 97
+XPR_TYPE...... 1
+</pre>
+<dl compact>
+<h3><dt>XPR_ID</h3><dd>
+	Procotol ID.
+
+<h3><dt>XPR_NAME</h3><dd>
+	Protocol name.
+
+<h3><dt>XPR_EFFICIENCY</h3><dd>
+	Protocol efficiency. (In percents)
+
+<h3><dt>XPR_TYPE</h3><dd>
+	Protocol type. 1 = ZModem, 2 = HydraCom, 3 = Smodem, 4 = FTP.
+	For ftp see ddftp/README.
+	
+</dl>
+

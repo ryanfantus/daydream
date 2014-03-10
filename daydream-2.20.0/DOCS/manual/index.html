@@ -1,0 +1,121 @@
+<title>DayDream BBS Documentation</title>
+
+<h1>Contents</h1>
+
+<p><h2>1. <a href="intro.html"> Introduction and features</a></h2>
+<ul><h3><a href="intro.html#s1">1.1 Introduction</a></h3>
+<h3><a href="intro.html#s2">1.2 Features</a></h3>
+<h3><a href="intro.html#s3">1.3 Requirements</a></h3>
+<h3><a href="intro.html#s4">1.4 The credits</a></h3>
+<h3><a href="intro.html#s5">1.5 About this doc</a></h3></ul>
+<h2>2. <a href="setup.html"> Installation</a></h2>
+<ul><h3><a href="setup.html#s1">2.1 Installation</a></h3>
+<h3><a href="setup.html#s2">2.2 Directories</a></h3>
+<h3><a href="setup.html#s3">2.3 BBS Files</a></h3>
+<ul><h4><a href="setup.html#s3.1">2.3.1 [Conference]/Data/</h4></a>
+<h4><a href="setup.html#s3.2">2.3.2 [Conference]/bulletins/</h4></a>
+<h4><a href="setup.html#s3.3">2.3.3 [Conference]/display/[Displaymode]/</h4></a>
+<h4><a href="setup.html#s3.4">2.3.4 [Conference]/messages/[baseXXX]</h4></a>
+<h4><a href="setup.html#s3.5">2.3.5 $DAYDREAM/[DisplayMode]/</h4></a>
+<h4><a href="setup.html#s3.6">2.3.6 $DAYDREAM/display/</h4></a>
+<h4><a href="setup.html#s3.7">2.3.7 $DAYDREAM/data/</h4></a>
+<h4><a href="setup.html#s3.8">2.3.8 $DAYDREAM/batch/</h4></a></ul>
+<h3><a href="setup.html#s4">2.4 Control codes</a></h3>
+<ul><h4><a href="setup.html#s4.1">2.4.1 Action codes</h4></a>
+<h4><a href="setup.html#s4.2">2.4.2 String codes</h4></a>
+<h4><a href="setup.html#s4.3">2.4.3 Main prompt codes</h4></a>
+<h4><a href="setup.html#s4.4">2.4.4 Door parameters</h4></a></ul>
+</ul>
+<h2>3. <a href="config.html">Configuring DayDream</h2></a>
+<ul><h3><a href="config.html#s1">3.1 Main configuration</h3></a>
+<h3><a href="config.html#s2">3.2 Conferences</h3></a>
+<h3><a href="config.html#s3">3.3 Message bases</h3></a>
+<h3><a href="config.html#s4">3.4 External commands</h3></a>
+<h3><a href="config.html#s5">3.5 Security presets</h3></a>
+<h3><a href="config.html#s6">3.6 Archivers</h3></a>
+<h3><a href="config.html#s7">3.7 Display modes</h3></a>
+<h3><a href="config.html#s8">3.8 Node configuration</h3></a>
+<h3><a href="config.html#s9">3.9 Security levels</h3></a>
+<h3><a href="config.html#s10">3.10 File transfer protocols</h3></a></ul>
+<h2>4. <a href="usercmds.html">User commands</h2></a>
+<ul><h3><a href="usercmds.html#sa">4.1 A - Alter userdata </h3></a>
+<h3><a href="usercmds.html#sb">4.2 B - Bulletins  </h3></a>
+<h3><a href="usercmds.html#sc">4.3 C - Comment to the SysOp  </h3></a>
+<h3><a href="usercmds.html#sd">4.4 D - Download  </h3></a>
+<h3><a href="usercmds.html#se">4.5 E - Enter message  </h3></a>
+<h3><a href="usercmds.html#sf">4.6 F - Filelist  </h3></a>
+<h3><a href="usercmds.html#sg">4.7 G - Disconnect  </h3></a>
+<h3><a href="usercmds.html#sj">4.8 J - Join a conference  </h3></a>
+<h3><a href="usercmds.html#sl">4.9 L - Local time  </h3></a>
+<h3><a href="usercmds.html#sm">4.10 M - Change message base  </h3></a>
+<h3><a href="usercmds.html#sn">4.11 N - New file scan  </h3></a>
+<h3><a href="usercmds.html#so">4.12 O - Page Sysop  </h3></a>
+<h3><a href="usercmds.html#sr">4.13 R - Read Messages  </h3></a>
+<h3><a href="usercmds.html#ss">4.14 S - Statistics  </h3></a>
+<h3><a href="usercmds.html#st">4.15 T - Tag editor  </h3></a>
+<h3><a href="usercmds.html#su">4.16 U - Upload files  </h3></a>
+<h3><a href="usercmds.html#sv">4.17 V - View a file  </h3></a>
+<h3><a href="usercmds.html#sx">4.18 X - Expert mode toggle  </h3></a>
+<h3><a href="usercmds.html#sz">4.19 Z - Zippy search  </h3></a>
+<h3><a href="usercmds.html#sprec">4.20 &lt - Previous conference  </h3></a>
+<h3><a href="usercmds.html#snexc">4.21 &gt - Next conference  </h3></a>
+<h3><a href="usercmds.html#smenu">4.22 ? - Main menu  </h3></a>
+<h3><a href="usercmds.html#sprem">4.23 &lt&lt - Previous message base  </h3></a>
+<h3><a href="usercmds.html#snexm">4.24 &gt&gt - Next message base </h3></a>
+<h3><a href="usercmds.html#sgr">4.25 GR - Global read  </h3></a>
+<h3><a href="usercmds.html#sms">4.26 MS - Mail scan  </h3></a>
+<h3><a href="usercmds.html#sns">4.27 NS - Global new file scan  </h3></a>
+<h3><a href="usercmds.html#sver">4.28 VER - Version information  </h3></a>
+<h3><a href="usercmds.html#solm">4.29 OLM - Online message  </h3></a>
+<h3><a href="usercmds.html#ssf">4.30 SF - Select conferences  </h3></a>
+<h3><a href="usercmds.html#ssm">4.31 SM - Select message bases</h3></a>
+<h3><a href="usercmds.html#suserlist">4.32 USERLIST - List users  </h3></a>
+<h3><a href="usercmds.html#smode">4.33 MODE - Change display mode  </h3></a>
+<h3><a href="usercmds.html#swho">4.34 WHO - Who's online  </h3></a>
+<h3><a href="usercmds.html#scls">4.35 CLS - Clear screen  </h3></a></ul>
+<h2>5. <a href="sysopcmds.html">SysOp Commands</a></h2>
+<ul><h3><a href="sysopcmds.html#susered">5.1 USERED - User editor</h3></a>
+<h3><a href="sysopcmds.html#smove">5.2 MOVE - Move file(s) </h3></a>
+<h3><a href="sysopcmds.html#slink">5.3 LINK - Link file(s) </h3></a>
+<h3><a href="sysopcmds.html#scopy">5.4 COPY - Copy file(s) </h3></a>
+<h3><a href="sysopcmds.html#ssd">5.5 SD - SysOp Download </h3></a>
+<h3><a href="sysopcmds.html#slog">5.6 LOG - View logfile </h3></a>
+<h3><a href="sysopcmds.html#stest">5.7 $ - Test a door </h3></a>
+<h3><a href="sysopcmds.html#lu">5.8 LU - Local upload</h3></a></ul>
+<h2>6. <a href="fidonet.html">Fidonet support</a></h2>
+<ul><h3><a href="fidonet.html#s1">6.1 Requirements</a></h3>
+<h3><a href="fidonet.html#s2">6.2 Installation</a></h3>
+<h3><a href="fidonet.html#s3">6.3 IFmail</a></h3></ul>
+<h2>7. <a href="utils.html">Utilities</a></h2>
+<ul><h3><a href="utils.html#s1">7.1 18to34</a></h3>
+<h3><a href="utils.html#s2">7.2 ax2dd</a></h3>
+<h3><a href="utils.html#s3">7.3 ddcallers</a></h3>
+<h3><a href="utils.html#s4">7.4 ddcfg</a></h3>
+<h3><a href="utils.html#s5">7.5 ddtop</a></h3>
+<h3><a href="utils.html#s6">7.6 ddwho</a></h3>
+<h3><a href="utils.html#s7">7.7 fixbases</a></h3>
+<h3><a href="utils.html#s8">7.8 listclean</a></h3>
+<h3><a href="utils.html#s9">7.9 msgbaseopt</a></h3>
+<h3><a href="utils.html#s10">7.10 pcb2ansi</a></h3>
+<h3><a href="utils.html#s11">7.11 robowriter</a></h3>
+<h3><a href="utils.html#s12">7.12 stripansi</a></h3>
+<h3><a href="utils.html#s13">7.13 tosser</a></h3>
+<h3><a href="utils.html#s14">7.14 txtdiz</a></h3>
+<h3><a href="utils.html#s15">7.15 yelld</a></h3>
+<h3><a href="utils.html#s16">7.16 zipadder</a></h3>
+<h3><a href="utils.html#s17">7.17 logrot</a></h3></ul>
+<h2>8. <a href="python.html">Python</h2>
+<ul><h3><a href="python.html#s1">8.1 About python</h3>
+<h3><a href="python.html#s2">8.2 Commands</h3>
+<h3><a href="python.html#s3">8.3 Usage</h3></ul>
+<h2>9. <a href="other.html">Other stuff</a></h2>
+<ul><h3><a href="other.html#s1">9.1 Answering phonecalls</a></h3>
+<h3><a href="other.html#s2">9.2 Contacting author</a></h3>
+<h3><a href="other.html#s3">9.3 Mailing list</a></h3></ul>
+
+
+
+
+
+
+
