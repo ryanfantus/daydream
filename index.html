@@ -1,36 +1,33 @@
 <!DOCTYPE html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="daydream bbs : daydream bbs - telnet / ssh / ftp" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <title>daydream bbs</title>
+    <title>daydream bbs by ryanfantus</title>
   </head>
 
   <body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/ryanfantus/daydream">View on GitHub</a>
+    <header>
+      <div class="container">
+        <h1>daydream bbs</h1>
+        <h2>daydream bbs - telnet / ssh / ftp</h2>
 
-          <h1 id="project_title">daydream bbs</h1>
-          <h2 id="project_tagline">daydream bbs - telnet / ssh / ftp</h2>
+        <section id="downloads">
+          <a href="https://github.com/ryanfantus/daydream/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/ryanfantus/daydream/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/ryanfantus/daydream" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/ryanfantus/daydream/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/ryanfantus/daydream/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+    <div class="container">
+      <section id="main_content">
         <h2>
 <a name="welcome-to-the-hosted-space-for-daydream-bbs" class="anchor" href="#welcome-to-the-hosted-space-for-daydream-bbs"><span class="octicon octicon-link"></span></a>Welcome to the hosted space for DayDream BBS.</h2>
 
@@ -41,78 +38,23 @@
 the current version. The roadmap for the future involves a significant re-
 write to the software, changing the backend database and frontend API.</p>
 
-<hr><h2>
-<a name="installation-instructions" class="anchor" href="#installation-instructions"><span class="octicon octicon-link"></span></a>Installation instructions:</h2>
-
-<p><code>git clone https://github.com/ryanfantus/daydream.git</code></p>
+<hr><ul>
+<li>Installation instructions:</li>
+</ul><p><code>git clone https://github.com/ryanfantus/daydream.git</code></p>
 
 <p>(These are admittedly pretty sparse! It's a work in progress!)</p>
 
-<ul>
-<li>Initial installation -</li>
-</ul><p>move into daydream-2.20.0 directory
-as root, 
-<code>sh install.sh</code>
-check out docs/ directory for specifics regarding inetd, xinetd, etc</p>
+<p>move into daydream-2.20.0 directory
+as root, </p>
 
-<ul>
-<li>Upgrade from 2.14.9 -</li>
-</ul><p>this may break! pretty untested!
-As root, 
-<code>sh upgrade.sh</code></p>
+<p><code>sh install.sh</code></p>
 
-<p>This will ONLY copy over the new sets of binaries.  No cfg, gfx, data,
-docs, or any other files will be replaced.  I suggest you do a full backup
-before you attempt this!  Now, everything <em>should</em> be backwards compatible
-with your old daydream setup.  However, I make no guarantees!  ;)</p>
+<p>check out docs/ directory for specifics regarding inetd, xinetd, etc</p>
 
-<p>You should manually do the following:</p>
-
-<ol>
-<li>
-<p>In your display/iso/edituser.txt|gfx files, add a selection:
-12 - Change message signature</p>
-
-<p>This will launch the door doors/autosig %N</p>
-
-<p>Feel free to add it as a main menu option as well.</p>
-
-<p>Also, either copy the autosigtop.txt|gfx files from this archive,
-or create your own, and put it in the display/iso dir as well.</p>
-</li>
-<li>
-<p>To use the new FR / NEW door, add FR and NEW as door options to
-daydream.cfg.  Make them both similar to this:</p>
-
-<p><code>DOOR_COMMAND.. NEW</code>
-<code>DOOR_TYPE..... 1</code>
-<code>DOOR_SECURITY. 5</code>
-<code>DOOR_EXECUTE.. /home/bbs/doors/new %N</code>
-<code>DOOR_CONFS1... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>
-<code>DOOR_CONFS2... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>
-<code>DOOR_PASSWD... -</code>
-<code>+</code>
-<code>DOOR_COMMAND.. FR</code>
-<code>DOOR_TYPE..... 1</code>
-<code>DOOR_SECURITY. 5</code>
-<code>DOOR_EXECUTE.. /home/bbs/doors/new %N</code>
-<code>DOOR_CONFS1... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>
-<code>DOOR_CONFS2... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>
-<code>DOOR_PASSWD... -</code></p>
-</li>
-</ol><p>That's it! Enjoy!</p>
+<p>That's it! Enjoy!</p>
       </section>
     </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">daydream bbs maintained by <a href="https://github.com/ryanfantus">ryanfantus</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
     
-
   </body>
 </html>
