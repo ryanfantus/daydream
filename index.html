@@ -31,9 +31,76 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <p>Daydream BBS is a linux based telnet/ssh bulletin board system.</p>
+        <h2>
+<a name="welcome-to-the-hosted-space-for-daydream-bbs" class="anchor" href="#welcome-to-the-hosted-space-for-daydream-bbs"><span class="octicon octicon-link"></span></a>Welcome to the hosted space for DayDream BBS.</h2>
 
-<p>For a live demonstration or to contact me, please telnet to montereybbs.com and create an account. More to follow!</p>
+<h2>
+<a name="current-version-2200-rc" class="anchor" href="#current-version-2200-rc"><span class="octicon octicon-link"></span></a>Current version: 2.20.0-RC</h2>
+
+<p>There is a code freeze in the works. There will only be slight bug fixes to
+the current version. The roadmap for the future involves a significant re-
+write to the software, changing the backend database and frontend API.</p>
+
+<hr><h2>
+<a name="installation-instructions" class="anchor" href="#installation-instructions"><span class="octicon octicon-link"></span></a>Installation instructions:</h2>
+
+<p><code>git clone https://github.com/ryanfantus/daydream.git</code></p>
+
+<p>(These are admittedly pretty sparse! It's a work in progress!)</p>
+
+<ul>
+<li>Initial installation -</li>
+</ul><p>move into daydream-2.20.0 directory
+as root, 
+<code>sh install.sh</code>
+check out docs/ directory for specifics regarding inetd, xinetd, etc</p>
+
+<ul>
+<li>Upgrade from 2.14.9 -</li>
+</ul><p>this may break! pretty untested!
+As root, 
+<code>sh upgrade.sh</code></p>
+
+<p>This will ONLY copy over the new sets of binaries.  No cfg, gfx, data,
+docs, or any other files will be replaced.  I suggest you do a full backup
+before you attempt this!  Now, everything <em>should</em> be backwards compatible
+with your old daydream setup.  However, I make no guarantees!  ;)</p>
+
+<p>You should manually do the following:</p>
+
+<ol>
+<li>
+<p>In your display/iso/edituser.txt|gfx files, add a selection:
+12 - Change message signature</p>
+
+<p>This will launch the door doors/autosig %N</p>
+
+<p>Feel free to add it as a main menu option as well.</p>
+
+<p>Also, either copy the autosigtop.txt|gfx files from this archive,
+or create your own, and put it in the display/iso dir as well.</p>
+</li>
+<li>
+<p>To use the new FR / NEW door, add FR and NEW as door options to
+daydream.cfg.  Make them both similar to this:</p>
+
+<p><code>DOOR_COMMAND.. NEW</code>
+<code>DOOR_TYPE..... 1</code>
+<code>DOOR_SECURITY. 5</code>
+<code>DOOR_EXECUTE.. /home/bbs/doors/new %N</code>
+<code>DOOR_CONFS1... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>
+<code>DOOR_CONFS2... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>
+<code>DOOR_PASSWD... -</code>
+<code>+</code>
+<code>DOOR_COMMAND.. FR</code>
+<code>DOOR_TYPE..... 1</code>
+<code>DOOR_SECURITY. 5</code>
+<code>DOOR_EXECUTE.. /home/bbs/doors/new %N</code>
+<code>DOOR_CONFS1... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>
+<code>DOOR_CONFS2... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code>
+<code>DOOR_PASSWD... -</code></p>
+</li>
+</ol><p>That's it! Enjoy!</p>
       </section>
     </div>
 
