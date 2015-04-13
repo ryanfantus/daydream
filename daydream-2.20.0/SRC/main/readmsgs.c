@@ -391,9 +391,13 @@ static int showmsg(int showme, int mode)
 		l++;
 //		if (toupper(current_msgbase->MSGBASE_FN_FLAGS) != 'L')
 //		place holder for strip pipes if daydream.cfg says so
-		parsepipes(s);
-		DDPut(s);
-		screenl--;
+		if(s[0] == '\n') {
+			*s = '\0';
+		} else {
+			parsepipes(s);
+			DDPut(s);
+			screenl--;
+		}
 
 		if (screenl == 1) {
 			int hot;
