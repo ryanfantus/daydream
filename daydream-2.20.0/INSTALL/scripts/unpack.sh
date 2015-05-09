@@ -8,6 +8,7 @@ do
   if [ -n "`echo $x|grep -i zip`" ];
   then
     unzip $i -d `dirname $i`
+    [ -x /usr/bin/fromdos ] && fromdos in*/*.pkt || echo "Install package tofrodos for full functionality"
     if [ $? -eq 0 ]; then
       rm -f $i
     fi
