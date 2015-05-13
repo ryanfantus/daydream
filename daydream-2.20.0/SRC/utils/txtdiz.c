@@ -58,7 +58,21 @@ int main(int argc, char *argv[])
 	
 	}
 	fclose(inf);
+	
+	// Fixes upload processor if no diz info is found
 	if (outf!=stdout) fclose(outf);
+	FILE *emptyfile;
+	long emptysize;
+	emptyfile = fopen("file_id.diz", "r");
+	if (emptyfile) {
+  		fseek(emptyfile, 0, SEEK_END);
+  		emptysize = ftell(emptyfile);
+  		fclose(emptyfile);
+  		if (emptysize == 0) {
+    			remove("file_id.diz");
+  		}
+	}
+	
 	return 0;
 }
 
