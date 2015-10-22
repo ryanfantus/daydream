@@ -21,6 +21,10 @@
  * This file is distributed under the GNU General Public License (GPL),
  * please see the file LICENSE for further information.
  * 
+ * Recent revisions include provisions for logging IP and hostname lookups.
+ * These additions were included in ddtelnetd in 2015 thanks to
+ * Michael Griffin and Frank Linhares.
+ *
  */
 
 #include <config.h>
@@ -47,6 +51,8 @@
 #include <ctype.h>
 #include <sys/socket.h>
 #include <net/if.h>
+#include <netinet/in.h>
+#include <netdb.h>
 
 #define BUFSIZE 4096
 
@@ -60,7 +66,7 @@ static char *argv_init[] = {NULL, NULL, NULL, NULL};
 
 void show_usage(void)
 {
-	printf("Usage: telnetd [-l loginprogram] [-u user]\n");
+	printf("Usage: ddtelnetd [-l loginprogram] [-u user]\n");
 	printf("\n");
 	printf("   -l loginprogram  program started by the server\n");
 	printf("   -u user  logins user without password auth\n");
@@ -176,9 +182,17 @@ int main(int argc, char **argv)
 	unsigned char buf[BUFSIZE];
 	unsigned char tmpbuf[BUFSIZE];
 	char loginpath[256];
+	char host_string[256];
+	char ip_string[256];
 	
 	char* user = NULL;
 	char* login = NULL;
+	
+	struct sockaddr_in from;
+	socklen_t fromlen;
+	const char *ip;
+	const char *hostname;
+	struct hostent *hp;
 	
 	for (;;) {
 		int c;
@@ -209,10 +223,34 @@ int main(int argc, char **argv)
 	
 	argv_init[0] = strdup(loginpath);
 	
+	/* Get host address from remote connection, pass like in.telnetd
+	Code snippets below from Michael Griffin */
+	
+	fromlen = sizeof (from);
+	if (getpeername(0, struct sockaddr *)&from, &fromlen) <0) {
+		perror("Error: getpeername");
+	}
+	
+	/* Map IP address to host name. */
+	hp = gethostbyaddr((char *)&from.sin_addr, sizeof(struct in_addr), from.sin_family);
+	if (hp) {
+		hostname = hp->h_name;
+	} else {
+		hostname = inet_ntoa(from.sin_addr);
+	}
+	
+	ip = inet_ntoa(from.sin_addr);
+	
+	sprintf(ip_string,"-IP%s",strdup(ip));
+	sprintf(host_string,"-HOST%s",strdup(hostname));
+	
+	syslog(LOG_INFO, "incoming connection from %s / %s", strdup(ip), strdup(hostname));
+	
 	if(user) {
 		argv_init[1] = strdup("-f");
 		argv_init[2] = strdup(user);
-		
+		//argv_init[3] = ip_string;	// unimplemented feature in daydream
+		//argv_init[4] = host_string;	// unimplemented feature in daydream
 		free(user);
 		user = NULL;
 	}
