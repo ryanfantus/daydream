@@ -10,7 +10,7 @@
 #include <ddcommon.h>
 
 /*
-	DayDream Door Library - written by Antti Häyrynen
+	DayDream Door Library - written by Antti HÃ¤yrynen
  */
 
 void writedm(struct dif *);
@@ -891,4 +891,16 @@ char *dd_stripcrlf(char *string)
 		}
 	}
 	return(string);
+}
+
+// Turn cursor off (good for litebars)
+void dd_cursoroff(struct dif *d)
+{
+        dd_sendstring(d,"\e[?25l");
+}
+
+// Turn cursor on (good for litebars)
+void dd_cursoron(struct dif *d)
+{
+        dd_sendstring(d,"\e[25h");
 }
