@@ -74,6 +74,8 @@ void dd_clrscr(struct dif *);
 void dd_center(struct dif *, char *);
 int dd_strlenansi(char *);
 char *dd_stripcrlf(char *);
+void dd_cursoron(struct dif *);
+void dd_cursoroff(struct dif *);
 
 #define BBS_NAME 100
 #define BBS_SYSOP 101
