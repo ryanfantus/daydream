@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
 			break;
 		case 'n':
 			node = atoi(optarg);
+			break;
 		case 'e':
 			incsysop = 0;
 			break;
@@ -329,14 +330,14 @@ static int genweekrep(char *rep)
 		totd.calls, totd.newusers, totd.hacks, totd.carrierlosses, totd.pages, (totd.mins / 60), (totd.ulbytes / 1024), totd.ulfiles, (totd.dlbytes / 1024), totd.dlfiles);
 	fprintf(o1, "[36mAVERAGE   [32m%6d [33m%5d [34m%5d [35m%5d [36m%5d [37m%5d [32m%7qu [33m%5d [34m%7qu [35m%5d\n",
 		totd.calls / 7, totd.newusers / 7, totd.hacks / 7, totd.carrierlosses / 7, totd.pages / 7, (totd.mins / 60) / 7, (totd.ulbytes / 1024) / 7, totd.ulfiles / 7, (totd.dlbytes / 1024) / 7, totd.dlfiles / 7);
-	fputs("[34m--------------------------[ [36mDDCallers V2.0 - Coded by Antti Häyrynen [34m]----\n[0m", o1);
+	fputs("[34m--------------------------[ [36mDDCallers V2.0 - Coded by Antti HÃ¤yrynen [34m]----\n[0m", o1);
 
 	fprintf(o2, "--------------------------------------------------------------------------\n"
 		"TOTAL     %6d %5d %5d %5d %5d %5d %7qu %5d %7qu %5d\n",
 		totd.calls, totd.newusers, totd.hacks, totd.carrierlosses, totd.pages, (totd.mins / 60), (totd.ulbytes / 1024), totd.ulfiles, (totd.dlbytes / 1024), totd.dlfiles);
 	fprintf(o2, "AVERAGE   %6d %5d %5d %5d %5d %5d %7qu %5d %7qu %5d\n",
 		totd.calls / 7, totd.newusers / 7, totd.hacks / 7, totd.carrierlosses / 7, totd.pages / 7, (totd.mins / 60) / 7, (totd.ulbytes / 1024) / 7, totd.ulfiles / 7, (totd.dlbytes / 1024) / 7, totd.dlfiles / 7);
-	fputs("--------------------------[ DDCallers V2.0 - Coded by Antti Häyrynen ]----\n", o2);
+	fputs("--------------------------[ DDCallers V2.0 - Coded by Antti HÃ¤yrynen ]----\n", o2);
 	return 1;
 }
 
@@ -403,7 +404,7 @@ static int dooutput(void)
 	fputs("-----------------------------------------------------------------------------\n[0m", outfd1);
 	fprintf(outfd1, " Today     : Ul's ( %3d / %6qukB )  Dl's ( %3d / %6qukB )  Calls ( %3d )\n", td->ulfiles, td->ulbytes / 1024, td->dlfiles, td->dlbytes / 1024, td->calls);
 	fprintf(outfd1, " Yesterday : Ul's ( %3d / %6qukB )  Dl's ( %3d / %6qukB )  Calls ( %3d )\n", yd->ulfiles, yd->ulbytes / 1024, yd->dlfiles, yd->dlbytes / 1024, yd->calls);
-	fputs("-----------------------------[ DDCallers V2.0 - Coded by Antti Häyrynen ]----\n", outfd1);
+	fputs("-----------------------------[ DDCallers V2.0 - Coded by Antti HÃ¤yrynen ]----\n", outfd1);
 
 	fputs("[34m-----------------------------------------------------------------------------\n[0m", outfd2);
 	fputs("[34m[ [36mD[34m ] - [35mDownload          [34m   [ [36mU [34m] - [35mUpload              [34m[ [36mC [34m] - [35mCarrier lost\n", outfd2);
@@ -411,7 +412,7 @@ static int dooutput(void)
 	fputs("[34m-----------------------------------------------------------------------------\n[0m", outfd2);
 	fprintf(outfd2, "[33m Today     [0m: [33mUl's [0m([32m %3d [33m/[32m %6qukB[0m )[33m  Dl's [0m([32m %3d[33m /[32m %6qukB[0m ) [33m Calls [0m([32m %3d[0m )\n", td->ulfiles, td->ulbytes / 1024, td->dlfiles, td->dlbytes / 1024, td->calls);
 	fprintf(outfd2, "[33m Yesterday [0m: [33mUl's [0m([32m %3d [33m/[32m %6qukB[0m )[33m  Dl's [0m([32m %3d[33m /[32m %6qukB[0m ) [33m Calls [0m([32m %3d[0m )\n", yd->ulfiles, yd->ulbytes / 1024, yd->dlfiles, yd->dlbytes / 1024, yd->calls);
-	fputs("[34m-----------------------------[ [36mDDCallers V2.0 - Coded by Antti Häyrynen [34m]----\n", outfd2);
+	fputs("[34m-----------------------------[ [36mDDCallers V2.0 - Coded by Antti HÃ¤yrynen [34m]----\n", outfd2);
 
 	fclose(outfd1);
 	fclose(outfd2);
@@ -420,7 +421,7 @@ static int dooutput(void)
 
 static void showhelp(void)
 {
-	printf("DDCallers v1.0 - Code by Antti Häyrynen\n");
+	printf("DDCallers v1.0 - Code by Antti HÃ¤yrynen\n");
 	printf("Usage: ddcallers -n [node] -h [header] -o [output] -a [lines] \n"
 	       "                 -w [weekly report] -r -l -u \n");
 	printf("\nOptions:\n  -r -> use realnames, -l -> use location, -u - no update\n");
