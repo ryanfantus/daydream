@@ -227,7 +227,7 @@ int main(int argc, char **argv)
 	Code snippets below from Michael Griffin */
 	
 	fromlen = sizeof (from);
-	if (getpeername(0, struct sockaddr *)&from, &fromlen) <0) {
+	if ((getpeername(0, struct sockaddr *)&from, &fromlen) <0) {
 		perror("Error: getpeername");
 	}
 	
