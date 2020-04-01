@@ -46,6 +46,7 @@ or create your own, and put it in the display/iso dir as well.
 To use the new FR / NEW door, add FR and NEW as door options to
 daydream.cfg.  Make them both similar to this:
 
+```
 DOOR_COMMAND.. NEW
 DOOR_TYPE..... 1
 DOOR_SECURITY. 5
@@ -61,5 +62,6 @@ DOOR_EXECUTE.. /home/bbs/doors/new %N
 DOOR_CONFS1... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 DOOR_CONFS2... XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 DOOR_PASSWD... -
+```
 
 That's it! Enjoy!
