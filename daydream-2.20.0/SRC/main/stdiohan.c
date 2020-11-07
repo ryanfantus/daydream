@@ -300,14 +300,6 @@ int runstdio(const char *command, int outfd, int inp)
 				_exit(1);
 			
 			set_blocking_mode(ptyfd, 0);
-#ifdef HAVE_STROPTS_H
-			if (isastream(ptyfd)) 
-				if (ioctl(ptyfd, I_PUSH, "ptem") < 0 ||
-				    ioctl(ptyfd, I_PUSH, "ldterm") < 0) {
-					close(ptyfd);
-					_exit(1);
-				}
-#endif
 		}
 
 		if (inp == 2) {
