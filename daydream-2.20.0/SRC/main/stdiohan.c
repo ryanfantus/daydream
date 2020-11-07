@@ -16,10 +16,6 @@
 #include <ddcommon.h>
 #include <console.h>
 
-#ifdef HAVE_STROPTS_H
-#include <stropts.h>
-#endif
-
 static volatile int child_initialized;
 
 static void childhan(int);
