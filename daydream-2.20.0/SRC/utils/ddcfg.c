@@ -344,7 +344,7 @@ nextconf:
 	cfgcopy2(conf.CONF_NEWSCANAREAS,30,"CONF_NSAREAS");
 	if (cfgflag2("Y","CONF_DEFFSCAN")) {
 		conf.CONF_ATTRIBUTES |= (1L << 10);
-		selcfg[2056+((conf.CONF_NUMBER-1)/8)] |= (1L<<(conf.CONF_NUMBER-1)%8);
+		selcfg[2056+((conf.CONF_NUMBER-1)/8)-1] |= (1L<<(conf.CONF_NUMBER-1)%8);
 	}
 	if (cfgflag2("Y","CONF_FREELEECH")) conf.CONF_ATTRIBUTES |= (1L << 0);
 	if (cfgflag2("Y","CONF_NOCREDS")) conf.CONF_ATTRIBUTES |= (1L << 1);
