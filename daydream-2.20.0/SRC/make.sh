@@ -1,5 +1,5 @@
 cur_dir=`pwd`
-targets="lib main ddz doors ddfv utils ddecho net ddtick"
+targets="lib main ddz hydracom doors ddfv utils ddecho net ddtick"
 if [ "x$MAKE" = "x" ] ; then
 MAKE=make
 fi

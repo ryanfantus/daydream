@@ -8,6 +8,8 @@ LFLAGS=$(OPTLFLAGS)
 LIBS=-lddcommon
 EXTRA_LIBS=-ldd
 
+AX2DD_OBJ=ax2dd.o
+CONV18TO34_OBJ=conv18to34.o
 DDCALLERS_OBJ=ddcallers.o
 DDCFG_OBJ=ddcfg.o
 DDFTPWHO_OBJ=ddftpwho.o
@@ -24,8 +26,14 @@ STRIPANSI_OBJ=stripansi.o
 TXTDIZ_OBJ=txtdiz.o
 YELLD_OBJ=yelld.o
 
-all: ddcallers ddcfg ddftpwho ddtop ddwho fixbases listclean logrot msgbaseopt robowriter runas stripansi txtdiz yelld ddsnoop pcb2ansi
+all: ax2dd conv18to34 ddcallers ddcfg ddftpwho ddtop ddwho fixbases listclean logrot msgbaseopt robowriter runas stripansi txtdiz yelld ddsnoop pcb2ansi
 
+ax2dd: $(AX2DD_OBJ)
+	$(CC) $(LFLAGS) -o ax2dd $(AX2DD_OBJ) $(LIBS) $(OSLIBS)
+	strip ax2dd
+conv18to34: $(CONV18TO34_OBJ)
+	$(CC) $(LFLAGS) -o conv18to34 $(CONV18TO34_OBJ) $(LIBS) $(OSLIBS)
+	strip conv18to34
 ddcallers: $(DDCALLERS_OBJ)
 	$(CC) $(LFLAGS) -o ddcallers $(DDCALLERS_OBJ) $(LIBS) $(OSLIBS)
 	strip ddcallers
@@ -72,7 +80,7 @@ logrot: $(LOGROT_OBJ)
 	$(CC) $(LFLAGS) -o logrot $(LOGROT_OBJ) $(LIBS) $(OSLIBS)
 	strip logrot
 install: 
-	cp ddcallers ddcfg ddftpwho ddtop ddwho fixbases listclean logrot msgbaseopt robowriter runas stripansi txtdiz yelld ddsnoop $(INSTALL_PATH)/utils
+	cp ax2dd conv18to34 ddcallers ddcfg ddftpwho ddtop ddwho fixbases listclean logrot msgbaseopt robowriter runas stripansi txtdiz yelld ddsnoop $(INSTALL_PATH)/utils
 
 clean: 
-	rm -f *.o ddcallers ddcfg ddftpwho ddtop ddwho fixbases listclean logrot msgbaseopt robowriter runas stripansi txtdiz yelld ddsnoop pcb2ansi
+	rm -f *.o ax2dd conv18to34 ddcallers ddcfg ddftpwho ddtop ddwho fixbases listclean logrot msgbaseopt robowriter runas stripansi txtdiz yelld ddsnoop pcb2ansi
