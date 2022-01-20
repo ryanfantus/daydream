@@ -1,3 +1,35 @@
+Wed Jan 19 23:41:00 PST 2022
+
+* Flattening a handful of updates into one changelog entry since I've
+  clearly failed to maintain this. :)
+
+* Added hint to install 'fromdos' package to help scanning echomail packets
+
+* Added FIDODIR var in fido config to allow more dynamic echomail local
+  directory structure
+
+* Fixed upload processor when no diz is found
+
+* Added ddtelnetd IP logging (thanks to Frank Linhares)
+
+* Fixed a bug in ddcallers
+
+* Removed stropts.h references, which were causing broken builds on
+  modern systems (this is also just unnecessary)
+
+* Fixed a very hard to diagnose buffer overflow issue in ddcfg. This
+  was a simple off by one thing. So frustrating
+
+* Returned HYDRACOM as a built-in file transfer protocol. Note that
+  this is untested because I can't find a client that works to test
+  this! But it was easy to re-add, so why not.
+
+* Re-added ax2dd - hypothetically this can convert amiexpress and
+  sigmaexpress user bases into daydream. Untested (recently)
+
+* Re-added 18to34 which will convert amiga 18 character DD filelists
+  into newer 34 character long format
+
 Mon Mar 10 16:50:00 PST 2014
 
 * Moved from privately hosted git repo to github.com/ryanfantus/daydream
