@@ -74,7 +74,29 @@ jobs:
     - name: Build c
       run: |
         echo "Build daydream source using script"
-        sh ./daydream-2.20.0/SRC/make.sh build
+        cd daydream-2.20.0/SRC
+        cd lib
+        make
+        cd ../main
+        make
+        cd ../ddz
+        make
+        cd ../hydracom
+        make
+        cd ../doors
+        make
+        cd ../ddfv
+        make
+        cd ../utils
+        make
+        cd ../ddecho
+        make
+        cd ../net
+        make
+        cd ../ddtick
+        make
+        cd ../python
+        make
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
