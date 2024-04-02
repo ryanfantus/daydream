@@ -11,18 +11,18 @@ It will parse pipe codes, and includes some defaults.  Enjoy!
 ********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "ddlib.h"
 
 struct dif *d;
 
 void show_sig() {
-  char buf1[80];
+  char buf1[1024];
   char s[256], format[256];
   FILE *data_file;
   int i;
 
   *s = '\0';
-  *buf1 = '\0';
 
   dd_typefile(d, "autosigtop", TYPE_MAKE|TYPE_WARN);
 
