@@ -232,10 +232,10 @@ int createArea(ForwardList* fl, char* sarea) {
 	FILE* fh;
 	Area *area = NULL;
 	bsListItem* item;
-	char buf[128];
-	char buf1[128];
-	char buf2[128];
-	char buf3[128];
+	char buf[256];
+	char buf1[256];
+	char buf2[256];
+	char buf3[1024];
 	
 	int max = 0;
 	

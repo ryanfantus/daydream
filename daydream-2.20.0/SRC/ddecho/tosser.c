@@ -451,8 +451,8 @@ void SetEnv(char* indir) {
 int toss_dir(char* indir, int type) {
 	DIR* dir;
 	struct dirent* de;
-	char fn[128], ffn[128];
-	char buf[128];
+	char fn[128], ffn[512];
+	char buf[512];
 	char* file, *ext;
 
 	logit(TRUE, "Tossing from %s", indir);

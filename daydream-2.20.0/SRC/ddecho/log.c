@@ -31,7 +31,7 @@ void logit(bool print, char * format, ...)
 	struct tm * st = NULL;
 	va_list var_args;
 	char string[2048];
-	char string2[2048];
+	char string2[4096];
    
 	if(flog == NULL)
 		return;

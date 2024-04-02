@@ -75,7 +75,7 @@ int RouteMail(MEM_MSG* mem) {
 	Route* route;
 	Password* pw;
 	bsListItem* item;
-	char buf[128];
+	char buf[256];
 	int found = 0;
 	time_t tmptime;
 	struct tm* tmptm;

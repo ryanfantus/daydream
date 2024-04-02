@@ -12,7 +12,7 @@ int Arc() {
 	char cmd[128];
 	char flofn[64];
 	char arcfn[64];
-	char farcfn[64];
+	char farcfn[128];
 	char buf[64];
 	
 	ArchList* arc;
@@ -105,7 +105,8 @@ char FlavToChar(int flo, Flav Flavour) {
 }
 
 char* GetDirName(FidoAddr* dest) {
-	static char buf[128];
+	static char buf[256];
+	static char buf2[512];
 
 	if(dest->zone != main_cfg.DefZone) {
 		sprintf(buf, "%s.%03x", main_cfg.Outbound, dest->zone);
@@ -117,13 +118,13 @@ char* GetDirName(FidoAddr* dest) {
 	}
 
 	if(dest->point != 0) {
-		sprintf(buf, "%s/%04x%04x.pnt", buf, dest->net, dest->node);
-		if(access(buf, R_OK) < 0) {
-			mkdir(buf, MKDIR_DEFS);
+		sprintf(buf2, "%s/%04x%04x.pnt", buf, dest->net, dest->node);
+		if(access(buf2, R_OK) < 0) {
+			mkdir(buf2, MKDIR_DEFS);
 		}
+		return buf2;
 	} 
-
-	return  buf;
+	else return buf;
 }
 
 char* GetBaseName(FidoAddr* dest) {
