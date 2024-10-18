@@ -1,12 +1,3 @@
-Daydream 2.20.0 - Release candidate.
-
-There will soon be a code freeze on version 2.20.0
-
-Daydream will overgo a significant rewrite for 3.0, and will have a SQL
-backend.
-
-------------------------------------------------------------------------------
-
 Installation instructions:
 
 (These are admittedly pretty sparse! It's a work in progress!)
