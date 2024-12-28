@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 #include <daydream.h>
 #include <ddcommon.h>
@@ -31,6 +32,8 @@ static int replymsg(int);
 static void readmsgdatas(void);
 static int keepmsg(int);
 static void listmsgs(void);
+static void word_wrap(const char *, char *, int, int *);
+static bool contains_ansi_codes(const char *);
 
 int readmessages(int cseekp, int premsg, char *mask)
 {
@@ -40,17 +43,17 @@ int readmessages(int cseekp, int premsg, char *mask)
 	int rval = 0;
 	int i;
 	oldseekpoint = -1;
-	
-	if (!conference()->conf.CONF_MSGBASES) 
+
+	if (!conference()->conf.CONF_MSGBASES)
 		return 0;
-	    
+
 	changenodestatus("Reading messages");
 
 	daheader = 0;
 
 	getmsgptrs();
 
-	snprintf(rbuffer, sizeof rbuffer, "%s/messages/base%3.3d/msgbase.dat", 
+	snprintf(rbuffer, sizeof rbuffer, "%s/messages/base%3.3d/msgbase.dat",
 		conference()->conf.CONF_PATH, current_msgbase->MSGBASE_NUMBER);
 
 	msgbasesize = getfilesize(rbuffer);
@@ -106,10 +109,10 @@ int readmessages(int cseekp, int premsg, char *mask)
 
 			do {
 				int saved = msgnum;
-				
+
 				while (msgnum >= lowest && msgnum <= highest) {
 					msgnum += dir;
-					if (!mask) 
+					if (!mask)
 						break;
 					if (mask[msgnum - lowest])
 						break;
@@ -122,7 +125,7 @@ int readmessages(int cseekp, int premsg, char *mask)
 
 				if (msgnum > highest)
 					goto pois;
-				
+
 			} while (showmsg(msgnum, 0) != 1);
 		} else if (!strcasecmp(rbuffer, "a")) {
 			showmsg(msgnum, 0);
@@ -147,7 +150,7 @@ int readmessages(int cseekp, int premsg, char *mask)
 		} else if (!strcasecmp(rbuffer, "+")) {
 			dir = 1;
 		} else if (!strcasecmp(rbuffer, "]")) {
-			changemsgbase(current_msgbase->MSGBASE_NUMBER + 1, 
+			changemsgbase(current_msgbase->MSGBASE_NUMBER + 1,
 					MC_QUICK | MC_NOSTAT);
 			msgnum = lrp;
 			readmsgdatas();
@@ -161,7 +164,7 @@ int readmessages(int cseekp, int premsg, char *mask)
 			showmsg(msgnum, 0);
 		} else if(!strcasecmp(rbuffer, "l")) {
 			listmsgs();
-		} else {		       
+		} else {
 			tnum = atoi(rbuffer);
 			if (tnum) {
 				if (tnum > highest || tnum < lowest) {
@@ -233,6 +236,7 @@ static int showmsg(int showme, int mode)
 	char from[48];
 	char to[48];
 	char msgstr[32];
+	char wrapped_text[5000];
 
 	daheader = msgbuf;
 
@@ -381,7 +385,7 @@ static int showmsg(int showme, int mode)
 			}
 			else if (!strncmp("SEEN-BY:", rbuffer, 8) && !show_klugdes)
 				break;
-		} 
+		}
 		else {
 			if(*rbuffer == 1) {
 				*rbuffer = '@';
@@ -390,9 +394,20 @@ static int showmsg(int showme, int mode)
 
 		l++;
 //		if (toupper(current_msgbase->MSGBASE_FN_FLAGS) != 'L')
+
+		if (contains_ansi_codes(s)) {
+			DDPut(s);
+		} else {
+			char wrapped_text[5000];
+			parsepipes(s);
+			word_wrap(s, wrapped_text, 78, &screenl);
+			DDPut(wrapped_text);
+		}
+
 //		place holder for strip pipes if daydream.cfg says so
-		parsepipes(s);
-		DDPut(s);
+//		parsepipes(s);
+//		word_wrap(s, wrapped_text, 78, &screenl);
+//		DDPut(wrapped_text);
 		screenl--;
 
 		if (screenl == 1) {
@@ -420,7 +435,7 @@ static int showmsg(int showme, int mode)
 		FILE *atlist;
 
 		snprintf(fabuf, sizeof fabuf, "%s/messages/base%3.3d/msf%5.5d",
-			conference()->conf.CONF_PATH, 
+			conference()->conf.CONF_PATH,
 			current_msgbase->MSGBASE_NUMBER, daheader->MSG_NUMBER);
 		atlist = fopen(fabuf, "r");
 		if (atlist) {
@@ -444,10 +459,10 @@ static int showmsg(int showme, int mode)
 				int hot;
 				struct stat st;
 
-				snprintf(buf2, sizeof buf2, 
-					"%s/messages/base%3.3d/fa%5.5d/%s", 
-					conference()->conf.CONF_PATH, 
-					current_msgbase->MSGBASE_NUMBER, 
+				snprintf(buf2, sizeof buf2,
+					"%s/messages/base%3.3d/fa%5.5d/%s",
+					conference()->conf.CONF_PATH,
+					current_msgbase->MSGBASE_NUMBER,
 					daheader->MSG_NUMBER, fabuf);
 				if (stat(buf2, &st) == -1)
 					continue;
@@ -473,13 +488,13 @@ static int showmsg(int showme, int mode)
 				char olddir[1024];
 
 				getcwd(olddir, 1024);
-				snprintf(fabuf, sizeof fabuf, 
-					"%s/messages/base%3.3d/fa%5.5d", 
-					conference()->conf.CONF_PATH, 
-					current_msgbase->MSGBASE_NUMBER, 
+				snprintf(fabuf, sizeof fabuf,
+					"%s/messages/base%3.3d/fa%5.5d",
+					conference()->conf.CONF_PATH,
+					current_msgbase->MSGBASE_NUMBER,
 					daheader->MSG_NUMBER);
 				chdir(fabuf);
-				snprintf(fabuf, sizeof fabuf, "../msf%5.5d", 
+				snprintf(fabuf, sizeof fabuf, "../msf%5.5d",
 					daheader->MSG_NUMBER);
 				sendfiles(fabuf, 0, sizeof fabuf);
 				chdir(olddir);
@@ -499,11 +514,11 @@ static void listmsgs(void) {
 	if(!msgbuf) {
 		return;
 	}
-	
+
 	DDPut(sd[msllheadstr]);
 
 	for(i=0; i < (bread/sizeof(struct DayDream_Message)); i++) {
-	
+
 		if (msgbuf[i].MSG_FLAGS & MSG_FLAGS_DELETED)
 			continue;
 
@@ -538,6 +553,68 @@ static void listmsgs(void) {
 		}
 	}
 
+}
+
+static void word_wrap(const char *input, char *output, int wrap_length, int *screenl) {
+    int len = 0;
+    const char *word_start = input;
+    char *out_ptr = output;
+
+    while (*input) {
+        if (*input == ' ' || *input == '\n' || *(input + 1) == '\0') {
+            int word_len = input - word_start + (*(input + 1) == '\0' ? 1 : 0);
+
+            if (len + word_len > wrap_length) {
+                *out_ptr++ = '\n';
+                len = 0;
+                (*screenl)--;
+            } else if (len > 0) {
+                *out_ptr++ = ' ';
+                len++;
+            }
+
+            strncpy(out_ptr, word_start, word_len);
+            out_ptr += word_len;
+            len += word_len;
+            word_start = input + 1;
+        }
+
+        input++;
+
+        if (*screenl == 1) {
+            DDPut(sd[morepromptstr]);
+            int hot = HotKey(0);
+            DDPut("\r                                                         \r");
+            if (hot == 'N' || hot == 'n' || !checkcarrier())
+                break;
+            if (hot == 'C' || hot == 'c') {
+                *screenl = 20000000; // Infinite lines
+            } else {
+                *screenl = user.user_screenlength;
+            }
+        }
+    }
+
+    *out_ptr = '\0'; // Null-terminate the output
+}
+
+static bool contains_ansi_codes(const char *s) {
+    while (*s) {
+        if (*s == '\033' && *(s + 1) == '[') {
+            const char *p = s + 2;
+
+            // Validate the format of ANSI escape sequences
+            while (*p && ((*p >= '0' && *p <= '9') || *p == ';')) {
+                p++; // Skip numeric parameters and semicolons
+            }
+
+            if (*p && ((*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z'))) {
+                return true; // Found a valid ANSI escape sequence
+            }
+        }
+        s++;
+    }
+    return false;
 }
 
 static int deletemsg(int delme)
@@ -673,9 +750,9 @@ static int editfile(FILE* fh_msg)
 	}
 	memset(lineedmem, 0, 40000);
 
-	if (edtype) 
+	if (edtype)
 		res = fsed(lineedmem, 40000, rep, 0);
-	else 
+	else
 		res = lineed(lineedmem, 40000, rep, 0);
 
 	if (res) {
@@ -742,17 +819,17 @@ int globalread(void)
 	struct iterator *iterator;
 
 	oldconf = user.user_joinconference;
-	
+
 	iterator = conference_iterator();
 	while ((mc = (conference_t *) iterator_next(iterator))) {
 		int i;
-		
+
 		if (!joinconf(mc->conf.CONF_NUMBER, JC_QUICK | JC_SHUTUP | JC_NOUPDATE))
 			continue;
 
 		for (i = 0; i < conference()->conf.CONF_MSGBASES; i++) {
 			msgbase_t *mbase = conference()->msgbases[i];
-			
+
 			changemsgbase(mbase->MSGBASE_NUMBER, MC_QUICK | MC_NOSTAT);
 			if (highest > lrp && isbasetagged(conference()->conf.CONF_NUMBER, current_msgbase->MSGBASE_NUMBER)) {
 				if (readmessages(-1, -1, NULL) == 2) {
@@ -760,7 +837,7 @@ int globalread(void)
 					break;
 				}
 			}
-		}	       
+		}
 	}
 	iterator_discard(iterator);
 	joinconf(oldconf, JC_QUICK | JC_SHUTUP | JC_NOUPDATE);
@@ -838,7 +915,7 @@ static int keepmsg(int msgnum)
 		fsetperm(msgfd, 0666);
 		lseek(msgfd, 0, SEEK_END);
 		safe_write(msgfd, &msg, sizeof(struct DayDream_Message));
-		
+
 		ddmsg_close_base(msgfd);
 
 		seekpoint = oldseekpoint;
