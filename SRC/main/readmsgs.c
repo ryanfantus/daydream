@@ -236,7 +236,6 @@ static int showmsg(int showme, int mode)
 	char from[48];
 	char to[48];
 	char msgstr[32];
-	char wrapped_text[5000];
 
 	daheader = msgbuf;
 
