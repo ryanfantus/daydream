@@ -34,6 +34,10 @@ static int keepmsg(int);
 static void listmsgs(void);
 static void word_wrap(const char *, char *, int, int *);
 static bool contains_ansi_codes(const char *);
+static char *read_entire_message(FILE *msgfd, long *total_size);
+static char **split_into_lines(const char *buffer, int *line_count);
+static char *wrap_lines(char **lines, int line_count, int wrap_length);
+static void free_line_array(char **lines, int line_count);
 
 int readmessages(int cseekp, int premsg, char *mask)
 {
@@ -368,61 +372,76 @@ static int showmsg(int showme, int mode)
 
 	screenl = user.user_screenlength - 8;
 
-	l = 0;
-	while (fgets(rbuffer, 490, msgfd)) {
-		char *s;
-		int ih = 0;
-
-		s = rbuffer;
-
-		if(toupper(current_msgbase->MSGBASE_FN_FLAGS) != 'L' && !show_klugdes) {
-			if(*rbuffer == 1) {
-				continue;
-			}
-			else if(!strncmp("AREA:", rbuffer, 5)) {
-				continue;
-			}
-			else if (!strncmp("SEEN-BY:", rbuffer, 8) && !show_klugdes)
-				break;
+	// New 4-step process with dynamic allocation
+	{
+		long msg_size;
+		char *message_buffer;
+		char **lines;
+		int line_count;
+		char *wrapped_message;
+		
+		// Step 1: Read entire message into dynamically allocated buffer
+		message_buffer = read_entire_message(msgfd, &msg_size);
+		if (!message_buffer) {
+			DDPut("Error reading message.\n");
+			goto cleanup_msg;
 		}
-		else {
-			if(*rbuffer == 1) {
-				*rbuffer = '@';
+		
+		// Step 2: Split buffer into array of lines
+		lines = split_into_lines(message_buffer, &line_count);
+		if (!lines) {
+			free(message_buffer);
+			DDPut("Error processing message.\n");
+			goto cleanup_msg;
+		}
+		
+		// Step 3: Wrap the lines
+		wrapped_message = wrap_lines(lines, line_count, 78);
+		if (!wrapped_message) {
+			free_line_array(lines, line_count);
+			free(message_buffer);
+			DDPut("Error wrapping message.\n");
+			goto cleanup_msg;
+		}
+		
+		// Step 4: Display the message line by line to maintain More? prompt functionality
+		// Since DDPut now includes parsepipes, we just need to display line by line
+		char *line_start = wrapped_message;
+		char *line_end;
+		
+		while ((line_end = strchr(line_start, '\n')) != NULL) {
+			*line_end = '\0';
+			DDPut(line_start);
+			DDPut("\n");
+			*line_end = '\n';
+			line_start = line_end + 1;
+			
+			screenl--;
+			if (screenl <= 1) {
+				int hot;
+				DDPut(sd[morepromptstr]);
+				hot = HotKey(0);
+				DDPut("\r                                                         \r");
+				if (hot == 'N' || hot == 'n' || !checkcarrier())
+					break;
+				if (hot == 'C' || hot == 'c') {
+					screenl = 20000000;	/* "infinite lines" */
+				} else {
+					screenl = user.user_screenlength;
+				}
 			}
 		}
-
-		l++;
-//		if (toupper(current_msgbase->MSGBASE_FN_FLAGS) != 'L')
-
-		if (contains_ansi_codes(s)) {
-			DDPut(s);
-		} else {
-			char wrapped_text[5000];
-			parsepipes(s);
-			word_wrap(s, wrapped_text, 78, &screenl);
-			DDPut(wrapped_text);
+		// Display any remaining text after last newline
+		if (*line_start) {
+			DDPut(line_start);
 		}
-
-//		place holder for strip pipes if daydream.cfg says so
-//		parsepipes(s);
-//		word_wrap(s, wrapped_text, 78, &screenl);
-//		DDPut(wrapped_text);
-		screenl--;
-
-		if (screenl == 1) {
-			int hot;
-
-			DDPut(sd[morepromptstr]);
-			hot = HotKey(0);
-			DDPut("\r                                                         \r");
-			if (hot == 'N' || hot == 'n' || !checkcarrier())
-				break;
-			if (hot == 'C' || hot == 'c') {
-				screenl = 20000000;
-			} else {
-				screenl = user.user_screenlength;
-			}
-		}
+		
+		// Cleanup
+		free(wrapped_message);
+		free_line_array(lines, line_count);
+		free(message_buffer);
+		
+		cleanup_msg:;
 	}
 
 	fclose(msgfd);
@@ -922,4 +941,163 @@ static int keepmsg(int msgnum)
 		return 1;
 	}
 	return 0;
+}
+
+// Step 1: Read entire message into dynamically allocated buffer
+static char *read_entire_message(FILE *msgfd, long *total_size) {
+    long start_pos = ftell(msgfd);
+    char *buffer = NULL;
+    long size = 0;
+    long capacity = 1024;
+    char line_buffer[500];
+    
+    buffer = (char *) xmalloc(capacity);
+    buffer[0] = '\0';
+    
+    while (fgets(line_buffer, sizeof(line_buffer), msgfd)) {
+        long line_len = strlen(line_buffer);
+        
+        // Check if we need to expand buffer
+        if (size + line_len + 1 > capacity) {
+            capacity *= 2;
+            buffer = (char *) realloc(buffer, capacity);
+            if (!buffer) {
+                *total_size = 0;
+                return NULL;
+            }
+        }
+        
+        strcat(buffer, line_buffer);
+        size += line_len;
+    }
+    
+    *total_size = size;
+    return buffer;
+}
+
+// Step 2: Split buffer into array of lines
+static char **split_into_lines(const char *buffer, int *line_count) {
+    int capacity = 100;
+    int count = 0;
+    char **lines = (char **) xmalloc(capacity * sizeof(char *));
+    const char *start = buffer;
+    const char *current = buffer;
+    
+    while (*current) {
+        if (*current == '\n' || *current == '\0') {
+            int line_len = current - start;
+            
+            // Expand array if needed
+            if (count >= capacity) {
+                capacity *= 2;
+                lines = (char **) realloc(lines, capacity * sizeof(char *));
+            }
+            
+            // Allocate and copy line
+            lines[count] = (char *) xmalloc(line_len + 1);
+            strncpy(lines[count], start, line_len);
+            lines[count][line_len] = '\0';
+            
+            count++;
+            start = current + 1;
+        }
+        current++;
+    }
+    
+    // Handle case where buffer doesn't end with newline
+    if (start < current) {
+        if (count >= capacity) {
+            capacity++;
+            lines = (char **) realloc(lines, capacity * sizeof(char *));
+        }
+        int line_len = current - start;
+        lines[count] = (char *) xmalloc(line_len + 1);
+        strncpy(lines[count], start, line_len);
+        lines[count][line_len] = '\0';
+        count++;
+    }
+    
+    *line_count = count;
+    return lines;
+}
+
+// Step 3: Wrap the lines
+static char *wrap_lines(char **lines, int line_count, int wrap_length) {
+    long total_capacity = 1024;
+    char *result = (char *) xmalloc(total_capacity);
+    long result_len = 0;
+    result[0] = '\0';
+    
+    for (int i = 0; i < line_count; i++) {
+        char *line = lines[i];
+        
+        // Skip kludge lines for FidoNet messages
+        if (*line == 1 || !strncmp("AREA:", line, 5) || 
+            (!strncmp("SEEN-BY:", line, 8) && !show_klugdes)) {
+            continue;
+        }
+        
+        // Handle @ character replacement
+        if (*line == 1) {
+            *line = '@';
+        }
+        
+        // Simple word wrapping logic
+        int line_len = strlen(line);
+        int pos = 0;
+        
+        while (pos < line_len) {
+            int remaining = line_len - pos;
+            int chunk_len = (remaining > wrap_length) ? wrap_length : remaining;
+            
+            // Find last space within chunk for word boundary
+            if (chunk_len == wrap_length && pos + chunk_len < line_len) {
+                int last_space = chunk_len;
+                while (last_space > 0 && line[pos + last_space] != ' ') {
+                    last_space--;
+                }
+                if (last_space > 0) {
+                    chunk_len = last_space;
+                }
+            }
+            
+            // Ensure we have enough space in result buffer
+            if (result_len + chunk_len + 2 > total_capacity) {
+                total_capacity *= 2;
+                result = (char *) realloc(result, total_capacity);
+            }
+            
+            // Copy chunk to result
+            strncat(result, line + pos, chunk_len);
+            result_len += chunk_len;
+            
+            pos += chunk_len;
+            
+            // Add newline if we wrapped
+            if (pos < line_len) {
+                strcat(result, "\n");
+                result_len++;
+                // Skip space at beginning of next chunk
+                if (pos < line_len && line[pos] == ' ') {
+                    pos++;
+                }
+            }
+        }
+        
+        // Add newline after each original line
+        if (result_len + 1 < total_capacity) {
+            strcat(result, "\n");
+            result_len++;
+        }
+    }
+    
+    return result;
+}
+
+// Step 4: Free line array
+static void free_line_array(char **lines, int line_count) {
+    for (int i = 0; i < line_count; i++) {
+        free(lines[i]);
+    }
+    free(lines);
 }
