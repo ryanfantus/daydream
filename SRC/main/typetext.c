@@ -154,7 +154,24 @@ void ddput(const char *typeme, size_t len)
 
 void DDPut(const char *s)
 {
-	ddput(s, strlen(s));
+	char *temp_string;
+	size_t len;
+	
+	if (s == NULL)
+		return;
+		
+	len = strlen(s);
+	// Allocate extra space for color code expansion
+	temp_string = (char *) xmalloc(len * 3 + 1000);
+	strcpy(temp_string, s);
+	
+	// Parse color codes in the copy
+	parsepipes(temp_string);
+	
+	// Output the parsed string
+	ddput(temp_string, strlen(temp_string));
+	
+	free(temp_string);
 }
 
 
