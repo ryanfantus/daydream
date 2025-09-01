@@ -251,10 +251,10 @@ void ansi_bg(char *data, int bg) {
     }
 }
 
-// Parsepipes, parses all |01 - |23 codes
+// Parsepipes, parses all |01 - |23 codes, pcboard codes, wildcat, wwiv
 void parsepipes(char* szString) {
 
-    char szReplace[10]    = {0};  // Holds Ansi Sequence
+    char szReplace[20]    = {0};  // Holds Ansi Sequence
     char *szStrBuilder;		  // Holds new String being built
 
 
@@ -266,17 +266,39 @@ void parsepipes(char* szString) {
     int i = 0;
     int j = 0;
 
-    // Search Initial String for Pipe Char, if not found exit, else continue
-    pch = (char*) memchr (szString, '|', size);
+    // Search Initial String for color codes (|, @X, and WWIV), if not found exit, else continue
+    char *pch_pipe = (char*) memchr (szString, '|', size);
+    char *pch_at = (char*) memchr (szString, '@', size);
+    char *pch_wwiv = (char*) memchr (szString, 3, size);  // ASCII 3 is Control-C
+    
+    if (pch_pipe && pch_at && pch_wwiv) {
+        pch = (pch_pipe < pch_at) ? pch_pipe : pch_at;
+        pch = (pch < pch_wwiv) ? pch : pch_wwiv;
+    } else if (pch_pipe && pch_at) {
+        pch = (pch_pipe < pch_at) ? pch_pipe : pch_at;
+    } else if (pch_pipe && pch_wwiv) {
+        pch = (pch_pipe < pch_wwiv) ? pch_pipe : pch_wwiv;
+    } else if (pch_at && pch_wwiv) {
+        pch = (pch_at < pch_wwiv) ? pch_at : pch_wwiv;
+    } else if (pch_pipe) {
+        pch = pch_pipe;
+    } else if (pch_at) {
+        pch = pch_at;
+    } else if (pch_wwiv) {
+        pch = pch_wwiv;
+    } else {
+        pch = NULL;
+    }
+    
   	if (pch != NULL)
   	{
- 		// Calculate Index Position of | char found in string.
+ 		// Calculate Index Position of color code char found in string.
 		index = pch-szString;
-		//printf("Pipe Code found!: %d, size %d \r\n", index, size)
+		//printf("Color Code found!: %d, size %d \r\n", index, size)
 	}
 	else
 	{
-	 	// No Pipe Code in String
+	 	// No color codes in String
 		// no need to test further, so return
     	return;
 	}
@@ -285,9 +307,11 @@ void parsepipes(char* szString) {
     // Ansi ESC Sequences.
     for (  ; index < size; index++)
 	{
-        // Make sure pipe can't possibly extend past the end of the string.
-        // End of String reached, no possiable pipe code.
-        if (index +2 >= size)
+        // Make sure color codes can't possibly extend past the end of the string.
+        // Check for minimum length needed for pipe codes (3 chars), @X codes (4 chars), or WWIV codes (2 chars)
+        if ((szString[index] == '|' && index + 2 >= size) ||
+            (szString[index] == '@' && index + 3 >= size) ||
+            (szString[index] == 3 && index + 2 >= size))
            return;
         // Test if Current Index is a Pipe Code.
         if (szString[index] == '|')
@@ -357,7 +381,7 @@ void parsepipes(char* szString) {
 
                 if (strcmp(szReplace,"") != 0)
                 {
-			szStrBuilder = (char *) calloc((size + ( strlen(szReplace) + 2 )), sizeof(char) );
+			szStrBuilder = (char *) calloc((size + strlen(szReplace) + 50), sizeof(char) );
 			if (szStrBuilder == NULL)
 			{
 				return;
@@ -375,9 +399,12 @@ void parsepipes(char* szString) {
 			// used to be szStrBuilder)-1
 			for (i = strlen(szStrBuilder), j = index+3; j < size; i++, j++)					
 				szStrBuilder[i] = szString[j];
+			
+			// Ensure null termination
+			szStrBuilder[i] = '\0';
 
-			// Not reaassign new string back to Original String.
-			sprintf(szString,"%s",szStrBuilder);
+			// Reassign new string back to Original String.
+			strcpy(szString, szStrBuilder);
 
 			// Reset new size of string since ansi sequence is longer
 			// Then a pipe code.
@@ -397,6 +424,229 @@ void parsepipes(char* szString) {
 			} else {
 			 	//printf("Not Found second sequence ! \r\n");	
 			 	// No Pipe Code in String 
+				// no need to test further, so return
+			    	return;
+			}
+
+                }
+            }
+        }
+        if (szString[index] == '@' && szString[index + 1] == 'X')
+		{
+            memset(&szReplace,0,sizeof(szReplace));
+            //memset(&szStrBuilder,0,sizeof(szStrBuilder));
+	    // Make Sure Both Chars after Pipe Code are Digits or Numbers.
+            // Else Pass through and Ignore.
+            if ( isxdigit(szString[index+2]) && isxdigit(szString[index+3]) )
+			{
+                // Parse PCBoard @X hex color codes: @XBF where B=background, F=foreground
+                int bg_hex, fg_hex;
+                char bg_char = tolower(szString[index+2]);
+                char fg_char = tolower(szString[index+3]);
+                
+                // Convert hex characters to values
+                if (bg_char >= '0' && bg_char <= '9') bg_hex = bg_char - '0';
+                else if (bg_char >= 'a' && bg_char <= 'f') bg_hex = bg_char - 'a' + 10;
+                else break;
+                
+                if (fg_char >= '0' && fg_char <= '9') fg_hex = fg_char - '0';
+                else if (fg_char >= 'a' && fg_char <= 'f') fg_hex = fg_char - 'a' + 10;
+                else break;
+                
+                // Generate ANSI sequence for PCBoard colors
+                // Validate color values are in range (0-15 for fg, 0-7 for bg)
+                if (fg_hex > 15 || bg_hex > 7) break;
+                
+                if (fg_hex > 7) {
+                    snprintf(szReplace, sizeof(szReplace), "\e[1;%d;%dm", 30 + (fg_hex - 8), 40 + bg_hex);
+                } else {
+                    snprintf(szReplace, sizeof(szReplace), "\e[0;%d;%dm", 30 + fg_hex, 40 + bg_hex);
+                }
+
+                // Check if we matched an Ansi Sequence
+                // If we did, Copy string up to, not including pipe,
+                // Then con cat new ansi sequence to replace pipe in
+		// our new string And copy remainder of string back
+		// to run through Search for next pipe sequence.
+
+                if (strcmp(szReplace,"") != 0)
+                {
+			szStrBuilder = (char *) calloc((size + strlen(szReplace) + 50), sizeof(char) );
+			if (szStrBuilder == NULL)
+			{
+				return;
+			}
+              		// Sequence found.
+			// 1. Copy String up to pipe into new string.
+			for (i = 0; i < index; i++)
+			szStrBuilder[i] = szString[i];
+
+			// ConCat New Ansi Sequence into String
+			strcat(szStrBuilder,szReplace);
+
+			// Skip Past 3 chars after @X, and copy over remainder of 
+			// String into new string so we have a complete string again.
+			// used to be szStrBuilder)-1
+			for (i = strlen(szStrBuilder), j = index+4; j < size; i++, j++)					
+				szStrBuilder[i] = szString[j];
+			
+			// Ensure null termination
+			szStrBuilder[i] = '\0';
+
+			// Reassign new string back to Original String.
+			strcpy(szString, szStrBuilder);
+
+			// Reset new size of string since ansi sequence is longer
+			// Then a pipe code.
+
+			free (szStrBuilder);
+			szStrBuilder = NULL;
+			size = strlen(szString);
+			// then test again
+			// if anymore pipe codes exists,  if they do repeat process.
+		        // Look for both pipe codes and @X codes
+		        char *pch_pipe = (char*) memchr (szString, '|', size);
+		        char *pch_at = (char*) memchr (szString, '@', size);
+		        
+		        if (pch_pipe && pch_at) {
+		            pch = (pch_pipe < pch_at) ? pch_pipe : pch_at;
+		        } else if (pch_pipe) {
+		            pch = pch_pipe;
+		        } else if (pch_at) {
+		            pch = pch_at;
+		        } else {
+		            pch = NULL;
+		        }
+		        
+  			if (pch != NULL)
+		  	{
+		 		// Calculate Index Position of color code char found in string.
+				index = pch-szString;   
+				--index; // Loop will incriment this so we need to set it down 1.
+				//printf("Found second sequence ! index %d, size %d\r\n",index, size);	
+			} else {
+			 	//printf("Not Found second sequence ! \r\n");	
+			 	// No color codes in String 
+				// no need to test further, so return
+			    	return;
+			}
+
+                }
+            }
+        }
+        // Test if Current Index is a WWIV Color Code (Control-C + digit)
+        if (szString[index] == 3)  // ASCII 3 is Control-C
+		{
+            memset(&szReplace,0,sizeof(szReplace));
+            
+            // Make sure the next character is a digit
+            if (isdigit(szString[index+1]))
+			{
+                // Parse WWIV color codes
+                switch (szString[index+1])
+				{
+                    case '0': // Normal
+                        strcpy(szReplace, "\e[0m");
+                        break;
+                    case '1': // High Intensity Cyan
+                        strcpy(szReplace, "\e[1;36m");
+                        break;
+                    case '2': // High Intensity Yellow
+                        strcpy(szReplace, "\e[1;33m");
+                        break;
+                    case '3': // Normal Magenta
+                        strcpy(szReplace, "\e[0;35m");
+                        break;
+                    case '4': // High Intensity White with Blue Background
+                        strcpy(szReplace, "\e[1;37;44m");
+                        break;
+                    case '5': // Normal Green
+                        strcpy(szReplace, "\e[0;32m");
+                        break;
+                    case '6': // High Intensity Blinking Red
+                        strcpy(szReplace, "\e[1;5;31m");
+                        break;
+                    case '7': // High Intensity Blue
+                        strcpy(szReplace, "\e[1;34m");
+                        break;
+                    case '8': // Low Intensity Blue
+                        strcpy(szReplace, "\e[0;34m");
+                        break;
+                    case '9': // Low Intensity Cyan
+                        strcpy(szReplace, "\e[0;36m");
+                        break;
+                    default:
+                        break;
+                }
+
+                // Check if we matched an ANSI Sequence
+                if (strcmp(szReplace,"") != 0)
+                {
+			szStrBuilder = (char *) calloc((size + strlen(szReplace) + 50), sizeof(char) );
+			if (szStrBuilder == NULL)
+			{
+				return;
+			}
+              		// Sequence found.
+			// 1. Copy String up to Control-C into new string.
+			for (i = 0; i < index; i++)
+			szStrBuilder[i] = szString[i];
+
+			// ConCat New Ansi Sequence into String
+			strcat(szStrBuilder,szReplace);
+
+			// Skip Past 1 digit after Control-C, and copy over remainder of 
+			// String into new string so we have a complete string again.
+			for (i = strlen(szStrBuilder), j = index+2; j < size; i++, j++)					
+				szStrBuilder[i] = szString[j];
+			
+			// Ensure null termination
+			szStrBuilder[i] = '\0';
+
+			// Reassign new string back to Original String.
+			strcpy(szString, szStrBuilder);
+
+			// Reset new size of string since ansi sequence is longer
+			// Then a Control-C code.
+
+			free (szStrBuilder);
+			szStrBuilder = NULL;
+			size = strlen(szString);
+			// then test again
+			// if anymore color codes exist, if they do repeat process.
+		        // Look for pipe codes, @X codes, and WWIV codes
+		        char *pch_pipe = (char*) memchr (szString, '|', size);
+		        char *pch_at = (char*) memchr (szString, '@', size);
+		        char *pch_wwiv = (char*) memchr (szString, 3, size);
+		        
+		        if (pch_pipe && pch_at && pch_wwiv) {
+		            pch = (pch_pipe < pch_at) ? pch_pipe : pch_at;
+		            pch = (pch < pch_wwiv) ? pch : pch_wwiv;
+		        } else if (pch_pipe && pch_at) {
+		            pch = (pch_pipe < pch_at) ? pch_pipe : pch_at;
+		        } else if (pch_pipe && pch_wwiv) {
+		            pch = (pch_pipe < pch_wwiv) ? pch_pipe : pch_wwiv;
+		        } else if (pch_at && pch_wwiv) {
+		            pch = (pch_at < pch_wwiv) ? pch_at : pch_wwiv;
+		        } else if (pch_pipe) {
+		            pch = pch_pipe;
+		        } else if (pch_at) {
+		            pch = pch_at;
+		        } else if (pch_wwiv) {
+		            pch = pch_wwiv;
+		        } else {
+		            pch = NULL;
+		        }
+		        
+  			if (pch != NULL)
+		  	{
+		 		// Calculate Index Position of color code char found in string.
+				index = pch-szString;   
+				--index; // Loop will incriment this so we need to set it down 1.
+				//printf("Found second sequence ! index %d, size %d\r\n",index, size);	
+			} else {
+			 	//printf("Not Found second sequence ! \r\n");	
+			 	// No color codes in String 
 				// no need to test further, so return
 			    	return;
 			}
@@ -666,7 +916,6 @@ static int typefile(const char *filename, int flags)
 			free(comp->ptr);
 		free(comp);
 	}
-
 	return retcode;
 }		
 
@@ -998,11 +1247,15 @@ static int dotype(char *filename, int flags)
 		return 0;
 	fstat(fd, &st);		
 		
-	buffer = (char *) xmalloc(st.st_size);
+	// Allocate buffer with extra space for color code expansion
+	// Color codes can expand significantly (e.g., @X08 -> \e[0;30;40m)
+	buffer = (char *) xmalloc(st.st_size * 3 + 1000);
 	read(fd, buffer, st.st_size);
+	buffer[st.st_size] = '\0';  // Ensure null termination
 	close(fd);
 
-	retcode = formatted_print(buffer, st.st_size, flags);
+    parsepipes(buffer);
+	retcode = formatted_print(buffer, strlen(buffer), flags);
 	free(buffer);
 	
 	return retcode;
