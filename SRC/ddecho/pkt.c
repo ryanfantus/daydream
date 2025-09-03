@@ -40,6 +40,7 @@ int ReadPktHeader(FILE* fh, MEM_MSG* mem) {
 	mem->PktDate.tm_sec = (int) pkt.second;
 
 	strncpy(mem->PktPw, pkt.password, 8);
+	mem->PktPw[7] = '\0';  /* Ensure null termination */
 
 	sprintf(tbuf, "%02x%02x", pkt.prodcode2, pkt.prodcode);
 	sscanf(tbuf, "%04x", (unsigned int*) &mem->Product);

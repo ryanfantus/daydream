@@ -63,6 +63,8 @@ void bsList_freeFromOffset(bsList* list, bsListItem* item) {
 }
 
 void bsList_delete(bsList* list, bsListItem* item) {
+	if(!item || !list) return;
+	
 	if(item->prev && item->next) {
 		item->prev->next = item->next;
 		item->next->prev = item->prev;
@@ -71,11 +73,11 @@ void bsList_delete(bsList* list, bsListItem* item) {
 		if(!item->prev)
 		{
 			list->first = item->next;
-			list->first->prev = NULL;
+			if(list->first) list->first->prev = NULL;
 		}
 		if(!item->next) {
 			list->last = item->prev;
-			list->last->next = NULL;
+			if(list->last) list->last->next = NULL;
 		}
 	}
 }

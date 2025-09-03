@@ -9,7 +9,7 @@
 int Arc() {
 	bsListItem* item;
 
-	char cmd[128];
+	char cmd[1024];  /* Increased buffer size for command */
 	char flofn[64];
 	char arcfn[64];
 	char farcfn[128];
@@ -38,20 +38,20 @@ int Arc() {
 		tmptime = time(NULL);
 		tmptm = localtime(&tmptime);
 
-		sprintf(buf, "%d%d%d%d%d%d%d%d%d%d%d", 
+		snprintf(buf, sizeof(buf), "%d%d%d%d%d%d%d%d%d%d%d", 
                         arc->Dest.zone, arc->Dest.net,
                         arc->Dest.node, arc->Dest.point,
                         arc->Source.zone, arc->Source.net,
                         arc->Source.node, arc->Source.point,
                         tmptm->tm_mday, tmptm->tm_mon, tmptm->tm_year);
                         
-		sprintf(arcfn, "%08x", StringCRC32(buf));	
+		snprintf(arcfn, sizeof(arcfn), "%08x", StringCRC32(buf));	
 	
 		new_file = TRUE;
 		
 		for(i=0; i < eext_len; i++) {
 
-			sprintf(farcfn, "%s/%s.%s%c", GetDirName(&arc->Dest), arcfn, ext[tmptm->tm_wday], eext[i]);
+			snprintf(farcfn, sizeof(farcfn), "%s/%s.%s%c", GetDirName(&arc->Dest), arcfn, ext[tmptm->tm_wday], eext[i]);
 			
 			if(stat(farcfn, &st) < 0) {
 			    break;
@@ -67,7 +67,7 @@ int Arc() {
 		GetFloName(flofn, &arc->Dest, arc->Flavour);
 
 		if(arc->Packer) {
- 	 		sprintf(cmd, arc->Packer->Compress, farcfn, arc->Filename);
+ 	 		snprintf(cmd, sizeof(cmd), arc->Packer->Compress, farcfn, arc->Filename);
 			logit(TRUE, "Executing %s\n", cmd);
 
 			if(!system(cmd)) {
@@ -109,16 +109,17 @@ char* GetDirName(FidoAddr* dest) {
 	static char buf2[512];
 
 	if(dest->zone != main_cfg.DefZone) {
-		sprintf(buf, "%s.%03x", main_cfg.Outbound, dest->zone);
+		snprintf(buf, sizeof(buf), "%s.%03x", main_cfg.Outbound, dest->zone);
 		if(access(buf, R_OK) < 0) {
 			mkdir(buf, MKDIR_DEFS);
 		}
 	} else {
-		strcpy(buf, main_cfg.Outbound);
+		strncpy(buf, main_cfg.Outbound, sizeof(buf)-1);
+		buf[sizeof(buf)-1] = '\0';
 	}
 
 	if(dest->point != 0) {
-		sprintf(buf2, "%s/%04x%04x.pnt", buf, dest->net, dest->node);
+		snprintf(buf2, sizeof(buf2), "%s/%04x%04x.pnt", buf, dest->net, dest->node);
 		if(access(buf2, R_OK) < 0) {
 			mkdir(buf2, MKDIR_DEFS);
 		}
@@ -128,15 +129,16 @@ char* GetDirName(FidoAddr* dest) {
 }
 
 char* GetBaseName(FidoAddr* dest) {
-	static char* buf;
+	static char buf[512];
+	char* dirname;
 
-	buf = GetDirName(dest);
+	dirname = GetDirName(dest);
 
 	if(dest->point != 0) {
-		sprintf(buf, "%s/%08x", buf, dest->point);	
+		snprintf(buf, sizeof(buf), "%s/%08x", dirname, dest->point);	
 	}
 	else {
-		sprintf(buf, "%s/%04x%04x", buf, dest->net, dest->node);	
+		snprintf(buf, sizeof(buf), "%s/%04x%04x", dirname, dest->net, dest->node);	
 	}
 	
 	return buf;
@@ -154,7 +156,7 @@ void GetPktName(char* pkt, FidoAddr* dest, Flav Flavour, int netmail) {
 	packer = GetPacker(dest);
 
 	if(netmail && !main_cfg.PackNetmail) {
-		sprintf(pkt, "%s.%cut", GetBaseName(dest), FlavToChar(0, Flavour));
+		snprintf(pkt, 256, "%s.%cut", GetBaseName(dest), FlavToChar(0, Flavour));
 		return;
 	} 
 
@@ -178,11 +180,12 @@ void GetPktName(char* pkt, FidoAddr* dest, Flav Flavour, int netmail) {
 	if(!found) {
 
 		RandomFilename(buf, "pkt");
-		sprintf(pkt, "%s/%s", main_cfg.Outbound, buf);
+		snprintf(pkt, 256, "%s/%s", main_cfg.Outbound, buf);
 
 		arch = NEW(ArchList);
 
-		strncpy(arch->Filename, pkt, 64);
+		strncpy(arch->Filename, pkt, sizeof(arch->Filename)-1);
+		arch->Filename[sizeof(arch->Filename)-1] = '\0';
 		memcpy(&arch->Dest, dest, sizeof(FidoAddr));
 		FindMyAka(&arch->Source, &arch->Dest);
 		arch->Packer = packer;
@@ -193,7 +196,7 @@ void GetPktName(char* pkt, FidoAddr* dest, Flav Flavour, int netmail) {
 }
 
 void GetFloName(char* buf, FidoAddr* dest, Flav Flavour) {
-	sprintf(buf, "%s.%clo", GetBaseName(dest), FlavToChar(1, Flavour));
+	snprintf(buf, 256, "%s.%clo", GetBaseName(dest), FlavToChar(1, Flavour));
 }
 
 void AppendToFlo(char* floname, char* file) {

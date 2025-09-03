@@ -1,7 +1,7 @@
 /* Some handy macros */
 
 #define NEW(x) malloc(sizeof(x))
-#define FREE(x) (x != NULL)  ? free(x) : 0
+#define FREE(x) ((x) != NULL) ? (free(x), (x) = NULL) : 0
 #define COPY(x) memcpy(malloc(sizeof(*x)), x, sizeof(*x))
 
 #define MKDIR_DEFS 0770

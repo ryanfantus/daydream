@@ -156,11 +156,21 @@ void WriteNewHeaders(MEM_MSG* mem) {
 	char buf2[64];
 
 	for(item=mem->Text.first; item; item=item->next) {
-		if(!strncmp(item->val, "\1INTL", 5)) {
-			sprintf(item->val, "\1INTL %s %s", fidoaddr_to_text(&mem->MsgDest, buf1), fidoaddr_to_text(&mem->MsgOrig, buf2));
+		if(item->val && !strncmp(item->val, "\1INTL", 5)) {
+			char *new_line = malloc(256);
+			if(new_line) {
+				snprintf(new_line, 256, "\1INTL %s %s", fidoaddr_to_text(&mem->MsgDest, buf1), fidoaddr_to_text(&mem->MsgOrig, buf2));
+				free(item->val);
+				item->val = new_line;
+			}
 		}
-		else if(!strncmp(item->val, "\1TOPT", 5)) {
-			sprintf(item->val, "\1TOPT %d", mem->MsgDest.point);
+		else if(item->val && !strncmp(item->val, "\1TOPT", 5)) {
+			char *new_line = malloc(256);
+			if(new_line) {
+				snprintf(new_line, 256, "\1TOPT %d", mem->MsgDest.point);
+				free(item->val);
+				item->val = new_line;
+			}
 		}
 	}
 }
@@ -278,6 +288,11 @@ int afix_scan() {
 	DD_Area* a;
 	MEM_MSG result_mem;
 	
+	memset(&mem, 0, sizeof(MEM_MSG));
+	bsList_init(&mem.Text);
+	memset(&result_mem, 0, sizeof(MEM_MSG));
+	bsList_init(&result_mem.Text);
+	
 	printf("Areafix Scanning\n");
 
 	for(item=main_cfg.Areas.first; item; item=item->next) {
@@ -332,6 +347,9 @@ int scan(int echo) {
 	Area* area;
 	bsListItem* item;
 	DD_Area* a;
+	
+	memset(&mem, 0, sizeof(MEM_MSG));
+	bsList_init(&mem.Text);
 	
 	if(echo)
 		logit(TRUE, "Scanning");
@@ -390,6 +408,9 @@ int toss_from_bad() {
 	Area* area, *area2;
 	bsListItem* item;
 	DD_Area* a, *a2;
+	
+	memset(&mem, 0, sizeof(MEM_MSG));
+	bsList_init(&mem.Text);
 
 	logit(TRUE, "Tossing from bad");
 
@@ -474,7 +495,8 @@ int toss_dir(char* indir, int type) {
 
 	while((de = readdir(dir))) {
 		
-		strcpy(fn, de->d_name);
+		strncpy(fn, de->d_name, sizeof(fn)-1);
+		fn[sizeof(fn)-1] = '\0';
 
 		file = strtok(fn, ".");
 		ext = strtok(NULL, "");
@@ -484,14 +506,14 @@ int toss_dir(char* indir, int type) {
 		}
 
 		if (!strcasecmp(ext, "pkt")) {
-			sprintf(ffn, "%s/%s", indir, de->d_name);
+			snprintf(ffn, sizeof(ffn), "%s/%s", indir, de->d_name);
 
 			if(toss_file(ffn, type) >= 0) {
 				unlink(ffn);
 			}
 			else {
 				logit(TRUE, "Moving to Bad pkt dir");
-				sprintf(buf, "%s/%s", main_cfg.BadPktDir, de->d_name);
+				snprintf(buf, sizeof(buf), "%s/%s", main_cfg.BadPktDir, de->d_name);
 				rename(ffn, buf);
 			}
 		}

@@ -14,7 +14,7 @@ void RandomFilename(char* buf, char* ext) {
 		init = time(NULL);
 		srand(init);
 	}
-	sprintf(buf, "%08x.%s", rand(), ext);
+	snprintf(buf, 64, "%08x.%s", rand(), ext);
 	
 }
 
@@ -39,7 +39,7 @@ void WritePkt(MEM_MSG* mem, FidoAddr* dest, Flav Flavour) {
 }
 
 void AddVia(MEM_MSG* mem) {
-	char buf[128];
+	char buf[512];  /* Increased buffer size */
 	time_t t;
 	struct tm* tt;
 	FidoAddr tmp;
@@ -49,7 +49,7 @@ void AddVia(MEM_MSG* mem) {
 	t = time(NULL);
 	tt = gmtime(&t);
 
-	sprintf(buf, "\1Via %s @%04d%02d%02d.%02d%02d%02d.UTC %s", fidoaddr_to_text(&tmp, NULL), tt->tm_year+1900, tt->tm_mon+1, tt->tm_mday, tt->tm_hour, tt->tm_min, tt->tm_sec, version);	
+	snprintf(buf, sizeof(buf), "\1Via %s @%04d%02d%02d.%02d%02d%02d.UTC %s", fidoaddr_to_text(&tmp, NULL), tt->tm_year+1900, tt->tm_mon+1, tt->tm_mday, tt->tm_hour, tt->tm_min, tt->tm_sec, version);	
 	bsList_add(&mem->Text, strdup(buf));
 }
 
@@ -66,7 +66,7 @@ void AddTid(MEM_MSG* mem) {
 		}
 	}
 
-	sprintf(tidstr, "\1TID: %s", version);
+	snprintf(tidstr, sizeof(tidstr), "\1TID: %s", version);
 
 	bsList_insertBefore(&mem->Text, item, strdup(tidstr));
 }
@@ -86,7 +86,7 @@ int RouteMail(MEM_MSG* mem) {
 
 	if(mem->Area[0] == 0 && main_cfg.StarMsgNetmail[0] != 0) {
 		i = msg_HighMsgNum(main_cfg.StarMsgNetmail) + 1;
-		sprintf(buf, "%s/%d.msg", main_cfg.StarMsgNetmail, i);
+		snprintf(buf, sizeof(buf), "%s/%d.msg", main_cfg.StarMsgNetmail, i);
 
 		/* Not nessersary but for debugging it's nice to know weather the message
 		 * passed by dd-echo */
@@ -138,9 +138,10 @@ int RouteMail(MEM_MSG* mem) {
 		pw = GetPassword(&Dest);
 
 		if (pw != NULL) {
-			strcpy(mem->PktPw, pw->Password);
+			strncpy(mem->PktPw, pw->Password, sizeof(mem->PktPw)-1);
+			mem->PktPw[sizeof(mem->PktPw)-1] = '\0';
 		} else {
-			strcpy(mem->PktPw, "");
+			mem->PktPw[0] = '\0';
 		}
 
 		tmptime = time(NULL);
