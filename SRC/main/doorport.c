@@ -197,6 +197,12 @@ static void door_loop(int sockfd, pid_t child_pid, const char *door_params)
 			case 31:
 				msg.ddm_data1 = dumpfilestofile(msg.ddm_string);
 				break;
+			
+			case 32:
+				/* dd_sendstring_noparse - output without parsing pipe codes */
+				ddput(msg.ddm_string, strlen(msg.ddm_string));
+				break;
+				
 			case 100:
 				strlcpy(msg.ddm_string, maincfg.CFG_BOARDNAME, sizeof msg.ddm_string);
 				break;

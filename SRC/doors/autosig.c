@@ -53,8 +53,8 @@ void create_sig() {
   *line3 = '\0';
 
   dd_sendstring(d, "\n\e[33mWrite your sig on the three lines below, pipe color codes as follows:\e[0m\n");
-  dd_sendstring(d, "\e[33mForeground: \e[0;30m|00 \e[0;34m|01 \e[0;32m|02 \e[0;36m|03 \e[0;31m|04 \e[0;35m|05 \e[0;33m|06 \e[0;37m|07 \e[1;30m|08 \e[1;34m|09 \e[1;32m|10 \e[1;36m|11 \e[1;31m|12 \e[1;35m|13 \e[1;33m|14 \e[1;37m|15\e[0m\n");
-  dd_sendstring(d, "\e[33mBackground: \e[0m\e[40m|16\e[0m \e[44m|17\e[0m \e[42m|18\e[0m \e[46m|19\e[0m \e[41m|20\e[0m \e[45m|21\e[0m \e[43m|22\e[0m \e[47m|23\e[0m\n");
+  dd_sendstring_noparse(d, "\e[33mForeground: \e[0;30m|00 \e[0;34m|01 \e[0;32m|02 \e[0;36m|03 \e[0;31m|04 \e[0;35m|05 \e[0;33m|06 \e[0;37m|07 \e[1;30m|08 \e[1;34m|09 \e[1;32m|10 \e[1;36m|11 \e[1;31m|12 \e[1;35m|13 \e[1;33m|14 \e[1;37m|15\e[0m\n");
+  dd_sendstring_noparse(d, "\e[33mBackground: \e[0m\e[40m|16\e[0m \e[44m|17\e[0m \e[42m|18\e[0m \e[46m|19\e[0m \e[41m|20\e[0m \e[45m|21\e[0m \e[43m|22\e[0m \e[47m|23\e[0m\n");
   dd_sendstring(d, "\e[36m> ");
   dd_prompt(d, line1, 76, PROMPT_NOCRLF);
   dd_sendstring(d, "\n\e[36m> ");

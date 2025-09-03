@@ -22,6 +22,7 @@ struct dif {
 struct dif *dd_initdoor(char *);
 void dd_close(struct dif *);
 void dd_sendstring(struct dif *, const char *);
+void dd_sendstring_noparse(struct dif *, const char *);
 int dd_sendfmt(struct dif *, const char *, ...);
 int dd_prompt(struct dif *, char *, int, int);
 int dd_hotkey(struct dif *, int);

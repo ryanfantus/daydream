@@ -125,6 +125,36 @@ RESULT
 	none
 
 -----------------------------------------------------------------------
+
+NAME
+	dd_sendstring_noparse - write a string to user without parsing
+        |xx color codes
+
+SYNOPSIS
+	void dd_sendstring_noparse(struct dif *d, char *string)
+	
+FUNCTION
+        Prints specified string of characters to remote user's display,
+        local screen or both. Possible ANSI codes will be automatically
+        stripped, if user has chosen an ASCII display mode. When in need
+        of changing line, string only needs to contain a linefeed, carriage
+        return (ASCII 13) will be inserted automatically.
+
+        This implementation differs from dd_sendstring() because it does
+        not parse out |xx, @Xxx, or `x characters (renegade style, pcboard,
+        and wwiv).
+
+EXAMPLE
+	dd_sendstring_noparse(d,"|01|03|05 Are sample color codes!");
+
+INPUTS
+	d - initialized dif.
+	string - string to show.
+
+RESULT
+	none
+
+-----------------------------------------------------------------------
 NAME
 	dd_prompt - prompt for user input
 

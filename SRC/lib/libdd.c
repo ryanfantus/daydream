@@ -147,6 +147,20 @@ void dd_sendstring(struct dif *d, const char *str)
 	writedm(d);
 }
 
+void dd_sendstring_noparse(struct dif *d, const char *str)
+{
+        while (strlen(str) > sizeof(d->dif_dm.ddm_string) - 1) {
+                d->dif_dm.ddm_command = 32;  /* Use command 32 for no-parse */
+                strlcpy(d->dif_dm.ddm_string, str,
+                        sizeof(d->dif_dm.ddm_string));
+                writedm(d);
+                str = &str[sizeof(d->dif_dm.ddm_string) - 1];
+        }
+        d->dif_dm.ddm_command = 32;  /* Use command 32 for no-parse */
+        strlcpy(d->dif_dm.ddm_string, str, sizeof(d->dif_dm.ddm_string));
+        writedm(d);
+}
+
 int dd_sendfmt(struct dif *d, const char *fmt, ...)
 {
 	char *buf;
