@@ -31,7 +31,7 @@ case "$1" in
 
     if [ -z $PYTHON_H ];
     then
-      ph=`find /usr/include/ -name Python.h|head -n1`
+      ph=`find /usr/include/python2.7/ -name Python.h|head -n1`
       if [ -z $ph ];
       then
         ph=`find /usr/local/include/ -name Python.h|head -n1`
