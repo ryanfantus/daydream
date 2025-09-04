@@ -432,6 +432,7 @@ static void scrollup(void)
 	}
 	dd_sendstring(d, "[A");
 	datapos = &lineadd[xpos];
+	redraw(1);
 }
 
 static void scrolldown(void)
@@ -461,6 +462,7 @@ static void scrolldown(void)
 	}
 	dd_sendstring(d, "[B");
 	datapos = &lineadd[xpos];
+	redraw(1);
 }
 
 static void insertchar(unsigned char c)
