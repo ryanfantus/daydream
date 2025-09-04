@@ -164,6 +164,8 @@ char *good_exts[]={
 	"*.nfo",
 	"*.diz",
 	"read*.*",
+	"*.ans",
+	"*.asc",
 	NULL
 };
 
