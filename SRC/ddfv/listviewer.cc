@@ -166,6 +166,7 @@ char *good_exts[]={
 	"read*.*",
 	"*.ans",
 	"*.asc",
+	"*.gfx",
 	NULL
 };
 
