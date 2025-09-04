@@ -43,8 +43,19 @@ int select_func(const dirent *de)
 {
 	char buffer[256];
 	struct stat st;
-	sprintf(buffer, "%s/%s", *__select_path, de->d_name);
-	stat(buffer, &st);
+	
+	// Use snprintf for safe buffer handling
+	int result = snprintf(buffer, sizeof(buffer), "%s/%s", *__select_path, de->d_name);
+	if (result >= (int)sizeof(buffer)) {
+		// Path too long, skip this entry
+		return 0;
+	}
+	
+	if (stat(buffer, &st) != 0) {
+		// stat failed, skip this entry
+		return 0;
+	}
+	
 	if ((!S_ISDIR(st.st_mode))||(strcmp(de->d_name, ".")&&strcmp(de->d_name, "..")))
 		return 1;
 	else return 0;
@@ -76,16 +87,22 @@ int scandir(const char *dir, struct dirent ***namelist,
 	if (!*namelist)
 		return -1;
 	if ((dirhandle = opendir(dir)) == NULL) { 
-		free(namelist);
+		free(*namelist);  // Fix: free the allocated memory, not the pointer to pointer
+		*namelist = NULL;
 		return -1;
 	}	
-	while ((dent = readdir(dirhandle)) != NULL) {
-		if (alloc < entries + 1) {
+		while ((dent = readdir(dirhandle)) != NULL) {
+		if (alloc <= entries + 1) {  // Fix: use <= to ensure we have space
 			alloc *= 2;
 			nl = (struct dirent **) realloc(*namelist, 
 				sizeof(struct dirent *) * alloc);
 			if (nl == NULL) {
+				// Clean up existing allocations before returning
+				for (int i = 0; i < entries; i++) {
+					free((*namelist)[i]);
+				}
 				free(*namelist);
+				*namelist = NULL;
 				closedir(dirhandle);
 				return -1;
 			}
@@ -95,6 +112,16 @@ int scandir(const char *dir, struct dirent ***namelist,
 			continue;
 		(*namelist)[entries] = (struct dirent *) 
 			malloc(sizeof(struct dirent));
+		if ((*namelist)[entries] == NULL) {
+			// Handle malloc failure
+			for (int i = 0; i < entries; i++) {
+				free((*namelist)[i]);
+			}
+			free(*namelist);
+			*namelist = NULL;
+			closedir(dirhandle);
+			return -1;
+		}
 		memcpy((*namelist)[entries++], dent, sizeof(struct dirent));
 	}
 	closedir(dirhandle);

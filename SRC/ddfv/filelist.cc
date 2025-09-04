@@ -18,6 +18,10 @@ FileList::FileList(int screen_len, int area) : ListViewer(screen_len), contents(
 	char *buffer=new char[512];
 	sprintf(buffer, "Area %d", area);
 	Title=strdup(buffer);
+	if (!conf->CONF_PATH) {
+		delete [] buffer;
+		return;
+	}
 	snprintf(buffer, 512, "%s/data/directory.%3.3d", conf->CONF_PATH, area);
 		
 	entries=0;
@@ -49,8 +53,13 @@ FileList::FileList(int screen_len, int area) : ListViewer(screen_len), contents(
 	fclose(fp);
 			  			           
 	struct FFlag fl;
-	char tmp[256];
-	tmpnam(tmp);
+	char tmp[] = "/tmp/ddfv_files_XXXXXX";
+	int tmp_fd = mkstemp(tmp);
+	if (tmp_fd == -1) {
+		return;
+	}
+	close(tmp_fd);  // We just need the filename
+	
 	if (dd_dumpfilestofile(d, tmp)) {
 		int fd=open(tmp, O_RDONLY);
 		if (fd<0) 
@@ -87,8 +96,18 @@ int FileList::HandleKeyboard(int ch)
 
 void FileList::insert(ListEntryPack const &e)
 {
-	contents=(ListEntryPack **)realloc(contents, sizeof(ListEntryPack *)*++entries);
-	contents[entries-1]=new ListEntryPack(e);
+	ListEntryPack **new_contents = (ListEntryPack **)realloc(contents, sizeof(ListEntryPack *) * (entries + 1));
+	if (!new_contents) {
+		// Handle allocation failure gracefully
+		return;
+	}
+	contents = new_contents;
+	contents[entries] = new ListEntryPack(e);
+	if (!contents[entries]) {
+		// Handle allocation failure for ListEntryPack
+		return;
+	}
+	entries++;
 }
 			
 /****************************************************************************/

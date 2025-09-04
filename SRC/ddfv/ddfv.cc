@@ -34,7 +34,18 @@ int GetArea()
 void DoorCode(void)
 {
 	char buffer[256]; FILE *fp;
-	sprintf(buffer, "%s/configs/ddfv.cfg", getenv("DAYDREAM"));
+	const char *daydream_path = getenv("DAYDREAM");
+	if (!daydream_path) {
+		dprintf("Error: DAYDREAM environment variable not set.\n");
+		return;
+	}
+	
+	int result = snprintf(buffer, sizeof(buffer), "%s/configs/ddfv.cfg", daydream_path);
+	if (result >= (int)sizeof(buffer)) {
+		dprintf("Error: Path too long for DAYDREAM config.\n");
+		return;
+	}
+	
 	if ((fp=fopen(buffer, "r"))!=NULL) {
 		if (parse_file(fp)) {			
 			dprintf("Syntax error in \"ddfv.cfg\".\n");

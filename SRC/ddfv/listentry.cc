@@ -10,10 +10,24 @@
 
 ListEntryPack::ListEntryPack(char *s, int lnames) : oldflags(-1)
 {
-	char *t=s+(lnames?34:12);
-	for (; t; t--)
-		if (!isspace(t[-1]))
-			break;
+	if (!s) {
+		filename = NULL;
+		return;
+	}
+	
+	size_t s_len = strlen(s);
+	size_t offset = lnames ? 34 : 12;
+	
+	if (offset > s_len) {
+		filename = NULL;
+		return;
+	}
+	
+	char *t = s + offset;
+	// Fix the dangerous loop - ensure we don't go before start of string
+	while (t > s && isspace(t[-1])) {
+		t--;
+	}
 	
 	char *buffer=new char[512];
 	char *basename=strdup(s);

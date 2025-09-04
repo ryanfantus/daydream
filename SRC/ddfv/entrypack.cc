@@ -64,8 +64,18 @@ EntryPack::Entry::SubEntry::~SubEntry(void)
 
 void EntryPack::insert(Entry const &s) 
 {
-	contents=(Entry **)realloc(contents, sizeof(Entry *)*++entries);
-	contents[entries-1]=new EntryPack::Entry(s);
+	Entry **new_contents = (Entry **)realloc(contents, sizeof(Entry *) * (entries + 1));
+	if (!new_contents) {
+		// Handle allocation failure gracefully
+		return;
+	}
+	contents = new_contents;
+	contents[entries] = new EntryPack::Entry(s);
+	if (!contents[entries]) {
+		// Handle allocation failure for Entry
+		return;
+	}
+	entries++;
 }
 
 EntryPack::EntryPack(EntryPack const &e) : entries(0), contents(NULL)
@@ -91,8 +101,18 @@ EntryPack::~EntryPack(void)
 
 void EntryPack::Entry::insert(SubEntry const &s) 
 {
-	contents=(SubEntry **)realloc(contents, sizeof(SubEntry *)*++entries);
-	contents[entries-1]=new SubEntry(s);
+	SubEntry **new_contents = (SubEntry **)realloc(contents, sizeof(SubEntry *) * (entries + 1));
+	if (!new_contents) {
+		// Handle allocation failure gracefully
+		return;
+	}
+	contents = new_contents;
+	contents[entries] = new SubEntry(s);
+	if (!contents[entries]) {
+		// Handle allocation failure for SubEntry
+		return;
+	}
+	entries++;
 }
 
 EntryPack::Entry::Entry(Entry const &e) : entries(0), contents(NULL)

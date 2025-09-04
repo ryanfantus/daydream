@@ -441,8 +441,13 @@ void ListViewer::ClearVisibilityFlags(void)
 void ListViewer::ClearScreen(void) 
 {
 	char *p=GetTitle();
-	if (strlen(p)>80)
-		p+=strlen(p)-80;
+	if (!p) {
+		p = (char*)"Unknown";  // Provide default title if NULL
+	}
+	
+	size_t title_len = strlen(p);
+	if (title_len > 80)
+		p += title_len - 80;
 	
 
 	titlebar();

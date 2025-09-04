@@ -10,9 +10,22 @@ DirEntryPack::DirEntryPack(dirent const &de, char *path) : FVEntryPack(), oldfla
 	Entry e;
 	struct stat st;
 	char buffer[256];
-	sprintf(buffer, "%s/%s", path, de.d_name);
+	
+	// Use snprintf for safe buffer handling
+	int result = snprintf(buffer, sizeof(buffer), "%s/%s", path, de.d_name);
+	if (result >= (int)sizeof(buffer)) {
+		// Path too long, handle error gracefully
+		filename = NULL;
+		dirflag = 0;
+		return;
+	}
+	
 	filename=strdup(buffer);
-	stat(buffer, &st);
+	if (stat(buffer, &st) != 0) {
+		// stat failed, handle gracefully
+		dirflag = 0;
+		return;
+	}
 	dirflag=S_ISDIR(st.st_mode);
 	
 	e.insert(Entry::SubEntry((char *)NULL, 0, 0, "%s", (char *)de.d_name));

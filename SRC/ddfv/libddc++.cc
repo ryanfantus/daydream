@@ -49,23 +49,32 @@ int FindFile(char *file, char *de)
 		if (*s=='/') return 0;
 		s++;
 	}	
-	sprintf(buf1, "%s/data/paths.dat", co->CONF_PATH);
+	if (!co->CONF_PATH) {
+		return 0;
+	}
+	
+	snprintf(buf1, sizeof(buf1), "%s/data/paths.dat", co->CONF_PATH);
 	if ((plist=fopen(buf1,"r"))) {
 		while(fgetsnolf(buf1,512,plist))
 		{
-			sprintf(buf2,"%s%s",buf1,file);
+			int result = snprintf(buf2, sizeof(buf2), "%s%s", buf1, file);
+			if (result >= (int)sizeof(buf2)) {
+				// Path too long, skip this entry
+				continue;
+			}
 			if (*buf1 && ((fd1=open(buf2,O_RDONLY)) > -1)) {
 				fclose(plist);
 				close(fd1);
 
-				strcpy(de,buf2);
+				strncpy(de, buf2, 1023);  // Assume de has reasonable buffer size
+				de[1023] = '\0';
 				return 1;
 			}
 		}
 		fclose(plist);
 	}
 
-	sprintf(buf1, "%s/data/paths.dat", co->CONF_PATH);
+	snprintf(buf1, sizeof(buf1), "%s/data/paths.dat", co->CONF_PATH);
 	if ((plist=fopen(buf1,"r"))) {
 		while(fgetsnolf(buf1,512,plist))
 		{
@@ -75,7 +84,11 @@ int FindFile(char *file, char *de)
 				{
 					if (!strcmp(dent->d_name,".") || (!strcmp(dent->d_name,".."))) continue;
 					if (!strcasecmp(dent->d_name,file)) {
-						sprintf(de,"%s%s",buf1,dent->d_name);
+						int result = snprintf(de, 1024, "%s%s", buf1, dent->d_name);
+						if (result >= 1024) {
+							// Path too long, truncate safely
+							de[1023] = '\0';
+						}
 						break;
 					}
 				}

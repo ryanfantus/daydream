@@ -27,7 +27,13 @@ char *basename(char *buffer, char *path)
 	if (buffer==NULL)
 		return strdup(p);
 	else {
-		strcpy(buffer, p);
+		// Use safer string copy with bounds checking
+		size_t len = strlen(p);
+		if (len >= 256) { // Assume reasonable buffer size limit
+			return NULL; // Buffer too small
+		}
+		strncpy(buffer, p, 255);
+		buffer[255] = '\0'; // Ensure null termination
 		return buffer;
 	}
 }
@@ -36,10 +42,20 @@ char *basename(char *buffer, char *path)
 
 int ext_atoi(char *s, int len)
 {
-	char tmp=s[len];
-	s[len]=0;
-	int i=atoi(s);
-	s[len]=tmp;
+	// Add bounds checking to prevent buffer overrun
+	if (s == NULL || len < 0) {
+		return 0;
+	}
+	
+	size_t str_len = strlen(s);
+	if (len > (int)str_len) {
+		return 0; // len exceeds string length
+	}
+	
+	char tmp = s[len];
+	s[len] = 0;
+	int i = atoi(s);
+	s[len] = tmp;
 	return i;
 }
 

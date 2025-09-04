@@ -19,6 +19,13 @@ char *fgetsnolf2(char *buffer, int maxlen, FILE *fp)
 int compile_quote(char *dest, char *src)
 {
 	int quote_on=0;
+	char *dest_start = dest;
+	const size_t max_dest_len = 256;  // Assume reasonable max length
+	
+	if (!src || !dest) {
+		if (dest) *dest = 0;
+		return -1;
+	}
 	
 	if (!*src) {
 		*dest=0;
@@ -30,7 +37,13 @@ int compile_quote(char *dest, char *src)
 		src++;
 	}
 	
-	while (*src) 
+	while (*src) {
+		// Check if we're approaching buffer limit
+		if ((size_t)(dest - dest_start) >= max_dest_len - 1) {
+			*dest = 0;
+			return -1;
+		}
+		
 		if (*src=='\\') {
 			if (src[1]) {
 				*dest++=src[1];
@@ -39,9 +52,17 @@ int compile_quote(char *dest, char *src)
 			} else return -1;
 		} else if (*src=='~') {
 			char *home=getenv("DAYDREAM");
-			if (home)
+			if (home) {
+				size_t home_len = strlen(home);
+				size_t remaining_space = max_dest_len - (dest - dest_start) - 1;
+				if (home_len >= remaining_space) {
+					// Not enough space for home directory path
+					*dest = 0;
+					return -1;
+				}
 				strcpy(dest, home);
-			dest+=strlen(dest);
+				dest += home_len;
+			}
 			src++;
 			continue;
 		} else if (*src=='\"') {
@@ -53,6 +74,7 @@ int compile_quote(char *dest, char *src)
 			src++;
 			break;
 		} else *dest++=*src++;
+	}
 	
 	if (quote_on)
 		return -1;
