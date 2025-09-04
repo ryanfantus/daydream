@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
 
 		} else if (key == 21) {
 			dd_sendstring(d, "[4;0H[J");
-			dd_sendstring(d, "            DDEd V1.0 Programmed by Antti Häyrynen (Hydra/Selleri).\n\n       Enter = new line                   Backspace = delete prev char\n       Del = delete current char          TAB = skip 8 columns\n\nCTRL/Z save and quit       CTRL/Y delete rest of line   CTRL/R redraw screen\nCTRL/A abort message       CTRL/K Kill line             CTRL/T jump to top\nCTRL/B jump to bottom      CTRL/F File attach\n\n                          Press any key to continue\n");
+			dd_sendstring(d, "            DDEd V1.0 Programmed by Antti HÃ¤yrynen (Hydra/Selleri).\n\n       Enter = new line                   Backspace = delete prev char\n       Del = delete current char          TAB = skip 8 columns\n\nCTRL/Z save and quit       CTRL/Y delete rest of line   CTRL/R redraw screen\nCTRL/A abort message       CTRL/K Kill line             CTRL/T jump to top\nCTRL/B jump to bottom      CTRL/F File attach\n\n                          Press any key to continue\n");
 			if (dd_hotkey(d, 0) == -1)
 				break;
 			dd_sendstring(d, "[4;0H[J");
@@ -668,4 +668,5 @@ static void insertliner(int mode)
 		for (ii = 0; ii < 79; ii++)
 			datapos[ii] = 0;
 	}
+	redraw(1);
 }
