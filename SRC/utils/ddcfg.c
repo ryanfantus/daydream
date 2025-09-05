@@ -11,6 +11,19 @@
 
 #include <dd.h>
 
+/* Safe string copy macro */
+#define SAFE_STRNCPY(dest, src, size) do { \
+    strncpy((dest), (src), (size) - 1); \
+    (dest)[(size) - 1] = '\0'; \
+} while(0)
+
+/* Safe string concatenation macro */
+#define SAFE_STRNCAT(dest, src, size) do { \
+    size_t dest_len = strnlen((dest), (size) - 1); \
+    strncat((dest), (src), (size) - dest_len - 1); \
+    (dest)[(size) - 1] = '\0'; \
+} while(0)
+
 static char *findtxt(char *, const char*);
 static char *cfgcopy2(char *, int, const char *);
 static char cfgchar2(char *);
@@ -41,8 +54,10 @@ static uid_t uid = -1;
  
 static char *blockstart;
 static char *src;
+static char *inmem = NULL;  /* Make inmem global for cleanup */
 static char *ecfg(char *, const char *);
 static void backtoold(void);
+static void cleanup_and_exit(int code);
 
 static void backtoold(void)
 {
@@ -53,9 +68,10 @@ static char *endblock(void)
 {
 	char *buffb;
 	buffb=blockstart;
+	if (!buffb) return 0;
 	for (;;) {
 		while(*buffb!=10) {
-			if (buffb==0) return 0;
+			if (*buffb==0) return 0;
 			buffb++;
 		}
 		buffb++;
@@ -78,7 +94,6 @@ int main(int argc, char *argv[])
 {
 	int infile;
 	int outfile;
-	char *inmem;
 	struct stat fib;
 	struct DayDream_MainConfig maincfg;
 	struct DayDream_Conference conf;
@@ -116,10 +131,25 @@ int main(int argc, char *argv[])
 		dodirs=0;
 	}
 	fstat(infile,&fib);
+	if (fib.st_size <= 0 || fib.st_size > 10*1024*1024) {  /* Limit to 10MB */
+		fprintf(stderr, "Config file size invalid: %ld bytes\n", (long)fib.st_size);
+		close(infile);
+		exit(1);
+	}
 	inmem=(char *)malloc(fib.st_size+2);
+	if (!inmem) {
+		fprintf(stderr, "Failed to allocate memory for config file\n");
+		close(infile);
+		exit(1);
+	}
 	inmem[fib.st_size]=0;
 	inmem[fib.st_size+1]=0;
-	read(infile,inmem,fib.st_size);
+	if (read(infile,inmem,fib.st_size) != fib.st_size) {
+		fprintf(stderr, "Failed to read config file completely\n");
+		free(inmem);
+		close(infile);
+		exit(1);
+	}
 	close(infile);
 	
 	src=ecfg(inmem,"HOMEDIR ");
@@ -151,30 +181,33 @@ int main(int argc, char *argv[])
 	}
 
 	if (*homedir) {
-		getcwd(olddir,1024);
+		if (!getcwd(olddir, sizeof(olddir))) {
+		fprintf(stderr, "Failed to get current directory: %s\n", strerror(errno));
+		exit(1);
+	}
 		chdir(homedir);
 		atexit(backtoold);
 	}
 
 	if (*user == 0 || (pw = getpwnam(user)) == NULL) {
 		fputs("OWNERUSER missing.\n", stderr);
-		exit(1);
+		cleanup_and_exit(1);
 	} else
 		uid = pw->pw_uid;
 
 	if (*group == 0 || (gr = getgrnam(group)) == NULL) {
 		fputs("OWNERGROUP missing.\n", stderr);
-		exit(1);
+		cleanup_and_exit(1);
 	} else
 		gid = gr->gr_gid;
 
 	if (*zipgroup == 0 || (gr = getgrnam(zipgroup)) == NULL) {
 		fputs("ZIPGROUP missing.\n", stderr);
-		exit(1);
+		cleanup_and_exit(1);
 	} else if (gr->gr_gid == gid) {
 		fputs("ZIPGROUP equals to OWNERGROUP. This is a security risk.\n", stderr);
 		fputs("Please read \"docs/SECURITY\".\n", stderr);
-		exit(1);
+		cleanup_and_exit(1);
 	} else
 		zipgid = gr->gr_gid;
 			
@@ -183,10 +216,10 @@ int main(int argc, char *argv[])
 
 	if (src==0) {
 		printf("Can't find definitions for DAYDREAM.DAT!\n\n");
-		exit(0);
+		cleanup_and_exit(0);
 	}
 
-	strcpy(gerror,"DAYDREAM.DAT");
+	SAFE_STRNCPY(gerror, "DAYDREAM.DAT", sizeof(gerror));
 
 	cfgcopy2(maincfg.CFG_BOARDNAME,26,"BBSNAME");
 	cfgcopy2(maincfg.CFG_SYSOPNAME,26,"SYSOP");
@@ -309,7 +342,7 @@ int main(int argc, char *argv[])
 	}
 	fchmod(outfile, 0640);
 nextconf:
-	strcpy(gerror,"CONFERENCES.DAT");
+	SAFE_STRNCPY(gerror, "CONFERENCES.DAT", sizeof(gerror));
 
 	s=(char *)&conf;
 	for(i=0; i < sizeof(struct DayDream_Conference)-1 ; i++) {
@@ -317,7 +350,7 @@ nextconf:
 	}
 
 	conf.CONF_NUMBER=cfgint2("CONF_NUMB");
-	sprintf(gerror,"CONFERENCES.DAT: Conference %d",conf.CONF_NUMBER);
+	snprintf(gerror, sizeof(gerror), "CONFERENCES.DAT: Conference %d", conf.CONF_NUMBER);
 
 	cfgcopy2(conf.CONF_NAME,40,"CONF_NAME");
 	cfgcopy2(conf.CONF_PATH,40,"CONF_PATH");
@@ -326,11 +359,11 @@ nextconf:
 		char tbu[600];
 
 		mymkdir(conf.CONF_PATH, 0750);
-		sprintf(tbu,"%s/data",conf.CONF_PATH);
+		snprintf(tbu, sizeof(tbu), "%s/data", conf.CONF_PATH);
 		mymkdir(tbu, 0770);
-		sprintf(tbu,"%s/messages",conf.CONF_PATH);
+		snprintf(tbu, sizeof(tbu), "%s/messages", conf.CONF_PATH);
 		mymkdir(tbu, 0750);
-		sprintf(tbu,"%s/display",conf.CONF_PATH);
+		snprintf(tbu, sizeof(tbu), "%s/display", conf.CONF_PATH);
 		mymkdir(tbu, 0750);
 	}
 	conf.CONF_FILEAREAS=cfgint2("CONF_FILEAREAS");
@@ -338,13 +371,20 @@ nextconf:
 	conf.CONF_MSGBASES=cfgint2("CONF_MSGBASES");
 	conf.CONF_COMMENTAREA=cfgint2("CONF_COMMENTS");
 	cfgcopy2(conf.CONF_ULPATH,50,"CONF_ULPATH");
-	if (dodirs && *conf.CONF_ULPATH) {
+	if (dodirs && *conf.CONF_ULPATH && strlen(conf.CONF_ULPATH) > 0) {
 		mymkdir(conf.CONF_ULPATH, 0770);
 	}
 	cfgcopy2(conf.CONF_NEWSCANAREAS,30,"CONF_NSAREAS");
 	if (cfgflag2("Y","CONF_DEFFSCAN")) {
 		conf.CONF_ATTRIBUTES |= (1L << 10);
-		selcfg[2056+((conf.CONF_NUMBER-1)/8)-1] |= (1L<<(conf.CONF_NUMBER-1)%8);
+		/* Fix: Conference selections are at bytes 2048-2055, not 2056+ */
+		/* Add bounds checking to prevent future overflows */
+		if (conf.CONF_NUMBER >= 1 && conf.CONF_NUMBER <= 64) {
+			int idx = 2048 + ((conf.CONF_NUMBER-1)/8);
+			if (idx < sizeof(selcfg)) {
+				selcfg[idx] |= (1L<<(conf.CONF_NUMBER-1)%8);
+			}
+		}
 	}
 	if (cfgflag2("Y","CONF_FREELEECH")) conf.CONF_ATTRIBUTES |= (1L << 0);
 	if (cfgflag2("Y","CONF_NOCREDS")) conf.CONF_ATTRIBUTES |= (1L << 1);
@@ -376,7 +416,7 @@ crossconf:
 	exit(0);
 
 dobase:
-	sprintf(gerror,"CONFERENCES.DAT, Conference %d",conf.CONF_NUMBER);
+	snprintf(gerror, sizeof(gerror), "CONFERENCES.DAT, Conference %d", conf.CONF_NUMBER);
 
 	s=(char *)&base;
 	for(i=0; i < sizeof(struct DayDream_MsgBase)-1 ; i++) {
@@ -384,12 +424,12 @@ dobase:
 	}
 
 	base.MSGBASE_NUMBER=cfgint2("BASE_NUMBER");
-	sprintf(gerror,"CONFERENCES.DAT, Conference %d, Msgbase %d",conf.CONF_NUMBER,base.MSGBASE_NUMBER);
+	snprintf(gerror, sizeof(gerror), "CONFERENCES.DAT, Conference %d, Msgbase %d", conf.CONF_NUMBER, base.MSGBASE_NUMBER);
 
 	if (dodirs) {
 		char tbu[600];
 
-		sprintf(tbu, "%s/messages/base%3.3d", conf.CONF_PATH, base.MSGBASE_NUMBER);
+		snprintf(tbu, sizeof(tbu), "%s/messages/base%3.3d", conf.CONF_PATH, base.MSGBASE_NUMBER);
 		mymkdir(tbu, 0770);
 	}
 	base.MSGBASE_FN_FLAGS=cfgchar2("BASE_TYPE");
@@ -417,7 +457,14 @@ dobase:
 	
 	if (cfgflag2("Y","BASE_DEFGRAB")) {
 		base.MSGBASE_FLAGS |= (1L << 7);
-		selcfg[((conf.CONF_NUMBER-1)*32)+(base.MSGBASE_NUMBER-1)/8] |= (1L<<(base.MSGBASE_NUMBER-1)%8);
+		/* Add bounds checking for message base selections */
+		if (conf.CONF_NUMBER >= 1 && conf.CONF_NUMBER <= 64 && 
+		    base.MSGBASE_NUMBER >= 1 && base.MSGBASE_NUMBER <= 255) {
+			int idx = ((conf.CONF_NUMBER-1)*32)+(base.MSGBASE_NUMBER-1)/8;
+			if (idx >= 0 && idx < 2048) {  /* Message base area is 0-2047 */
+				selcfg[idx] |= (1L<<(base.MSGBASE_NUMBER-1)%8);
+			}
+		}
 	}
 	write(outfile,&base,sizeof(struct DayDream_MsgBase));
 	j++;
@@ -455,13 +502,13 @@ confsdone:
 	fchmod(outfile, 0640);
 nextdoor:
 
-	strcpy(gerror,"EXTERNALCOMMANDS.DAT");
+	SAFE_STRNCPY(gerror, "EXTERNALCOMMANDS.DAT", sizeof(gerror));
 	s=(char *)&extcom;
 	for(i=0; i < sizeof(struct DD_ExternalCommand)-1 ; i++) {
 		s[i]=0;
 	}
 	cfgcopy2(extcom.EXT_NAME,11,"DOOR_COMMAND");
-	sprintf(gerror,"EXTERNALCOMMANDS.DAT, cmd %s",extcom.EXT_NAME);
+	snprintf(gerror, sizeof(gerror), "EXTERNALCOMMANDS.DAT, cmd %s", extcom.EXT_NAME);
 	extcom.EXT_CMDTYPE=cfgint2("DOOR_TYPE");
 	extcom.EXT_SECLEVEL=cfgint2("DOOR_SECURITY");
 	cfgcopy2(extcom.EXT_COMMAND,87,"DOOR_EXECUTE");
@@ -496,13 +543,13 @@ nextdoor:
 	fchmod(outfile, 0640);
 nextarc:
 
-	strcpy(gerror,"ARCHIVERS.DAT");
+	SAFE_STRNCPY(gerror, "ARCHIVERS.DAT", sizeof(gerror));
 	s=(char *)&arc;
 	for(i=0; i < sizeof(struct DayDream_Archiver) ; i++) {
 		s[i]=0;
 	}
 	cfgcopy2(arc.ARC_NAME,21,"ARC_NAME");
-	sprintf(gerror,"ARCHIVERS.DAT: Archiver %s\n",arc.ARC_NAME);
+	snprintf(gerror, sizeof(gerror), "ARCHIVERS.DAT: Archiver %s", arc.ARC_NAME);
 	cfgcopy2(arc.ARC_PATTERN,20,"ARC_PATTERN");
 	cfgcopy2(arc.ARC_CMD_TEST,80,"ARC_TEST");
 	cfgcopy2(arc.ARC_CORRUPTED1,16,"ARC_FAIL1");
@@ -542,14 +589,14 @@ nextarc:
 	fchmod(outfile, 0640);
 nextdisp:
 
-	strcpy(gerror,"DISPLAY.DAT");
+	SAFE_STRNCPY(gerror, "DISPLAY.DAT", sizeof(gerror));
 	s=(char *)&disp;
 	for(i=0; i < sizeof(struct DayDream_DisplayMode) ; i++) {
 		s[i]=0;
 	}
 
 	disp.DISPLAY_ID=cfgint2("DPL_ID");
-	sprintf(gerror,"DISPLAY.DAT, ID: %d",disp.DISPLAY_ID);
+	snprintf(gerror, sizeof(gerror), "DISPLAY.DAT, ID: %d", disp.DISPLAY_ID);
 
 	cfgcopy2(disp.DISPLAY_PATH,9,"DPL_PATH");
 	remove_trailing_slash(disp.DISPLAY_PATH);
@@ -589,7 +636,7 @@ nextdisp:
 	fchmod(outfile, 0640);
 nextnode:
 
-	strcpy(gerror,"MULTINODE.DAT");
+	SAFE_STRNCPY(gerror, "MULTINODE.DAT", sizeof(gerror));
 
 	s=(char *)&node;
 	for(i=0; i < sizeof(struct DayDream_Multinode) ; i++) {
@@ -598,7 +645,7 @@ nextnode:
 
 	{
 		char buf[10];
-		cfgcopy2(buf,4,"MNODE_NODE");
+		cfgcopy2(buf,sizeof(buf),"MNODE_NODE");
 		if (*buf=='T' || *buf=='t') {
 			node.MULTI_NODE=-2;
 		} else if (*buf=='L' || *buf=='l') {
@@ -648,7 +695,7 @@ nextnode:
 	}
 	fchmod(outfile, 0640);
 nextsec:
-	strcpy(gerror,"SECURITY.DAT");
+	SAFE_STRNCPY(gerror, "SECURITY.DAT", sizeof(gerror));
 
 	s=(char *)&sec;
 	for(i=0; i < sizeof(struct DD_Seclevel) ; i++) {
@@ -656,7 +703,7 @@ nextsec:
 	}
 
 	sec.SEC_SECLEVEL=cfgint2("SEC_LEVEL");
-	sprintf(gerror,"SECURITY.DAT, Level %d",sec.SEC_SECLEVEL);
+	snprintf(gerror, sizeof(gerror), "SECURITY.DAT, Level %d", sec.SEC_SECLEVEL);
 	sec.SEC_FILERATIO=cfgint2("SEC_FRATIO");
 	sec.SEC_BYTERATIO=cfgint2("SEC_BRATIO");
 	sec.SEC_PAGESPERCALL=cfgint2("SEC_PAGES");
@@ -737,9 +784,9 @@ nextpreset:
 		s[i]=0;
 	}
 
-	strcpy(gerror,"ACCESS.DAT");
+	SAFE_STRNCPY(gerror, "ACCESS.DAT", sizeof(gerror));
 	preset.ACCESS_PRESETID=cfgint2("PRESET_NUMBER");
-	sprintf(gerror,"ACCESS.DAT, ID %d",preset.ACCESS_PRESETID);
+	snprintf(gerror, sizeof(gerror), "ACCESS.DAT, ID %d", preset.ACCESS_PRESETID);
 
 	preset.ACCESS_SECLEVEL=cfgint2("PRESET_SEC");
 	preset.ACCESS_FREEFILES=cfgint2("PRESET_FFILES");
@@ -773,14 +820,14 @@ nextpreset:
 	fchmod(outfile, 0640);
 nextproto:
 
-	strcpy(gerror,"PROTOCOLS.DAT");
+	SAFE_STRNCPY(gerror, "PROTOCOLS.DAT", sizeof(gerror));
 	s=(char *)&proto;
 	for(i=0; i < sizeof(struct DayDream_AccessPreset) ; i++) {
 		s[i]=0;
 	}
 
 	proto.PROTOCOL_ID=cfgchar2("XPR_ID");
-	sprintf(gerror,"PROTOCOLS.DAT, ID %c",proto.PROTOCOL_ID);
+	snprintf(gerror, sizeof(gerror), "PROTOCOLS.DAT, ID %c", proto.PROTOCOL_ID);
 	cfgcopy2(proto.PROTOCOL_NAME,20,"XPR_NAME");
 	proto.PROTOCOL_EFFICIENCY=cfgint2("XPR_EFFICIENCY");
 	proto.PROTOCOL_TYPE=cfgint2("XPR_TYPE");
@@ -804,6 +851,8 @@ nextproto:
 	mymkdir("temp", 0770);
 	mymkdir("configs", 0750);
 
+	/* Clean up allocated memory */
+	free(inmem);
 	return 0;
 }
 
@@ -854,21 +903,21 @@ static int cfgint2(const char *id)
 	src=findstrinblock(id);
 	if (!src) cfgerror(id);
 
-	for(i=0;i<50; i++) {
-		if (src[i]==10 || src[i]==13) break;
+	for(i=0; i < sizeof(intb)-1; i++) {
+		if (src[i]==10 || src[i]==13 || src[i]==0) break;
 		intb[i]=src[i];
 	}
 	intb[i]=0;
 	
 	return atoi(intb);
-
 }
 
 static char * cfgfnadd3(unsigned short *zone, unsigned short *net, 
 	unsigned short *node, unsigned short *point, char *id)
 {
-	char cb[1024];
+	char cb[64];  /* Reduced buffer size - adequate for address components */
 	char *t, *s;
+	size_t len;
 	*zone=*net=*node=*point=0;
 	
 	s=findstrinblock(id);
@@ -878,35 +927,59 @@ static char * cfgfnadd3(unsigned short *zone, unsigned short *net,
 		return s;
 	}
 	
+	/* Parse zone */
 	t=cb;
-	while(*s!=':' && *s) *t++=*s++;
+	len = 0;
+	while(*s!=':' && *s && len < sizeof(cb)-1) {
+		*t++=*s++;
+		len++;
+	}
 	*t=0;
 	*zone=atoi(cb);
 	if (!*s) return s; else s++;
 	
+	/* Parse net */
 	t=cb;
-	while(*s!='/' && *s) *t++=*s++;
+	len = 0;
+	while(*s!='/' && *s && len < sizeof(cb)-1) {
+		*t++=*s++;
+		len++;
+	}
 	*t=0;
 	*net=atoi(cb);
 	if (!*s) return s; else s++;
 
+	/* Parse node */
 	t=cb;
-	while(*s!='.' && *s && *s!=13 && *s!=10) *t++=*s++;
+	len = 0;
+	while(*s!='.' && *s && *s!=13 && *s!=10 && len < sizeof(cb)-1) {
+		*t++=*s++;
+		len++;
+	}
 	*t=0;
 	*node=atoi(cb);
 	if (!*s || *s==13 || *s==10) return s; else s++;
 
+	/* Parse point */
 	t=cb;
-	while(*s && *s!=10 && *s!=13) *t++=*s++;
+	len = 0;
+	while(*s && *s!=10 && *s!=13 && len < sizeof(cb)-1) {
+		*t++=*s++;
+		len++;
+	}
 	*t=0;
 	*point=atoi(cb);
 	return s;
-
 }
  
 static char *cfgcopy(char *dest, int max)
 {
 	int i;
+
+	if (!src) {
+		dest[0] = 0;
+		return 0;
+	}
 
 	if (src[0]=='-' && src[1]==10) {
 		dest[0]=0;
@@ -914,14 +987,14 @@ static char *cfgcopy(char *dest, int max)
 		return 0;
 	}
 	
-	for (i=0;i < max ; i++) {
-		if (src[i]==10 || src[i]==13) break;
+	for (i=0; i < max-1; i++) {
+		if (src[i]==0 || src[i]==10 || src[i]==13) break;
 		dest[i]=src[i];
 	}
 	dest[i]=0;
-	if (i==max) {
+	if (i==max-1) {
 		src=&src[i];
-		while(*src!=10 && *src!=13) src++;
+		while(*src && *src!=10 && *src!=13) src++;
 		i=0;
 	}
 	removespaces(dest);
@@ -929,10 +1002,19 @@ static char *cfgcopy(char *dest, int max)
 	return 0;
 }
 
+static void cleanup_and_exit(int code)
+{
+	if (inmem) {
+		free(inmem);
+		inmem = NULL;
+	}
+	exit(code);
+}
+
 static void cfgerror(const char *id)
 {
 	fprintf(stderr, "Error in %s: %s missing!\n", gerror, id);
-	exit(1);
+	cleanup_and_exit(1);
 }
 
 static char *cfgcopy2(char *dest, int max, const char *ident)
@@ -946,14 +1028,14 @@ static char *cfgcopy2(char *dest, int max, const char *ident)
 		return 0;
 	}
 	
-	for (i=0;i < max ; i++) {
-		if (src[i]==10 || src[i]==13) break;
+	for (i=0; i < max-1; i++) {
+		if (src[i]==0 || src[i]==10 || src[i]==13) break;
 		dest[i]=src[i];
 	}
 	dest[i]=0;
-	if (i==max) {
+	if (i==max-1) {
 		src=&src[i];
-		while(*src!=10 && *src!=13) src++;
+		while(*src && *src!=10 && *src!=13) src++;
 		i=0;
 	}
 	removespaces(dest);
@@ -973,21 +1055,26 @@ static void removespaces(char *strh)
 
 static char *nextspace(char *s)
 {
-	while (*s!=' ') {
+	if (!s) return s;
+	while (*s && *s!=' ') {
 		if (*s==10 && s[1] == '~') break;
 		if (*s==10 && s[1] == '+') break;
 		if (*s==10 && s[1] == '*') break;
 		s++;
 	}
-	s++;
+	if (*s) s++;
 	return s;
 }
 
 static char *findstrinblock(const char *text)
 {
 	char *buffb;
+	size_t text_len;
 	
+	if (!text || !blockstart) return 0;
 	buffb = blockstart;
+	text_len = strlen(text);
+	
 	for (;;) {
 		while(*buffb != 10) {
 			if (*buffb == 0) 
@@ -998,10 +1085,10 @@ static char *findstrinblock(const char *text)
 		if (*buffb == '~' || *buffb == '+' || *buffb == '*') {
 			return 0;
 		}
-		if (!strncmp(text, buffb, strlen(text))) { 
-			while(*buffb != ' ') 
+		if (!strncmp(text, buffb, text_len)) { 
+			while(*buffb && *buffb != ' ') 
 				buffb++;
-			return ++buffb;
+			return *buffb ? ++buffb : buffb;
 		}
 	}
 }
@@ -1010,6 +1097,9 @@ static char *findtxt(char *buffer, const char *text)
 {
 	const char *s;
 	char *buffb;
+	
+	if (!buffer || !text) return 0;
+	
 nextline:
 	while (*buffer != 10) {
 		if (*buffer == 0) 
@@ -1026,6 +1116,8 @@ nextline:
 			blockstart = buffer;
 			return buffer;
 		}
+		if (*buffer == 0)
+			return 0;
 		if (*buffer != *s) 
 			goto nextline;
 		s++; 
@@ -1036,6 +1128,9 @@ nextline:
 static char *ecfg(char *hay, const char *need)
 {
 	const char *s;
+	
+	if (!hay || !need) return 0;
+	
 	for (;;) {
 		s = need;
 		if (*hay == 0) 
@@ -1046,6 +1141,7 @@ static char *ecfg(char *hay, const char *need)
 					return 0;
 				hay++;
 			}
+			hay++;
 			continue;
 		}
 		for (;;) {
