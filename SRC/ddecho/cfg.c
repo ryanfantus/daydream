@@ -371,7 +371,8 @@ int ParseCfgLine(MainCfg* cfg, char* buf) {
 		pos2 = strtok(NULL, "");
 		tmppack = NEW(Packer);
 		strncpy(tmppack->Name, pos1, 16);
-		strncpy(tmppack->Compress, pos2, 32);
+		strncpy(tmppack->Compress, pos2, sizeof(tmppack->Compress) - 1);
+		tmppack->Compress[sizeof(tmppack->Compress) - 1] = '\0';
 
 		bsList_add(&cfg->Packers, tmppack);
 	}

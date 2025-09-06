@@ -71,7 +71,7 @@ typedef struct Route_ {
 
 typedef struct Packer_ {
 	char Name[16];
-	char Compress[32];
+	char Compress[256];
 } Packer;
 
 typedef struct PackRule_ {
