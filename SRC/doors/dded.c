@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dd.h>
 
 static struct dif *d;
 
@@ -29,6 +30,8 @@ static void scrollup(void);
 static void started(char *);
 static void attach();
 static char *fgetsnolf(char *, int, FILE *) __attr_bounded__ (__string__, 1, 2);
+static int quote_modal(void);
+static void insert_quote_text(const char *quote_text);
 
 int main(int argc, char *argv[])
 {
@@ -271,9 +274,14 @@ int main(int argc, char *argv[])
 			datapos = &lineadd[xpos];
 			lines--;
 
+		} else if (key == 17) {
+			// Ctrl-Q: Quote modal
+			if (quote_modal()) {
+				redraw(1);
+			}
 		} else if (key == 21) {
 			dd_sendstring(d, "[4;0H[J");
-			dd_sendstring(d, "            DDEd V1.0 Programmed by Antti Häyrynen (Hydra/Selleri).\n\n       Enter = new line                   Backspace = delete prev char\n       Del = delete current char          TAB = skip 8 columns\n\nCTRL/Z save and quit       CTRL/Y delete rest of line   CTRL/R redraw screen\nCTRL/A abort message       CTRL/K Kill line             CTRL/T jump to top\nCTRL/B jump to bottom      CTRL/F File attach\n\n                          Press any key to continue\n");
+			dd_sendstring(d, "            DDEd V1.0 Programmed by Antti Häyrynen (Hydra/Selleri).\n\n       Enter = new line                   Backspace = delete prev char\n       Del = delete current char          TAB = skip 8 columns\n\nCTRL/Z save and quit       CTRL/Y delete rest of line   CTRL/R redraw screen\nCTRL/A abort message       CTRL/K Kill line             CTRL/T jump to top\nCTRL/B jump to bottom      CTRL/F File attach           CTRL/Q Quote message\n\n                          Press any key to continue\n");
 			if (dd_hotkey(d, 0) == -1)
 				break;
 			dd_sendstring(d, "[4;0H[J");
@@ -671,4 +679,238 @@ static void insertliner(int mode)
 			datapos[ii] = 0;
 	}
 	redraw(1);
+}
+
+// Quote modal function - adapted from replymsg.c askqlines()
+static int quote_modal(void)
+{
+	char qbuffer[200];
+	char input[100];
+	char quotefile[256];
+	char selected_quotes[8192];
+	int ql;
+	int lcount;
+	int outp;
+	int startn;
+	int endn;
+	int line;
+	FILE *qfd;
+	char prompt_buf[100];
+	int key;
+	int i;
+
+	// Clear the screen and show header
+	dd_sendstring(d, "\033[2J\033[H");
+	dd_sendstring(d, "\033[0;44;37m--- Quote Message Lines ---\033[K\n\033[0m");
+	
+	// Try to open the original message file first
+	snprintf(quotefile, sizeof(quotefile), "%s/daydream%d.full.msg", DDTMP, node);
+	if (!(qfd = fopen(quotefile, "r"))) {
+		dd_sendstring(d, "\nNo message available to quote.\n\nPress any key to continue...");
+		dd_hotkey(d, 0);
+		return 1; // Return 1 to indicate redraw needed
+	}
+
+	selected_quotes[0] = '\0';
+
+	for (;;) {
+		ql = 0;
+		lcount = dd_getintval(d, USER_SCREENLENGTH) - 3; // Leave room for header and prompt
+		outp = 1;
+
+		// Display the message with line numbers (skip kludge lines)
+		while (fgets(input, sizeof(input), qfd)) {
+			// Remove trailing newlines
+			int len = strlen(input);
+			while (len > 0 && (input[len-1] == '\n' || input[len-1] == '\r')) {
+				input[len-1] = '\0';
+				len--;
+			}
+			
+			// Skip FidoNet kludge lines (similar to replymsg.c processing)
+			if (*input == 1 || !strncmp("AREA:", input, 5) || 
+			    !strncmp("SEEN-BY:", input, 8)) {
+				continue;
+			}
+			
+			// Handle @ character replacement for kludge lines
+			if (*input == 1) {
+				*input = '@';
+			}
+			
+			ql++;
+			if (outp) {
+				snprintf(qbuffer, sizeof(qbuffer), "%3d: %s\n", ql, input);
+				dd_sendstring(d, qbuffer);
+				lcount--;
+			}
+			if (lcount <= 0) {
+				dd_sendstring(d, "\033[0;33m-- More -- (N)o more, (C)ontinue, or any key for next page: \033[0m");
+				key = dd_hotkey(d, 0);
+				dd_sendstring(d, "\r                                                                \r");
+				if (key == 'N' || key == 'n') {
+					outp = 0;
+					lcount = -1;
+				} else if (key == 'C' || key == 'c') {
+					lcount = -1;
+				} else {
+					lcount = dd_getintval(d, USER_SCREENLENGTH) - 3;
+				}
+			}
+		}
+		
+		// Show prompt for line selection
+		snprintf(qbuffer, sizeof(qbuffer), "\n\033[0;36mTotal lines: %d\nEnter line range (1-%d), L)ist again, * for all, or ENTER to cancel: \033[0m", ql, ql);
+		dd_sendstring(d, qbuffer);
+		
+		// Get user input
+		if (!dd_prompt(d, prompt_buf, sizeof(prompt_buf), 0)) {
+			fclose(qfd);
+			return 1; // User cancelled
+		}
+		
+		if (!strcasecmp(prompt_buf, "l")) {
+			dd_sendstring(d, "\033[2J\033[H");
+			dd_sendstring(d, "\033[0;44;37m--- Quote Message Lines ---\033[K\n\033[0m");
+			fseek(qfd, 0, SEEK_SET);
+		} else if ((!strcasecmp(prompt_buf, "*")) || strlen(prompt_buf) == 0) {
+			if (strlen(prompt_buf) == 0) {
+				fclose(qfd);
+				return 1; // User cancelled
+			}
+			startn = 1;
+			endn = ql;
+			break;
+		} else if ((startn = atoi(prompt_buf))) {
+			dd_sendstring(d, "\033[0;36mEnter ending line number: \033[0m");
+			if (!dd_prompt(d, prompt_buf, sizeof(prompt_buf), 0)) {
+				fclose(qfd);
+				return 1;
+			}
+			if ((endn = atoi(prompt_buf))) {
+				break;
+			} else {
+				fclose(qfd);
+				return 1;
+			}
+		} else {
+			fclose(qfd);
+			return 1;
+		}
+	}
+
+	// Validate range
+	if (startn < 1 || endn > ql || startn > endn) {
+		fclose(qfd);
+		dd_sendstring(d, "\nInvalid line range!\nPress any key to continue...");
+		dd_hotkey(d, 0);
+		return 1;
+	}
+
+	// Extract selected lines
+	fseek(qfd, 0, SEEK_SET);
+	line = 1;
+	selected_quotes[0] = '\0';
+	
+	while (fgets(input, sizeof(input), qfd)) {
+		// Remove trailing newlines
+		int len = strlen(input);
+		while (len > 0 && (input[len-1] == '\n' || input[len-1] == '\r')) {
+			input[len-1] = '\0';
+			len--;
+		}
+		
+		// Skip FidoNet kludge lines (same filtering as display)
+		if (*input == 1 || !strncmp("AREA:", input, 5) || 
+		    !strncmp("SEEN-BY:", input, 8)) {
+			continue;
+		}
+		
+		// Handle @ character replacement for kludge lines
+		if (*input == 1) {
+			*input = '@';
+		}
+		
+		if (startn <= line && endn >= line) {
+			// Add to selected quotes buffer
+			if (strlen(selected_quotes) + strlen(input) + 2 < sizeof(selected_quotes)) {
+				if (strlen(selected_quotes) > 0) {
+					strcat(selected_quotes, "\n");
+				}
+				strcat(selected_quotes, input);
+			}
+		}
+		line++;
+	}
+	fclose(qfd);
+
+	// Insert the selected quotes at current cursor position
+	if (strlen(selected_quotes) > 0) {
+		insert_quote_text(selected_quotes);
+	}
+
+	return 1; // Indicate redraw needed
+}
+
+// Insert quote text at current cursor position with quote prefix
+static void insert_quote_text(const char *quote_text)
+{
+	const char *line_start = quote_text;
+	const char *line_end;
+	char line_buffer[256];
+	char prefixed_line[256];
+	int quote_len;
+	int i;
+
+	// Process each line of the quote text
+	while (*line_start) {
+		// Find the end of the current line
+		line_end = strchr(line_start, '\n');
+		if (line_end) {
+			quote_len = line_end - line_start;
+		} else {
+			quote_len = strlen(line_start);
+		}
+
+		// Copy the line to our buffer (truncate if too long)
+		if (quote_len > sizeof(line_buffer) - 1) {
+			quote_len = sizeof(line_buffer) - 1;
+		}
+		strncpy(line_buffer, line_start, quote_len);
+		line_buffer[quote_len] = '\0';
+
+		// Add quote prefix - using simple ">" prefix for now
+		// TODO: Could be enhanced to use author initials like "i>" 
+		snprintf(prefixed_line, sizeof(prefixed_line), "> %s", line_buffer);
+
+		// Insert each character of the prefixed line
+		for (i = 0; prefixed_line[i]; i++) {
+			insertchar((unsigned char)prefixed_line[i]);
+		}
+
+		// If there's more text, insert a newline and move to next line
+		if (line_end) {
+			// Simulate pressing Enter to create a new line
+			char *s, *t;
+			if (lines > 497) {
+				break; // Out of space
+			}
+			
+			// Save any remaining text on current line
+			s = datapos;
+			t = sodobuf;
+			while (*s) {
+				*t++ = *s;
+				*s++ = 0;
+			}
+			*t = 0;
+			
+			dd_sendstring(d, "[J");
+			insertliner(0);
+			
+			line_start = line_end + 1;
+		} else {
+			break;
+		}
+	}
 }

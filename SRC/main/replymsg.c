@@ -41,6 +41,24 @@ int replymessage(struct DayDream_Message *msgd)
 
 	msgfd = fdopen(fd, "r");
 
+	// Save original message content for re-quoting in dded
+	{
+		char orig_filename[256];
+		FILE *orig_fd;
+		char line_buffer[1024];
+		
+		snprintf(orig_filename, sizeof(orig_filename), "%s/daydream%d.full.msg", DDTMP, node);
+		unlink(orig_filename);
+		
+		if ((orig_fd = fopen(orig_filename, "w"))) {
+			while (fgets(line_buffer, sizeof(line_buffer), msgfd)) {
+				fputs(line_buffer, orig_fd);
+			}
+			fclose(orig_fd);
+			fseek(msgfd, 0, SEEK_SET); // Reset file pointer for normal processing
+		}
+	}
+
 	snprintf(qbuffer, sizeof qbuffer, "%s/daydream%d.mtm", DDTMP, node);
 	unlink(qbuffer);
 
