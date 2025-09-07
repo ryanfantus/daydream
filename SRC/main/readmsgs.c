@@ -38,7 +38,6 @@ static char *read_entire_message(FILE *msgfd, long *total_size);
 static char **split_into_lines(const char *buffer, int *line_count);
 static char *wrap_lines(char **lines, int line_count, int wrap_length);
 static void free_line_array(char **lines, int line_count);
-static char *extract_quote_prefix(const char *line, int *prefix_len);
 
 int readmessages(int cseekp, int premsg, char *mask)
 {
@@ -1022,41 +1021,6 @@ static char **split_into_lines(const char *buffer, int *line_count) {
     return lines;
 }
 
-// Helper function to detect and extract quote prefix
-static char *extract_quote_prefix(const char *line, int *prefix_len) {
-    const char *p = line;
-    char *prefix = NULL;
-    int len = 0;
-    
-    // Skip leading whitespace
-    while (*p == ' ' || *p == '\t') {
-        p++;
-        len++;
-    }
-    
-    // Look for quote patterns like "sc>", ">>", ">", "user>", etc.
-    const char *start = p;
-    while (*p && (*p != ' ')) {
-        if (*p == '>') {
-            // Found a quote marker, include everything up to and including the '>'
-            len = (p - line) + 1;
-            // Include trailing space if present
-            if (*(p + 1) == ' ') {
-                len++;
-            }
-            prefix = (char *) xmalloc(len + 1);
-            strncpy(prefix, line, len);
-            prefix[len] = '\0';
-            *prefix_len = len;
-            return prefix;
-        }
-        p++;
-    }
-    
-    *prefix_len = 0;
-    return NULL;
-}
-
 // Step 3: Wrap the lines
 static char *wrap_lines(char **lines, int line_count, int wrap_length) {
     long total_capacity = 1024;
@@ -1078,97 +1042,29 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
             *line = '@';
         }
         
-        // Extract quote prefix if present
-        int quote_prefix_len = 0;
-        char *quote_prefix = extract_quote_prefix(line, &quote_prefix_len);
-        
-        // Adjust wrap length to account for quote prefix on continuation lines
-        int effective_wrap_length = wrap_length;
-        if (quote_prefix) {
-            effective_wrap_length = wrap_length - quote_prefix_len;
-        }
-        
         // Simple word wrapping logic
         int line_len = strlen(line);
         int pos = 0;
-        bool first_chunk = true;
         
         while (pos < line_len) {
             int remaining = line_len - pos;
-            int chunk_len = (remaining > effective_wrap_length) ? effective_wrap_length : remaining;
-            
-            // For continuation lines, skip the quote prefix in the source
-            if (!first_chunk && quote_prefix && pos < quote_prefix_len) {
-                pos = quote_prefix_len;
-                remaining = line_len - pos;
-                chunk_len = (remaining > effective_wrap_length) ? effective_wrap_length : remaining;
-            }
+            int chunk_len = (remaining > wrap_length) ? wrap_length : remaining;
             
             // Find last space within chunk for word boundary
-            if (chunk_len == effective_wrap_length && pos + chunk_len < line_len) {
+            if (chunk_len == wrap_length && pos + chunk_len < line_len) {
                 int last_space = chunk_len;
                 while (last_space > 0 && line[pos + last_space] != ' ') {
                     last_space--;
                 }
-                
                 if (last_space > 0) {
-                    // Check if breaking here would create a very short remainder
-                    int remaining_after_break = line_len - (pos + last_space + 1);
-                    
-                    // If the remaining text is very short (less than 15 chars) or just a few words,
-                    // try to break earlier to avoid orphaned fragments
-                    if (remaining_after_break > 0 && remaining_after_break < 15) {
-                        // Count words in the remainder to see if it's worth avoiding
-                        int word_count = 0;
-                        const char *p = line + pos + last_space + 1;
-                        while (*p) {
-                            if (*p != ' ' && (p == line + pos + last_space + 1 || *(p-1) == ' ')) {
-                                word_count++;
-                            }
-                            p++;
-                        }
-                        
-                        // If remainder is just 1-2 short words, try to break earlier
-                        if (word_count <= 2) {
-                            // Look for an earlier break point (at least 60% of line length)
-                            int min_break = effective_wrap_length * 0.6;
-                            int better_break = last_space - 1;
-                            
-                            // Find the previous word boundary
-                            while (better_break > min_break && line[pos + better_break] != ' ') {
-                                better_break--;
-                            }
-                            
-                            if (better_break > min_break) {
-                                chunk_len = better_break;
-                            } else {
-                                chunk_len = last_space;
-                            }
-                        } else {
-                            chunk_len = last_space;
-                        }
-                    } else {
-                        chunk_len = last_space;
-                    }
+                    chunk_len = last_space;
                 }
             }
             
-            // Calculate total space needed (chunk + possible quote prefix + newline)
-            int space_needed = chunk_len + 2;
-            if (!first_chunk && quote_prefix) {
-                space_needed += quote_prefix_len;
-            }
-            
             // Ensure we have enough space in result buffer
-            if (result_len + space_needed > total_capacity) {
+            if (result_len + chunk_len + 2 > total_capacity) {
                 total_capacity *= 2;
                 result = (char *) realloc(result, total_capacity);
-            }
-            
-            // Add quote prefix for continuation lines
-            if (!first_chunk && quote_prefix) {
-                strcat(result, quote_prefix);
-                result_len += quote_prefix_len;
             }
             
             // Copy chunk to result
@@ -1176,9 +1072,8 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
             result_len += chunk_len;
             
             pos += chunk_len;
-            first_chunk = false;
             
-            // Add newline if we wrapped or at end of line
+            // Add newline if we wrapped
             if (pos < line_len) {
                 strcat(result, "\n");
                 result_len++;
@@ -1193,11 +1088,6 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
         if (result_len + 1 < total_capacity) {
             strcat(result, "\n");
             result_len++;
-        }
-        
-        // Clean up quote prefix
-        if (quote_prefix) {
-            free(quote_prefix);
         }
     }
     
