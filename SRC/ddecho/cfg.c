@@ -406,13 +406,49 @@ int ParseCfgLine(MainCfg* cfg, char* buf) {
 		}
 	}
 	else if(!strcasecmp(pos, "Area")) {
+		char area_name[65] = {0};
+		char *conf_base_token = NULL;
+		
+		/* Build area name by collecting tokens until we find conference:base pattern */
+		if (pos1) {
+			strncpy(area_name, pos1, sizeof(area_name) - 1);
+		}
+		
+		/* Get next token and check if it's conference:base or part of area name */
 		pos2 = strtok(NULL, " ");
+		while (pos2) {
+			/* Check if this token looks like conference:base (digit:digit) */
+			int is_conf_base = 0;
+			if (isdigit(pos2[0])) {
+				char *colon_pos = strchr(pos2, ':');
+				if (colon_pos && isdigit(*(colon_pos + 1))) {
+					is_conf_base = 1;
+				}
+			}
+			
+			if (is_conf_base) {
+				conf_base_token = pos2;
+				break;
+			} else {
+				/* This token is part of the area name */
+				if (strlen(area_name) > 0) {
+					strncat(area_name, " ", sizeof(area_name) - strlen(area_name) - 1);
+				}
+				strncat(area_name, pos2, sizeof(area_name) - strlen(area_name) - 1);
+				pos2 = strtok(NULL, " ");
+			}
+		}
+		
+		if (!conf_base_token) {
+			printf("Error: Missing conference:base in Area configuration\n");
+			return -1;
+		}
 			
 		tmparea = NEW(Area);
 		memset(tmparea, '\0', sizeof(Area));
 
-		strncpy(tmparea->Area, pos1, 64);
-		sscanf(pos2, "%d:%d", &tmparea->Conference, &tmparea->Base);
+		strncpy(tmparea->Area, area_name, 64);
+		sscanf(conf_base_token, "%d:%d", &tmparea->Conference, &tmparea->Base);
 
 		tmparea->Type = ECHOMAIL;
 
