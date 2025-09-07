@@ -249,7 +249,7 @@ int isonline(int id)
 	cn = nodes;
 
 	while (cn->MULTI_NODE) {
-		if (cn->MULTI_NODE == 253) {
+		if (cn->MULTI_NODE == 254) {
 			int j;
 			int i = maincfg.CFG_TELNET1ST;
 			j = maincfg.CFG_TELNETMAX;
@@ -260,7 +260,7 @@ int isonline(int id)
 					return i + 1;
 				i++;
 			}
-		} else if (cn->MULTI_NODE == 254) {
+		} else if (cn->MULTI_NODE == 253) {
 			int j;
 			int i = maincfg.CFG_LOCAL1ST;
 			j = maincfg.CFG_LOCALMAX;

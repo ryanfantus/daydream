@@ -88,6 +88,7 @@ static int getin(void);
 static int ispw(void);
 static int syspw(void);
 static int visit_bbs(int);
+static int matrix(void);
 
 static void readdatafile(void **dest, const char *filename, int endmarker)
 {
@@ -366,7 +367,7 @@ static int visit_bbs(int m)
 
 	changenodestatus("Logging in...");
 
-	ddprintf("[0m[2J[HDayDream BBS/UNiX %s\nProgramming by Antti Häyrynen 1996, 1997,\n    DayDream Development Team 1998, 1999, 2000, 2001, 2002, 2003, 2004,\n    Bo Simonsen 2008, 2009, 2010\nCurrently maintained by Ryan Fantus\nYou are connected to node #%d at %d BPS.\n\n", versionstring, node, bpsrate);
+	ddprintf("[0m[2J[HDayDream BBS/UNiX %s\nProgramming by Antti Hï¿½yrynen 1996, 1997,\n    DayDream Development Team 1998, 1999, 2000, 2001, 2002, 2003, 2004,\n    Bo Simonsen 2008, 2009, 2010\nCurrently maintained by Ryan Fantus\nYou are connected to node #%d at %d BPS.\n\n", versionstring, node, bpsrate);
 
 	rundoorbatch("data/frontends.dat", NULL);
 
@@ -379,6 +380,17 @@ static int visit_bbs(int m)
 		DDPut(sd[disconnectingstr]);
 		return 0;
 	}
+
+	int matrix_result = (matrix());		// this is the start of the code for the matrix
+
+	if (matrix_result == 1) {			// if we return 1, run createNewAccount(), then hangup
+			CreateNewAccount();
+			return -1;
+	} else if (matrix_result == 2) {	// if we return 3, logoff
+			return 0;					
+	}
+
+	// default option of matrix_result being 0 is to continue login process as normal
 
 	TypeFile("banner", TYPE_MAKE | TYPE_WARN);
 
@@ -396,6 +408,55 @@ static int visit_bbs(int m)
 	DDPut(sd[disconnectingstr]);
 	dropcarrier();
 	return 1;
+}
+
+static int matrix(void)
+{
+	int lastVal=-1;
+	int value=0;
+	int i;
+	char *tmp;
+	int ch=0;
+	int numOptions=3;
+
+	const char *options[]={"[18;17H[0;32mlogin to monterey[0;37m", "[18;47H[0;32mapply[0;37m", "[18;57H[0;32mlogoff[0;37m"};
+	const char *selected[]={"[18;17H[0;92mlogin to monterey[0;37m", "[18;47H[0;92mapply[0;37m", "[18;57H[0;92mlogoff[0;37m"};
+
+	ddprintf("\e[2J");	// clear screen
+	TypeFile("matrix", TYPE_MAKE);
+
+	/* Draw initial options, with first option highlighted. Later we'll put into logical loop. */
+
+	ddprintf(selected[0]);
+	ddprintf(options[1]);
+	ddprintf(options[2]);
+
+	lastVal = value;
+
+	while (ch != 13) {
+		ch = HotKey(HOT_CURSOR);
+		switch(ch) {
+			case 252:	// right arrow
+				value += 1;
+				if (value > numOptions - 1) {
+					value = numOptions - 1;
+				} else {
+					ddprintf(options[value - 1]);	// redraw now unselected option
+					ddprintf(selected[value]);		// draw current selected
+				}
+				break;
+			case 253:	// left arrow
+				value -= 1;
+				if (value < 0) {
+					value = 0;
+				} else {
+					ddprintf(options[value +1]);	// redraw now unselected option
+					ddprintf(selected[value]);		// draw current selected
+				}
+				break;
+			}
+		}
+	return value;
 }
 
 static int ispw(void)

@@ -23,8 +23,16 @@ void who(void)
 	TypeFile("who", TYPE_MAKE | TYPE_WARN);
 	DDPut(sd[whheadstr]);
 
-	while (cn->MULTI_NODE) {
-		if (cn->MULTI_NODE == 253) {
+	/* Process all nodes in the configuration file, not just until first zero.
+	 * The nodes array is terminated by a zero byte at the end, so we continue
+	 * until we find that terminator, not just the first zero MULTI_NODE value.
+	 */
+	while (1) {
+		/* Check if we've reached the end marker (zero byte) */
+		if (*(unsigned char *)cn == 0)
+			break;
+			
+		if (cn->MULTI_NODE == 254) {
 			int j;
 			int i = maincfg.CFG_TELNET1ST;
 			j = maincfg.CFG_TELNETMAX;
@@ -34,7 +42,7 @@ void who(void)
 				who_show(cn, i);
 				i++;
 			}
-		} else if (cn->MULTI_NODE == 254) {
+		} else if (cn->MULTI_NODE == 253) {
 			int j;
 			int i = maincfg.CFG_LOCAL1ST;
 			j = maincfg.CFG_LOCALMAX;
@@ -44,7 +52,7 @@ void who(void)
 				who_show(cn, i);
 				i++;
 			}
-		} else if (cn->MULTI_NODE != 252) {
+		} else if (cn->MULTI_NODE != 252 && cn->MULTI_NODE != 0) {
 			who_show(cn, cn->MULTI_NODE);
 		}
 		cn++;
@@ -98,18 +106,45 @@ static int who_show(struct DayDream_Multinode *cn, int num)
 		}
 	}
 	if (showent) {
-		switch (cn->MULTI_TTYTYPE) {
-		case 1:
-			strlcpy(dabps, "LOCAL", sizeof dabps);
-			break;
-		case 2:
-			if (myn.ddn_flags & (1L << 1)) {
-				snprintf(dabps, sizeof dabps, "%d", 
-					myn.ddn_bpsrate);
+		/* Determine connection type based on node number range */
+		if (num >= maincfg.CFG_TELNET1ST && num < maincfg.CFG_TELNET1ST + maincfg.CFG_TELNETMAX) {
+			/* Node is in telnet range */
+			if (isnode(num, &myn) && myn.ddn_bpsrate > 0) {
+				snprintf(dabps, sizeof dabps, "%d", myn.ddn_bpsrate);
 			} else {
 				strlcpy(dabps, "TELNET", sizeof dabps);
 			}
-			break;
+		} else if (num >= maincfg.CFG_LOCAL1ST && num < maincfg.CFG_LOCAL1ST + maincfg.CFG_LOCALMAX) {
+			/* Node is in local range */
+			strlcpy(dabps, "LOCAL", sizeof dabps);
+		} else {
+			/* Fall back to original logic for other node types */
+			if (isnode(num, &myn) && myn.ddn_bpsrate == 0) {
+				/* Zero bps rate typically indicates telnet connection */
+				strlcpy(dabps, "TELNET", sizeof dabps);
+			} else {
+				switch (cn->MULTI_TTYTYPE) {
+				case 1:
+					strlcpy(dabps, "LOCAL", sizeof dabps);
+					break;
+				case 2:
+					if (myn.ddn_flags & (1L << 1)) {
+						snprintf(dabps, sizeof dabps, "%d", 
+							myn.ddn_bpsrate);
+					} else {
+						strlcpy(dabps, "TELNET", sizeof dabps);
+					}
+					break;
+				default:
+					if (myn.ddn_bpsrate > 0) {
+						snprintf(dabps, sizeof dabps, "%d", 
+							myn.ddn_bpsrate);
+					} else {
+						strlcpy(dabps, "TELNET", sizeof dabps);
+					}
+					break;
+				}
+			}
 		}
 		ddprintf(sd[whlinestr], num, usern, orgn, 
 			 activity, dabps);

@@ -90,7 +90,7 @@ int olmall(int l, const char *ms)
 
 	while (cn->MULTI_NODE) {
 		struct DayDream_NodeInfo nin;
-		if (cn->MULTI_NODE == 253) {
+		if (cn->MULTI_NODE == 254) {
 			int j;
 			int i = maincfg.CFG_TELNET1ST;
 			j = maincfg.CFG_TELNETMAX;
@@ -107,7 +107,7 @@ int olmall(int l, const char *ms)
 				j--;
 				i++;
 			}
-		} else if (cn->MULTI_NODE == 254) {
+		} else if (cn->MULTI_NODE == 253) {
 			int j;
 			int i = maincfg.CFG_LOCAL1ST;
 			j = maincfg.CFG_LOCALMAX;

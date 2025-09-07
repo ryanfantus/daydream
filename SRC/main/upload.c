@@ -1312,7 +1312,7 @@ int maketmplist(void)
 	fi = fopen(buf, "w");
 	if (fi) {
 		for (cn = nodes; cn->MULTI_NODE; cn++) {
-			if (cn->MULTI_NODE == 253) {
+			if (cn->MULTI_NODE == 254) {
 				int j;
 				int i = maincfg.CFG_TELNET1ST;
 				j = maincfg.CFG_TELNETMAX;
@@ -1325,7 +1325,7 @@ int maketmplist(void)
 					}
 					i++;
 				}
-			} else if (cn->MULTI_NODE == 254) {
+			} else if (cn->MULTI_NODE == 253) {
 				int j;
 				int i = maincfg.CFG_LOCAL1ST;
 				j = maincfg.CFG_LOCALMAX;

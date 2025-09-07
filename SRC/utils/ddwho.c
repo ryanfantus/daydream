@@ -11,6 +11,7 @@
 
 static struct DayDream_Multinode *mn;
 static struct DayDream_MainConfig maincfg;
+static size_t mn_size;
 
 static const char *whlinestr = "%-2.2d %-20.20s %-25.25s %-20.20s %s\n";
 
@@ -34,6 +35,7 @@ int main(int argc, char *argv[])
 	}
 	mn=malloc(st.st_size+2);
 	memset(mn,0,st.st_size+2);
+	mn_size = st.st_size;
 	fd=open(bufa,O_RDONLY);
 	if (fd < 0) {
 		perror("open $DAYDREAM/data/multinode.dat");
@@ -63,9 +65,17 @@ static void shownodes(void)
 	
 	printf("N  Account Name         Org. / Location           Activity             Bps\n-----------------------------------------------------------------------------\n");
 
-	while(cn->MULTI_NODE)
+	/* Process all nodes in the configuration file, not just until first zero.
+	 * The nodes array is terminated by padding at the end, so we continue
+	 * until we've processed all entries based on the file size.
+	 */
+	while ((char *)cn < (char *)mn + mn_size)
 	{
-		if (cn->MULTI_NODE == 253) {
+		/* Skip completely zero entries that might be padding */
+		if (*(unsigned char *)cn == 0)
+			break;
+			
+		if (cn->MULTI_NODE == 254) {
 			int j;
 			int i=maincfg.CFG_TELNET1ST;
 			j=maincfg.CFG_TELNETMAX;
@@ -75,7 +85,7 @@ static void shownodes(void)
 				who_show(cn,i);
 				i++;
 			}
-		} else if (cn->MULTI_NODE == 254) {
+		} else if (cn->MULTI_NODE == 253) {
 			int j;
 			int i=maincfg.CFG_LOCAL1ST;
 			j=maincfg.CFG_LOCALMAX;
@@ -85,7 +95,7 @@ static void shownodes(void)
 				who_show(cn,i);
 				i++;
 			}
-		} else if (cn->MULTI_NODE != 252) {
+		} else if (cn->MULTI_NODE != 252 && cn->MULTI_NODE != 0) {
 			who_show(cn,cn->MULTI_NODE);
 		}
 		cn++;
@@ -134,18 +144,44 @@ static void who_show(struct DayDream_Multinode *cn, int num)
 		}
 	}
 	if (showent) {
-		switch (cn->MULTI_TTYTYPE)
-		{
-			case 1:
-				strcpy(dabps,"LOCAL");
-			break;
-			case 2:
-				if (myn.ddn_flags & (1L<<1)) {
-					sprintf(dabps,"%d",myn.ddn_bpsrate);
-				} else {
-					strcpy(dabps,"TELNET");
+		/* Determine connection type based on node number range */
+		if (num >= maincfg.CFG_TELNET1ST && num < maincfg.CFG_TELNET1ST + maincfg.CFG_TELNETMAX) {
+			/* Node is in telnet range */
+			if (isnode(num,&myn) && myn.ddn_bpsrate > 0) {
+				sprintf(dabps,"%d",myn.ddn_bpsrate);
+			} else {
+				strcpy(dabps,"TELNET");
+			}
+		} else if (num >= maincfg.CFG_LOCAL1ST && num < maincfg.CFG_LOCAL1ST + maincfg.CFG_LOCALMAX) {
+			/* Node is in local range */
+			strcpy(dabps,"LOCAL");
+		} else {
+			/* Fall back to original logic for other node types */
+			if (isnode(num,&myn) && myn.ddn_bpsrate == 0) {
+				/* Zero bps rate typically indicates telnet connection */
+				strcpy(dabps,"TELNET");
+			} else {
+				switch (cn->MULTI_TTYTYPE)
+				{
+					case 1:
+						strcpy(dabps,"LOCAL");
+					break;
+					case 2:
+						if (myn.ddn_flags & (1L<<1)) {
+							sprintf(dabps,"%d",myn.ddn_bpsrate);
+						} else {
+							strcpy(dabps,"TELNET");
+						}
+					break;
+					default:
+						if (myn.ddn_bpsrate > 0) {
+							sprintf(dabps,"%d",myn.ddn_bpsrate);
+						} else {
+							strcpy(dabps,"TELNET");
+						}
+					break;
 				}
-			break;
+			}
 		}
 		printf(whlinestr,num,usern,orgn,activity,dabps);
 	}
