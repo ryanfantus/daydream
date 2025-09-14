@@ -215,6 +215,7 @@ int main(int argc, char *argv[])
 				memset(&data[lines * 80], 0, 80);
 				ypos--;
 				lines--;
+				redraw(1);
 				continue;
 			}
 			if (xpos != linelen) {
@@ -408,7 +409,7 @@ static void started(char *node)
 		}
 		redraw(1);
 	} else {
-		dd_sendstring(d, "[2J[H[0;44;35mDDEd V1.2                                                                      \n[33mCtrl-Z=Save, Ctrl-A=Abort, Ctrl-U=Help, Cursor keys to move.                   \n[36m<---+----1----+----2----+----3----+----4----+----5----+----6----+----7->--+--->[0m\n");
+		dd_sendstring(d, "[2J[H[0;44;35mDDEd V1.2                                                                      \n[33mCtrl-Z=Save, Ctrl-A=Abort, Ctrl-U=Help, Ctrl-Q=Quote, Cursor keys to move.     \n[36m<---+----1----+----2----+----3----+----4----+----5----+----6----+----7->--+--->[0m\n");
 	}
 }
 
@@ -605,7 +606,7 @@ static void redraw(int mode)
 	int lin;
 
 	if (mode) {
-		dd_sendstring(d, "[2J[H[0;44;35mDDEd V1.2                                                                      \n[33mCtrl-Z=Save, Ctrl-A=Abort, Ctrl-U=Help, Cursor keys to move.                   \n[36m<---+----1----+----2----+----3----+----4----+----5----+----6----+----7->--+--->[0m\n");
+		dd_sendstring(d, "[2J[H[0;44;35mDDEd V1.2                                                                      \n[33mCtrl-Z=Save, Ctrl-A=Abort, Ctrl-U=Help, Ctrl-Q=Quote, Cursor keys to move.     \n[36m<---+----1----+----2----+----3----+----4----+----5----+----6----+----7->--+--->[0m\n");
 	}
 	s = &data[highline * 80];
 	lin = highline;
