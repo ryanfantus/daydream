@@ -113,8 +113,10 @@ void search_by_number(int account_id)
 		if (getubentbyid(account_id, &tmpuser) == -1)
 			return;
 		if ((tmpuser.user_toggles & UBENT_STAT_MASK) ==
-			UBENT_STAT_DELETED)
+			UBENT_STAT_DELETED) {
+			account_id++;
 			continue;
+		}
 		if (!usereditor(&tmpuser, account_id))
 			continue;
 		saveuserbase(&tmpuser);
