@@ -261,6 +261,7 @@ int ParseCfgLine(MainCfg* cfg, char* buf) {
 		tmppw = NEW(Password);
 		text_to_fidoaddr(pos1, &tmppw->Aka);
 		strncpy(tmppw->Password, pos2, 8);
+		tmppw->Password[8] = '\0';  /* Ensure null termination */
 		bsList_add(&cfg->Passwords, tmppw);
 	}
 	else if(!strcasecmp(pos, "AreafixPw")) {
@@ -268,6 +269,7 @@ int ParseCfgLine(MainCfg* cfg, char* buf) {
 		tmppw = NEW(Password);
 		text_to_fidoaddr(pos1, &tmppw->Aka);
 		strncpy(tmppw->Password, pos2, 8);
+		tmppw->Password[8] = '\0';  /* Ensure null termination */
 		bsList_add(&cfg->AreafixPws, tmppw);
 	}
 	else if(!strcasecmp(pos, "Group")) {

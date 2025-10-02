@@ -47,7 +47,7 @@ typedef struct MEM_MSG_ {
 	int PktType;
 	FidoAddr PktOrig;
 	FidoAddr PktDest;
-	char PktPw[8];
+	char PktPw[9];
 	struct tm PktDate;
 
 	unsigned int Product;

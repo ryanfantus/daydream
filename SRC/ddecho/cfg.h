@@ -41,7 +41,7 @@ typedef struct MainCfg_ {
 
 typedef struct Password_ {
 	FidoAddr Aka;
-	char Password[8];
+	char Password[9];
 } Password;
 
 typedef struct Group_ {
