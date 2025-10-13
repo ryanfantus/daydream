@@ -12,6 +12,7 @@
 static int nuaskh(void);
 static int nuaskr(void);
 static void questionnaire(void);
+static int is_name_blacklisted(const char *name);
 
 int CreateNewAccount(void)
 {
@@ -318,6 +319,10 @@ static int nuaskr(void)
 			DDPut(sd[newalreadystr]);
 			continue;
 		}
+		if (is_name_blacklisted(user.user_realname)) {
+			DDPut(sd[newalreadystr]);
+			continue;
+		}
 		break;
 	}
 	return 1;
@@ -337,7 +342,45 @@ static int nuaskh(void)
 			DDPut(sd[newalreadystr]);
 			continue;
 		}
+		if (is_name_blacklisted(user.user_handle)) {
+			DDPut(sd[newalreadystr]);
+			continue;
+		}
 		break;
 	}
 	return 1;
+}
+
+static int is_name_blacklisted(const char *name)
+{
+	FILE *trashfile;
+	char line[256];
+	char *newline;
+	
+	trashfile = fopen("data/trashcan.dat", "r");
+	if (trashfile == NULL) {
+		/* If file doesn't exist, no names are blacklisted */
+		return 0;
+	}
+	
+	while (fgets(line, sizeof(line), trashfile)) {
+		/* Remove trailing newline if present */
+		newline = strchr(line, '\n');
+		if (newline)
+			*newline = '\0';
+		
+		/* Remove trailing carriage return if present (DOS format) */
+		newline = strchr(line, '\r');
+		if (newline)
+			*newline = '\0';
+		
+		/* Case-insensitive comparison */
+		if (strcasecmp(line, name) == 0) {
+			fclose(trashfile);
+			return 1;
+		}
+	}
+	
+	fclose(trashfile);
+	return 0;
 }
