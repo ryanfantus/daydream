@@ -566,12 +566,11 @@ int rundoor(const char *command, const char *params)
 	if (!doorcnt) {
 		snprintf(sockname, sizeof sockname, 
 			"%s/dd_door%d", DDTMP, node);
-		snprintf(doom, sizeof doom, "%d", node);
 	} else {
 		snprintf(sockname, sizeof sockname,
 			 "%s/dd_door%d_%d", DDTMP, node, doorcnt);
-		snprintf(doom, sizeof doom, "%d_%d", node, doorcnt);
 	}
+	snprintf(doom, sizeof doom, "%d", node);
 	unlink(sockname);
 	strlcpy(doorsock.sun_path, sockname, sizeof doorsock.sun_path);
 	doorsock.sun_family = AF_UNIX;
@@ -662,11 +661,7 @@ int rundosdoor(const char *command, int dropfile)
 	if (write_dropfile(pname, dropfile) == -1)
 		return 0;
 
-	if (!doorcnt)
-		snprintf(doom, sizeof doom, "%d", node);
-	else
-		snprintf(doom, sizeof doom, "%d_%d", node, doorcnt);
-
+	snprintf(doom, sizeof doom, "%d", node);
 	genstdiocmdline(dcmd, command, 0, doom);
 
 	snprintf(doom, sizeof doom, " %d", node);
