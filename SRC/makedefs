@@ -1,3 +1,4 @@
 UNAME=$(shell uname -s)
 WARNFLAGS=-w
 OPTCFLAGS=-O2 -fPIC -DUNAME="\"$(UNAME)\""
+PYTHON_INCLUDE=/usr/include/python2.7

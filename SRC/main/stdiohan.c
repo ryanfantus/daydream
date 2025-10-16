@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>

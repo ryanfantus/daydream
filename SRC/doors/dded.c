@@ -760,12 +760,15 @@ static int quote_modal(void)
 			}
 		}
 		
-		// Show prompt for line selection
-		snprintf(qbuffer, sizeof(qbuffer), "\n\033[0;36mTotal lines: %d\nEnter line range (1-%d), L)ist again, * for all, or ENTER to cancel: \033[0m", ql, ql);
-		dd_sendstring(d, qbuffer);
-		
-		// Get user input
-		if (!dd_prompt(d, prompt_buf, sizeof(prompt_buf), 0)) {
+	// Show prompt for line selection
+	snprintf(qbuffer, sizeof(qbuffer), "\n\033[0;36mTotal lines: %d\nEnter line range (1-%d), L)ist again, * for all, or ENTER to cancel: \033[0m", ql, ql);
+	dd_sendstring(d, qbuffer);
+	
+	// Clear buffer before getting new input to prevent stale values
+	prompt_buf[0] = '\0';
+	
+	// Get user input
+	if (!dd_prompt(d, prompt_buf, sizeof(prompt_buf), 0)) {
 			fclose(qfd);
 			return 1; // User cancelled
 		}
@@ -782,12 +785,14 @@ static int quote_modal(void)
 			startn = 1;
 			endn = ql;
 			break;
-		} else if ((startn = atoi(prompt_buf))) {
-			dd_sendstring(d, "\033[0;36mEnter ending line number: \033[0m");
-			if (!dd_prompt(d, prompt_buf, sizeof(prompt_buf), 0)) {
-				fclose(qfd);
-				return 1;
-			}
+	} else if ((startn = atoi(prompt_buf))) {
+		// Clear the buffer before asking for ending line number
+		prompt_buf[0] = '\0';
+		dd_sendstring(d, "\033[0;36mEnter ending line number: \033[0m");
+		if (!dd_prompt(d, prompt_buf, sizeof(prompt_buf), 0)) {
+			fclose(qfd);
+			return 1;
+		}
 			if ((endn = atoi(prompt_buf))) {
 				break;
 			} else {

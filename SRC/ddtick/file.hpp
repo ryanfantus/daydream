@@ -46,7 +46,7 @@ private:
   bool ok();
   int memcrc32(const char *str, int size, int initcrc);
   int filecrc32(const char *filename);
-  int* crc32tab();
+  unsigned int* crc32tab();
 
   string filename;
   bool valid;

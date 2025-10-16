@@ -151,8 +151,8 @@ int File::filecrc32(const char *filename) {
   return crc ^ 0xFFFFFFFFUL;
 }
 
-int* File::crc32tab() {
-  static int tabarr[] = {
+unsigned int* File::crc32tab() {
+  static unsigned int tabarr[] = {
     0x00000000UL, 0x77073096UL, 0xee0e612cUL, 0x990951baUL, 0x076dc419UL, 0x706af48fUL, 0xe963a535UL, 0x9e6495a3UL,
     0x0edb8832UL, 0x79dcb8a4UL, 0xe0d5e91eUL, 0x97d2d988UL, 0x09b64c2bUL, 0x7eb17cbdUL, 0xe7b82d07UL, 0x90bf1d91UL,
     0x1db71064UL, 0x6ab020f2UL, 0xf3b97148UL, 0x84be41deUL, 0x1adad47dUL, 0x6ddde4ebUL, 0xf4d4b551UL, 0x83d385c7UL,

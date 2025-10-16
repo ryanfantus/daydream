@@ -5,7 +5,7 @@ OPTLFLAGS=-L../lib
 CFLAGS=$(WARNFLAGS) $(OPTCFLAGS) $(IFLAGS)
 LFLAGS=$(OPTLFLAGS)
 
-LIBS=-lddcommon
+LIBS=-ldd -lddcommon
 
 DAYDREAM_OBJ=access.o bulletin.o conference.o console.o daydream.o default.o display.o domenu.o\
 doorport.o download.o edituser.o enterbbs.o entermsg.o filelist.o goodbye.o hotkey.o\

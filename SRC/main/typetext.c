@@ -18,6 +18,8 @@
 #include <symtab.h>
 #include <console.h>
 
+static void parsepipes(char *);
+
 enum {
 	fname_sec = 0x01,
 	fname_raw = 0x02,
@@ -269,7 +271,7 @@ void ansi_bg(char *data, int bg) {
 }
 
 // Parsepipes, parses all |01 - |23 codes, pcboard codes, wildcat, wwiv
-void parsepipes(char* szString) {
+static void parsepipes(char* szString) {
 
     char szReplace[20]    = {0};  // Holds Ansi Sequence
     char *szStrBuilder;		  // Holds new String being built

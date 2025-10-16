@@ -14,7 +14,7 @@ libddcommon: $(LIBDDCOMMON_OBJ)
 	strip libddcommon.so
 libdd: $(LIBDD_OBJ)
 	gcc -shared -o libdd.so $(LIBDD_OBJ) libddcommon.a
-	ar rcs libdd.a $(LIBDDCOMMON_OBJ)
+	ar rcs libdd.a $(LIBDD_OBJ)
 	strip libdd.so
 
 install: 

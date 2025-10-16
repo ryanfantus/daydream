@@ -16,6 +16,7 @@ static int usereditor(struct userbase *, int);
 void search_by_number(int);
 static void uemove(int, int);
 static void setseclevel(struct userbase *);
+void sysop_userlist(void);
 
 static void confstostr(int, char *);
 static int seceditor(struct DD_Seclevel *);
@@ -84,12 +85,12 @@ int edit_new_users(void)
 
 	for (;; account_id++) {
 		if (getubentbyid(account_id, &tmpuser) == -1)
-			return;
+			return 0;
 		if ((tmpuser.user_toggles & UBENT_STAT_MASK) != UBENT_STAT_NEW)
 			continue;
 		retcode = uedask(&tmpuser);
 		if (retcode == 2) 
-			return;
+			return 0;
 		if (retcode == 0)
 			continue;
 		if(!usereditor(&tmpuser, account_id))
@@ -134,7 +135,7 @@ int search_and_edit(const char *sstring)
 
 	for (;; account_id++) {
 		if (getubentbyid(account_id, &tmpuser) == -1)
-			return;
+			return 0;
 		if ((tmpuser.user_toggles & UBENT_STAT_MASK) == 
 			UBENT_STAT_DELETED)
 			continue;
@@ -144,7 +145,7 @@ int search_and_edit(const char *sstring)
 
 		retcode = uedask(&tmpuser);
 		if (retcode == 2) 
-			return;
+			return 0;
 		if (!retcode)
 			continue;
 		if (!usereditor(&tmpuser, account_id))
@@ -230,12 +231,12 @@ void usered(void)
 			char sstring[3];
 			int usernum;
 
-			DDPut("\n\e[0mEnter user number: \e[36m");
-			sstring[0] = 0;
-			usernum = 0;
-			if (!Prompt(sstring, 3, 0))
-				continue;
-			usernum = atoi(&sstring);
+		DDPut("\n\e[0mEnter user number: \e[36m");
+		sstring[0] = 0;
+		usernum = 0;
+		if (!Prompt(sstring, 3, 0))
+			continue;
+		usernum = atoi(sstring);
 			ddprintf("The search number is %i\n", usernum);
 			search_by_number(usernum);
 			while (current_id != usernum) {

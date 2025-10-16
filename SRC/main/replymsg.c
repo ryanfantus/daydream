@@ -8,6 +8,9 @@
 #include <daydream.h>
 #include <ddcommon.h>
 
+// External function declarations
+extern void dd_strippipes(char *);
+
 // Function declarations for word wrapping
 static char *read_entire_message(FILE *msgfd, long *total_size);
 static char **split_into_lines(const char *buffer, int *line_count);
@@ -130,7 +133,7 @@ int replymessage(struct DayDream_Message *msgd)
 			*line_end = '\0';
 			// Strip ANSI and pipes, then add quote prefix
 			stripansi(line_start);
-			strippipes(line_start);
+			dd_strippipes(line_start);
 			fprintf(quotefd, "%s %s\n", msgin, line_start);
 			*line_end = '\n';
 			line_start = line_end + 1;
@@ -138,7 +141,7 @@ int replymessage(struct DayDream_Message *msgd)
 		// Handle any remaining text after last newline
 		if (*line_start) {
 			stripansi(line_start);
-			strippipes(line_start);
+			dd_strippipes(line_start);
 			fprintf(quotefd, "%s %s\n", msgin, line_start);
 		}
 		

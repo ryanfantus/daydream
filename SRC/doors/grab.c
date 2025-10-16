@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 	dd_changestatus(d, "Grabbing messages");
 
 	atexit(die);
-	dd_sendstring(d, "\n[35mDD-Grab " versionstring " by Antti Häyrynen.\n\n");
+	dd_sendstring(d, "\n[35mDD-Grab " versionstring " by Antti Hï¿½yrynen.\n\n");
 	node = atoi(argv[1]);
 
 	sprintf(buf, "%s/configs/dd-grab.cfg", getenv("DAYDREAM"));
@@ -688,7 +688,7 @@ static int procqwkm(struct DayDream_Message *daheader)
 																														" ", 
 																														" ");
 
-	fprintf(msgdfd, "%-6dá", 2 + end_offset / 128);
+	fprintf(msgdfd, "%-6dï¿½", 2 + end_offset / 128);
 	vc = get_virtual_conf(conf->CONF_NUMBER, base->MSGBASE_NUMBER);
 	vc2 = vc;
 

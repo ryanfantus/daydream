@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include <ddlib.h>
 #include <ddcommon.h>

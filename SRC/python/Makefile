@@ -11,6 +11,9 @@ LIBDDPYTHON_OBJ = _dd.o
 
 all: libddpython
 
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 libddpython: $(LIBDDPYTHON_OBJ)
 	gcc $(LFLAGS) -shared -o ddpmodule.so $(LIBDDPYTHON_OBJ) $(LIBS)
 	strip ddpmodule.so

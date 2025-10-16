@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 
 int bgtab[] = { 40,44,42,46,41,45,43,47 };
 
