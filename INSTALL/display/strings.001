@@ -241,7 +241,8 @@ dlnoareasstr:\n[35mNo fileareas in current conference!\n\n
 dlnouploadsstr:\n[35mNo uploads allowed in this conference!\n\n
 dlnotimestr:\n[35mSorry, You do not have enough time remaining to proceed with the download.\n\n
 dlproceedstr:\n[32m[[33mP[32m][36mroceed, [32m([33mD[32m)[36misconnect afterwards, [32m([33mE[32m)[36mdit download request, [32m([33mA[32m)[36mbort:[0m 
-dlautodcstr:[0m[36mYou may abort by pressing [0mCTRL-C\n[36mConnection will be closed in [0m-> [36m10 [0m<- [36mseconds..[0m
+dlautodcstr:[0m
+[36mYou may abort by pressing [0mCTRL-C\n[36mConnection will be closed in [0m-> [36m10 [0m<- [36mseconds..[0m
 dlclosecstr:Connection closed by automatic disconnection at %s\n
 dlpromptstr:[0;36mDownload [32m[[33m%ld[32m/[33m%s[32m] [[33m%ld[32m/[33m%s[32m][36m: [0m
 dlunlimitedstr:Unlimited!
