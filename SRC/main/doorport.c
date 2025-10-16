@@ -56,9 +56,11 @@ static void door_loop(int sockfd, pid_t child_pid, const char *door_params)
 		return;
 	sockfd = accept_nonblock(sockfd, NULL, NULL);
 	if (sockfd == -1) {
+		syslog(LOG_ERR, "accept_nonblock failed/timed out for door, killing child %d", child_pid);
 		kill_child(child_pid);
 		return;
 	}
+	syslog(LOG_DEBUG, "door connected successfully on sockfd %d", sockfd);
 	
 	child_pid_list = push(child_pid_list, (void *) child_pid);
 	doorcnt++;
@@ -566,12 +568,14 @@ int rundoor(const char *command, const char *params)
 	if (!doorcnt) {
 		snprintf(sockname, sizeof sockname, 
 			"%s/dd_door%d", DDTMP, node);
+		snprintf(doom, sizeof doom, "%d", node);
 	} else {
 		snprintf(sockname, sizeof sockname,
 			 "%s/dd_door%d_%d", DDTMP, node, doorcnt);
+		snprintf(doom, sizeof doom, "%d_%d", node, doorcnt);
 	}
-	snprintf(doom, sizeof doom, "%d", node);
 	unlink(sockname);
+	syslog(LOG_DEBUG, "creating socket at: %s", sockname);
 	strlcpy(doorsock.sun_path, sockname, sizeof doorsock.sun_path);
 	doorsock.sun_family = AF_UNIX;
 	if (bind(sockfd, (struct sockaddr *) &doorsock, sizeof doorsock) < 0) {
@@ -601,12 +605,27 @@ int rundoor(const char *command, const char *params)
 	}
 	args[i] = 0;
 
+	/* Debug logging */
+	{
+		int j;
+		for (j = 0; args[j] != NULL; j++) {
+			syslog(LOG_DEBUG, "door args[%d] = '%s'", j, args[j]);
+		}
+	}
+
 	switch (pid = fork()) {
 	case -1:
 		syslog(LOG_ERR, "fork failed: %m");
 		return 0;
 	case 0:
-		set_library_path();				
+		close(sockfd);
+		set_library_path();
+		/* Debug: check if DAYDREAM env var is set */
+		if (getenv("DAYDREAM") == NULL) {
+			syslog(LOG_ERR, "DAYDREAM env var is NULL in door child!");
+		} else {
+			syslog(LOG_DEBUG, "DAYDREAM=%s in door child", getenv("DAYDREAM"));
+		}
 		execv(args[0], args);
 		syslog(LOG_ERR, "execv failed: %m");
 		DDPut("Command failed.\n");
@@ -661,7 +680,9 @@ int rundosdoor(const char *command, int dropfile)
 	if (write_dropfile(pname, dropfile) == -1)
 		return 0;
 
+	/* DOS doors don't use sockets, so always use plain node number */
 	snprintf(doom, sizeof doom, "%d", node);
+
 	genstdiocmdline(dcmd, command, 0, doom);
 
 	snprintf(doom, sizeof doom, " %d", node);
