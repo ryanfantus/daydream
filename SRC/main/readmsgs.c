@@ -1073,16 +1073,11 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
             
             pos += chunk_len;
             
-            // Add newline if we wrapped, but skip if we reached exactly wrap_length
-            if (pos < line_len && chunk_len < wrap_length) {
+            // Add newline if we wrapped (including when we reached exactly wrap_length)
+            if (pos < line_len) {
                 strcat(result, "\n");
                 result_len++;
                 // Skip space at beginning of next chunk
-                if (pos < line_len && line[pos] == ' ') {
-                    pos++;
-                }
-            } else if (pos < line_len && chunk_len == wrap_length) {
-                // Skip space at beginning of next chunk without adding newline
                 if (pos < line_len && line[pos] == ' ') {
                     pos++;
                 }
