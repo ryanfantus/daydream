@@ -411,8 +411,14 @@ static int showmsg(int showme, int mode)
 		
 		while ((line_end = strchr(line_start, '\n')) != NULL) {
 			*line_end = '\0';
+			int line_display_len = strlen(line_start);
 			DDPut(line_start);
-			DDPut("\n");
+			
+			// Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
+			if (line_display_len != 80) {
+				DDPut("\n");
+			}
+			
 			*line_end = '\n';
 			line_start = line_end + 1;
 			
@@ -984,7 +990,7 @@ static char **split_into_lines(const char *buffer, int *line_count) {
     const char *current = buffer;
     
     while (*current) {
-        if (*current == '\n' || *current == '\0') {
+        if (*current == '\n') {
             int line_len = current - start;
             
             // Expand array if needed
@@ -993,7 +999,7 @@ static char **split_into_lines(const char *buffer, int *line_count) {
                 lines = (char **) realloc(lines, capacity * sizeof(char *));
             }
             
-            // Allocate and copy line
+            // Allocate and copy line (include empty lines to preserve blank lines)
             lines[count] = (char *) xmalloc(line_len + 1);
             strncpy(lines[count], start, line_len);
             lines[count][line_len] = '\0';
@@ -1030,6 +1036,10 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
     
     for (int i = 0; i < line_count; i++) {
         char *line = lines[i];
+        int line_len = strlen(line);
+        
+        // DEBUG: Log line length to help diagnose
+        // ddprintf("[DEBUG: Line %d, len=%d]\n", i, line_len);
         
         // Skip kludge lines for FidoNet messages
         if (*line == 1 || !strncmp("AREA:", line, 5) || 
@@ -1042,10 +1052,27 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
             *line = '@';
         }
         
-        // Simple word wrapping logic
-        int line_len = strlen(line);
-        int pos = 0;
+        // For lines that don't need wrapping, just copy and add ONE newline
+        if (line_len <= wrap_length) {
+            // Ensure we have enough space
+            if (result_len + line_len + 2 > total_capacity) {
+                total_capacity *= 2;
+                result = (char *) realloc(result, total_capacity);
+            }
+            
+            // Copy the line
+            strcat(result, line);
+            result_len += line_len;
+            
+            // Add exactly ONE newline
+            strcat(result, "\n");
+            result_len++;
+            
+            continue;
+        }
         
+        // For lines that need wrapping, process them in chunks
+        int pos = 0;
         while (pos < line_len) {
             int remaining = line_len - pos;
             int chunk_len = (remaining > wrap_length) ? wrap_length : remaining;
@@ -1071,29 +1098,16 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
             strncat(result, line + pos, chunk_len);
             result_len += chunk_len;
             
-            pos += chunk_len;
-            
-            // Add newline if we wrapped, but skip if we reached exactly wrap_length
-            if (pos < line_len && chunk_len < wrap_length) {
-                strcat(result, "\n");
-                result_len++;
-                // Skip space at beginning of next chunk
-                if (pos < line_len && line[pos] == ' ') {
-                    pos++;
-                }
-            } else if (pos < line_len && chunk_len == wrap_length) {
-                result_len++;
-				// Skip space at beginning of next chunk without adding newline
-                if (pos < line_len && line[pos] == ' ') {
-                    pos++;
-                }
-            }
-        }
-        
-        // Add newline after each original line
-        if (result_len + 1 < total_capacity) {
+            // Add newline after each chunk
             strcat(result, "\n");
             result_len++;
+            
+            pos += chunk_len;
+            
+            // Skip space at beginning of next chunk if we're mid-line
+            if (pos < line_len && line[pos] == ' ') {
+                pos++;
+            }
         }
     }
     
