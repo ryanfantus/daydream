@@ -1,0 +1,104 @@
+name: Build DayDream BBS Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            python-setuptools python-dev python2.7-dev \
+            libpq-dev \
+            libtiff4-dev libjpeg8-dev zlib1g-dev libfreetype6-dev liblcms2-dev \
+            libwebp-dev tcl8.5-dev tk8.5-dev
+
+      - name: Build binaries
+        run: |
+          cd SRC
+          bash make.sh build
+          echo "Build completed successfully"
+
+      - name: Create binary package structure
+        run: |
+          mkdir -p daydream-binaries-$(uname -m)/{bin,lib,utils,doors,python,include}
+          
+          # Install binaries to temporary directory
+          INSTALL_PATH=$(pwd)/daydream-binaries-$(uname -m) bash SRC/make.sh install
+          
+          # Copy shared libraries
+          if [ -d SRC/lib ]; then
+            find SRC/lib -name "*.so*" -exec cp {} daydream-binaries-$(uname -m)/lib/ \;
+          fi
+          
+          # Copy Python module
+          if [ -d SRC/python ]; then
+            find SRC/python -name "*.so" -exec cp {} daydream-binaries-$(uname -m)/python/ \;
+            find SRC/python -name "*.py" -exec cp {} daydream-binaries-$(uname -m)/python/ \;
+          fi
+
+      - name: Create archive
+        run: |
+          ARCH=$(uname -m)
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          elif [[ "$GITHUB_REF" == refs/heads/* ]]; then
+            BRANCH=${GITHUB_REF#refs/heads/}
+            VERSION=${BRANCH}-${GITHUB_SHA::8}
+          else
+            VERSION=${GITHUB_SHA::8}
+          fi
+          
+          PACKAGE_NAME="daydream-binaries-${ARCH}-${VERSION}"
+          tar -czf ${PACKAGE_NAME}.tar.gz daydream-binaries-${ARCH}/
+          
+          # Create checksums
+          sha256sum ${PACKAGE_NAME}.tar.gz > ${PACKAGE_NAME}.tar.gz.sha256
+          md5sum ${PACKAGE_NAME}.tar.gz > ${PACKAGE_NAME}.tar.gz.md5
+          
+          # List contents for verification
+          echo "Archive contents:"
+          tar -tzf ${PACKAGE_NAME}.tar.gz | head -20
+          
+          # Store package name for later steps
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+
+      - name: Upload binaries as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daydream-binaries-$(uname -m)
+          path: |
+            ${{ env.PACKAGE_NAME }}.tar.gz
+            ${{ env.PACKAGE_NAME }}.tar.gz.sha256
+            ${{ env.PACKAGE_NAME }}.tar.gz.md5
+          retention-days: 90
+
+      - name: Upload to release (if tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ env.PACKAGE_NAME }}.tar.gz
+            ${{ env.PACKAGE_NAME }}.tar.gz.sha256
+            ${{ env.PACKAGE_NAME }}.tar.gz.md5
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
