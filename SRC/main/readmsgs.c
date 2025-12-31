@@ -38,6 +38,9 @@ static char *read_entire_message(FILE *msgfd, long *total_size);
 static char **split_into_lines(const char *buffer, int *line_count);
 static char *wrap_lines(char **lines, int line_count, int wrap_length);
 static void free_line_array(char **lines, int line_count);
+static void display_scrollable_message(char **display_lines, int total_lines, int screenl);
+static char **prepare_display_lines(const char *wrapped_message, int *total_lines);
+static void draw_lightbar(int selected, int top_line, int max_lines, int total_lines);
 
 int readmessages(int cseekp, int premsg, char *mask)
 {
@@ -372,13 +375,15 @@ static int showmsg(int showme, int mode)
 
 	screenl = user.user_screenlength - 8;
 
-	// New 4-step process with dynamic allocation
+	// New scrollable message display with arrow key navigation
 	{
 		long msg_size;
 		char *message_buffer;
 		char **lines;
 		int line_count;
 		char *wrapped_message;
+		char **display_lines;
+		int total_display_lines;
 		
 		// Step 1: Read entire message into dynamically allocated buffer
 		message_buffer = read_entire_message(msgfd, &msg_size);
@@ -404,45 +409,21 @@ static int showmsg(int showme, int mode)
 			goto cleanup_msg;
 		}
 		
-		// Step 4: Display the message line by line to maintain More? prompt functionality
-		// Since DDPut now includes parsepipes, we just need to display line by line
-		char *line_start = wrapped_message;
-		char *line_end;
+		// Step 4: Prepare display lines from wrapped message
+		display_lines = prepare_display_lines(wrapped_message, &total_display_lines);
+		if (!display_lines) {
+			free(wrapped_message);
+			free_line_array(lines, line_count);
+			free(message_buffer);
+			DDPut("Error preparing display.\n");
+			goto cleanup_msg;
+		}
 		
-		while ((line_end = strchr(line_start, '\n')) != NULL) {
-			*line_end = '\0';
-			int line_display_len = strlen(line_start);
-			DDPut(line_start);
-			
-			// Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
-			if (line_display_len != 80) {
-				DDPut("\n");
-			}
-			
-			*line_end = '\n';
-			line_start = line_end + 1;
-			
-			screenl--;
-			if (screenl <= 1) {
-				int hot;
-				DDPut(sd[morepromptstr]);
-				hot = HotKey(0);
-				DDPut("\r                                                         \r");
-				if (hot == 'N' || hot == 'n' || !checkcarrier())
-					break;
-				if (hot == 'C' || hot == 'c') {
-					screenl = 20000000;	/* "infinite lines" */
-				} else {
-					screenl = user.user_screenlength;
-				}
-			}
-		}
-		// Display any remaining text after last newline
-		if (*line_start) {
-			DDPut(line_start);
-		}
+		// Step 5: Display with scrollable interface
+		display_scrollable_message(display_lines, total_display_lines, screenl);
 		
 		// Cleanup
+		free_line_array(display_lines, total_display_lines);
 		free(wrapped_message);
 		free_line_array(lines, line_count);
 		free(message_buffer);
@@ -873,7 +854,7 @@ static int getfilesize(char *pathi)
 	struct stat fib;
 	int sizefd;
 
-	sizefd = open(rbuffer, O_RDONLY);
+	sizefd = open(pathi, O_RDONLY);
 	if (sizefd == -1)
 		return 0;
 	fstat(sizefd, &fib);
@@ -1120,4 +1101,368 @@ static void free_line_array(char **lines, int line_count) {
         free(lines[i]);
     }
     free(lines);
+}
+
+// Prepare display lines from wrapped message - splits into individual lines for display
+static char **prepare_display_lines(const char *wrapped_message, int *total_lines) {
+    int capacity = 100;
+    int count = 0;
+    char **lines = (char **) xmalloc(capacity * sizeof(char *));
+    const char *start = wrapped_message;
+    const char *current = wrapped_message;
+    
+    while (*current) {
+        if (*current == '\n') {
+            int line_len = current - start;
+            
+            // Expand array if needed
+            if (count >= capacity) {
+                capacity *= 2;
+                lines = (char **) realloc(lines, capacity * sizeof(char *));
+            }
+            
+            // Allocate and copy line
+            lines[count] = (char *) xmalloc(line_len + 1);
+            strncpy(lines[count], start, line_len);
+            lines[count][line_len] = '\0';
+            
+            count++;
+            start = current + 1;
+        }
+        current++;
+    }
+    
+    // Handle case where buffer doesn't end with newline
+    if (start < current) {
+        if (count >= capacity) {
+            capacity++;
+            lines = (char **) realloc(lines, capacity * sizeof(char *));
+        }
+        int line_len = current - start;
+        lines[count] = (char *) xmalloc(line_len + 1);
+        strncpy(lines[count], start, line_len);
+        lines[count][line_len] = '\0';
+        count++;
+    }
+    
+    *total_lines = count;
+    return lines;
+}
+
+// Draw the lightbar menu at the bottom of the screen
+static void draw_lightbar(int selected, int top_line, int max_lines, int total_lines) {
+    const int num_options = 6;
+    const char *menu_items[] = {
+        "Continue",
+        "Reply",
+        "Re-display",
+        "Forward",
+        "Previous",
+        "Quit"
+    };
+    
+    DDPut("\r\e[K");  // Clear line
+    for (int i = 0; i < num_options; i++) {
+        if (i == selected) {
+            // Highlighted option (inverse video)
+            ddprintf("\e[0;7m[%s]\e[0m ", menu_items[i]);
+        } else {
+            // Normal option
+            ddprintf("\e[0;36m[%s]\e[0m ", menu_items[i]);
+        }
+    }
+    // Add scroll position indicator
+    ddprintf("\e[0;33m(%d-%d/%d)\e[0m", 
+             top_line + 1,
+             (top_line + max_lines < total_lines) ? top_line + max_lines : total_lines,
+             total_lines);
+}
+
+// Display message with scrollable interface using arrow keys
+static void display_scrollable_message(char **display_lines, int total_lines, int screenl) {
+    int top_line = 0;  // Index of the top line currently displayed
+    int max_lines = screenl - 1;  // Reserve one line for status/control prompt
+    int done = 0;
+    int selected_option = 0;  // Currently selected lightbar option (0-5)
+    const int num_options = 6;
+    
+    // If message fits on one screen, just display it and return
+    if (total_lines <= max_lines) {
+        for (int i = 0; i < total_lines; i++) {
+            DDPut(display_lines[i]);
+            int line_len = strlen(display_lines[i]);
+            // Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
+            if (line_len != 80) {
+                DDPut("\n");
+            }
+        }
+        return;
+    }
+    
+    // Initial display
+    for (int i = 0; i < max_lines && i < total_lines; i++) {
+        DDPut(display_lines[i]);
+        int line_len = strlen(display_lines[i]);
+        if (line_len != 80) {
+            DDPut("\n");
+        }
+    }
+    
+    // Show initial lightbar menu
+    draw_lightbar(selected_option, top_line, max_lines, total_lines);
+    
+    while (!done && checkcarrier()) {
+        int key = HotKey(HOT_CURSOR);
+        int needs_redraw = 0;
+        int needs_menu_redraw = 0;
+        char inject_key[3];
+        
+        switch(key) {
+            case 250:  // Arrow Up
+                if (top_line > 0) {
+                    top_line--;
+                    needs_redraw = 1;
+                }
+                break;
+                
+            case 251:  // Arrow Down
+                if (top_line + max_lines < total_lines) {
+                    top_line++;
+                    needs_redraw = 1;
+                }
+                break;
+                
+            case 252:  // Arrow Right - move to next menu item
+                selected_option = (selected_option + 1) % num_options;
+                needs_menu_redraw = 1;
+                break;
+                
+            case 253:  // Arrow Left - move to previous menu item
+                selected_option = (selected_option - 1 + num_options) % num_options;
+                needs_menu_redraw = 1;
+                break;
+                
+            case 13:   // Enter - activate selected menu item
+            case 10:   // Line feed
+                switch(selected_option) {
+                    case 0:  // Continue - page down or exit if at end
+                        if (top_line + max_lines < total_lines) {
+                            top_line += max_lines;
+                            if (top_line + max_lines > total_lines) {
+                                top_line = total_lines - max_lines;
+                            }
+                            needs_redraw = 1;
+                        } else {
+                            done = 1;  // At end, exit viewer
+                        }
+                        break;
+                    case 1:  // Reply
+                        inject_key[0] = 'r';
+                        inject_key[1] = '\0';
+                        keyboard_stuff(inject_key);
+                        done = 1;
+                        break;
+                    case 2:  // Re-display
+                        inject_key[0] = 'a';
+                        inject_key[1] = '\0';
+                        keyboard_stuff(inject_key);
+                        done = 1;
+                        break;
+                    case 3:  // Forward
+                        inject_key[0] = '+';
+                        inject_key[1] = '\0';
+                        keyboard_stuff(inject_key);
+                        done = 1;
+                        break;
+                    case 4:  // Previous
+                        inject_key[0] = '-';
+                        inject_key[1] = '\0';
+                        keyboard_stuff(inject_key);
+                        done = 1;
+                        break;
+                    case 5:  // Quit
+                        done = 1;
+                        break;
+                }
+                break;
+                
+            case ' ':  // Space - page down
+                if (top_line + max_lines < total_lines) {
+                    top_line += max_lines;
+                    if (top_line + max_lines > total_lines) {
+                        top_line = total_lines - max_lines;
+                    }
+                    needs_redraw = 1;
+                }
+                break;
+                
+            case 'b':  // 'b' for page up
+            case 'B':
+                if (top_line > 0) {
+                    top_line -= max_lines;
+                    if (top_line < 0) {
+                        top_line = 0;
+                    }
+                    needs_redraw = 1;
+                }
+                break;
+                
+            // Legacy hotkey support (still works)
+            case 'a':  // Re-display message
+            case 'A':
+                inject_key[0] = 'a';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case 'l':  // List messages
+            case 'L':
+                inject_key[0] = 'l';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case '+':  // Set forward direction
+                inject_key[0] = '+';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case '-':  // Set backward direction
+                inject_key[0] = '-';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case '!':  // Toggle kludges
+                inject_key[0] = '!';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case 'r':  // Reply
+            case 'R':
+                inject_key[0] = 'r';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case 'd':  // Delete
+            case 'D':
+                inject_key[0] = 'd';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case 'e':  // Edit message
+                inject_key[0] = 'e';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case 'k':  // Keep message
+            case 'K':
+                inject_key[0] = 'k';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case '[':  // Previous base
+                inject_key[0] = '[';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case ']':  // Next base
+                inject_key[0] = ']';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case 'n':  // Non-stop (NS) - handle two-char command
+            case 'N':
+                {
+                    int next_key = HotKey(0);
+                    if (next_key == 's' || next_key == 'S') {
+                        // Pass empty string through for now (NS not fully implemented)
+                        inject_key[0] = '\r';
+                        inject_key[1] = '\0';
+                        keyboard_stuff(inject_key);
+                        done = 1;
+                    }
+                }
+                break;
+                
+            case 'c':  // Show commands
+            case 'C':
+                inject_key[0] = 'c';
+                inject_key[1] = '\0';
+                keyboard_stuff(inject_key);
+                done = 1;
+                break;
+                
+            case 'q':  // Quit
+            case 'Q':
+            case 27:   // ESC
+                done = 1;
+                break;
+                
+            default:
+                // Ignore other keys
+                break;
+        }
+        
+        if (needs_redraw) {
+            // Clear the current status line first
+            DDPut("\r\e[K");
+            
+            // Calculate how many lines to show
+            int lines_to_show = max_lines;
+            if (top_line + lines_to_show > total_lines) {
+                lines_to_show = total_lines - top_line;
+            }
+            
+            // Move cursor up to the start of the message content area
+            // We need to go up by the number of lines displayed (including newlines)
+            for (int i = 0; i < max_lines; i++) {
+                DDPut("\e[A");  // Move cursor up one line
+            }
+            DDPut("\r");  // Move to beginning of line
+            
+            // Redraw all lines in the viewport
+            for (int i = 0; i < lines_to_show; i++) {
+                DDPut("\e[K");  // Clear current line
+                DDPut(display_lines[top_line + i]);
+                int line_len = strlen(display_lines[top_line + i]);
+                if (line_len != 80) {
+                    DDPut("\n");
+                }
+            }
+            
+            // Clear any remaining lines if we're showing fewer lines now
+            for (int i = lines_to_show; i < max_lines; i++) {
+                DDPut("\e[K\n");
+            }
+            
+            // Show updated lightbar menu
+            draw_lightbar(selected_option, top_line, max_lines, total_lines);
+        } else if (needs_menu_redraw) {
+            // Just redraw the menu without redrawing the message content
+            draw_lightbar(selected_option, top_line, max_lines, total_lines);
+        }
+    }
+    
+    // Clear the menu line and add a newline
+    DDPut("\r\e[K\n");
 }
