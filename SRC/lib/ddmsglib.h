@@ -57,7 +57,7 @@ int ddmsg_open_base(char* conf, int msgbase_num, int flags, int mode);
 int ddmsg_close_base(int);
 int ddmsg_setptrs(char* conf, int msgbase_num, struct DayDream_MsgPointers* ptrs);
 int ddmsg_getptrs(char* conf, int msgbase_num, struct DayDream_MsgPointers* ptrs);
-int ddmsg_getfidounique();
+int ddmsg_getfidounique(char* origdir);
 int ddmsg_open_msg(char* conf, int msgbase_num, int msgnum, int flags, int mode);
 int ddmsg_close_msg(int fd);
 int ddmsg_delete_msg(char* conf, int msgbase_num, int msgnum);
