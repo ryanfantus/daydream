@@ -1189,11 +1189,16 @@ static void display_scrollable_message(char **display_lines, int total_lines, in
     // If message fits on one screen, just display it and return
     if (total_lines <= max_lines) {
         for (int i = 0; i < total_lines; i++) {
-            DDPut(display_lines[i]);
             int line_len = strlen(display_lines[i]);
-            // Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
-            if (line_len != 80) {
+            if (line_len == 0) {
+                // Empty line - just output newline
                 DDPut("\n");
+            } else {
+                DDPut(display_lines[i]);
+                // Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
+                if (line_len != 80) {
+                    DDPut("\n");
+                }
             }
         }
         return;
@@ -1201,10 +1206,16 @@ static void display_scrollable_message(char **display_lines, int total_lines, in
     
     // Initial display
     for (int i = 0; i < max_lines && i < total_lines; i++) {
-        DDPut(display_lines[i]);
         int line_len = strlen(display_lines[i]);
-        if (line_len != 80) {
+        if (line_len == 0) {
+            // Empty line - just output newline
             DDPut("\n");
+        } else {
+            DDPut(display_lines[i]);
+            // Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
+            if (line_len != 80) {
+                DDPut("\n");
+            }
         }
     }
     
@@ -1443,10 +1454,16 @@ static void display_scrollable_message(char **display_lines, int total_lines, in
             // Redraw all lines in the viewport
             for (int i = 0; i < lines_to_show; i++) {
                 DDPut("\e[K");  // Clear current line
-                DDPut(display_lines[top_line + i]);
                 int line_len = strlen(display_lines[top_line + i]);
-                if (line_len != 80) {
+                if (line_len == 0) {
+                    // Empty line - just output newline
                     DDPut("\n");
+                } else {
+                    DDPut(display_lines[top_line + i]);
+                    // Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
+                    if (line_len != 80) {
+                        DDPut("\n");
+                    }
                 }
             }
             
