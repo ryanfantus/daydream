@@ -38,6 +38,25 @@ static PyObject * sendstring(PyObject *self, PyObject *args)
 
 }
 
+static PyObject * sendstring_noparse(PyObject *self, PyObject *args)
+{
+	char *s;
+	
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	dd_sendstring_noparse(d,s);
+	return Py_BuildValue("");
+}
+
+static PyObject * sendfmt(PyObject *self, PyObject *args)
+{
+	char *s;
+	
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	return Py_BuildValue("i", dd_sendfmt(d, "%s", s));
+}
+
 static PyObject * hotkey(PyObject *self, PyObject *args)
 {
 	int fl;
@@ -419,6 +438,289 @@ static PyObject * dumpfilestofile(PyObject *self, PyObject *args)
 	return Py_BuildValue("i", i);
 }
 
+static PyObject * getlprs(PyObject *self, PyObject *args)
+{
+	struct DayDream_LRP lrp;
+	
+	if (!PyArg_ParseTuple(args, ""))
+	  return NULL;
+	dd_getlprs(d, &lrp);
+	return Py_BuildValue("(ii)", lrp.lrp_read, lrp.lrp_scan);
+}
+
+static PyObject * setlprs(PyObject *self, PyObject *args)
+{
+	struct DayDream_LRP lrp;
+	
+	if (!PyArg_ParseTuple(args, "ii", &lrp.lrp_read, &lrp.lrp_scan))
+	  return NULL;
+	dd_setlprs(d, &lrp);
+	return Py_BuildValue("");
+}
+
+static PyObject * getmprs(PyObject *self, PyObject *args)
+{
+	struct DayDream_MsgPointers mptrs;
+	
+	if (!PyArg_ParseTuple(args, ""))
+	  return NULL;
+	dd_getmprs(d, &mptrs);
+	return Py_BuildValue("(ii)", mptrs.msp_low, mptrs.msp_high);
+}
+
+static PyObject * setmprs(PyObject *self, PyObject *args)
+{
+	struct DayDream_MsgPointers mptrs;
+	
+	if (!PyArg_ParseTuple(args, "ii", &mptrs.msp_low, &mptrs.msp_high))
+	  return NULL;
+	dd_setmprs(d, &mptrs);
+	return Py_BuildValue("");
+}
+
+static PyObject * getfidounique(PyObject *self, PyObject *args)
+{
+	if (!PyArg_ParseTuple(args, ""))
+	  return NULL;
+	return Py_BuildValue("i", dd_getfidounique());
+}
+
+static PyObject * fileattach(PyObject *self, PyObject *args)
+{
+	if (!PyArg_ParseTuple(args, ""))
+	  return NULL;
+	return Py_BuildValue("i", dd_fileattach(d));
+}
+
+static PyObject * isfiletagged(PyObject *self, PyObject *args)
+{
+	char *s;
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	return Py_BuildValue("i", dd_isfiletagged(d, s));
+}
+
+static PyObject * outputmask(PyObject *self, PyObject *args)
+{
+	int mask;
+	if (!PyArg_ParseTuple(args, "i", &mask))
+	  return NULL;
+	dd_outputmask(d, mask);
+	return Py_BuildValue("");
+}
+
+static PyObject * ansi_fg(PyObject *self, PyObject *args)
+{
+	char buf[32];
+	int color;
+	if (!PyArg_ParseTuple(args, "i", &color))
+	  return NULL;
+	dd_ansi_fg(buf, color);
+	return Py_BuildValue("s", buf);
+}
+
+static PyObject * ansi_bg(PyObject *self, PyObject *args)
+{
+	char buf[32];
+	int color;
+	if (!PyArg_ParseTuple(args, "i", &color))
+	  return NULL;
+	dd_ansi_bg(buf, color);
+	return Py_BuildValue("s", buf);
+}
+
+static PyObject * parsepipes(PyObject *self, PyObject *args)
+{
+	char *s;
+	char buf[4096];
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	strncpy(buf, s, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = '\0';
+	dd_parsepipes(buf);
+	return Py_BuildValue("s", buf);
+}
+
+static PyObject * strippipes(PyObject *self, PyObject *args)
+{
+	char *s;
+	char buf[4096];
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	strncpy(buf, s, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = '\0';
+	dd_strippipes(buf);
+	return Py_BuildValue("s", buf);
+}
+
+static PyObject * stripansi(PyObject *self, PyObject *args)
+{
+	char *s;
+	char buf[4096];
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	strncpy(buf, s, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = '\0';
+	dd_stripansi(buf);
+	return Py_BuildValue("s", buf);
+}
+
+static PyObject * ansipos(PyObject *self, PyObject *args)
+{
+	int x, y;
+	if (!PyArg_ParseTuple(args, "ii", &x, &y))
+	  return NULL;
+	dd_ansipos(d, x, y);
+	return Py_BuildValue("");
+}
+
+static PyObject * clrscr(PyObject *self, PyObject *args)
+{
+	if (!PyArg_ParseTuple(args, ""))
+	  return NULL;
+	dd_clrscr(d);
+	return Py_BuildValue("");
+}
+
+static PyObject * center(PyObject *self, PyObject *args)
+{
+	char *s;
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	dd_center(d, s);
+	return Py_BuildValue("");
+}
+
+static PyObject * strlenansi(PyObject *self, PyObject *args)
+{
+	char *s;
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	return Py_BuildValue("i", dd_strlenansi(s));
+}
+
+static PyObject * stripcrlf(PyObject *self, PyObject *args)
+{
+	char *s;
+	char buf[4096];
+	if (!PyArg_ParseTuple(args, "s", &s))
+	  return NULL;
+	strncpy(buf, s, sizeof(buf) - 1);
+	buf[sizeof(buf) - 1] = '\0';
+	dd_stripcrlf(buf);
+	return Py_BuildValue("s", buf);
+}
+
+static PyObject * cursoron(PyObject *self, PyObject *args)
+{
+	if (!PyArg_ParseTuple(args, ""))
+	  return NULL;
+	dd_cursoron(d);
+	return Py_BuildValue("");
+}
+
+static PyObject * cursoroff(PyObject *self, PyObject *args)
+{
+	if (!PyArg_ParseTuple(args, ""))
+	  return NULL;
+	dd_cursoroff(d);
+	return Py_BuildValue("");
+}
+
+static PyObject * getconfdata(PyObject *self, PyObject *args)
+{
+	struct DayDream_Conference *conf;
+	if (!PyArg_ParseTuple(args, ""))
+	  return NULL;
+	conf = dd_getconfdata();
+	if (!conf)
+	  return Py_BuildValue("");
+	return Py_BuildValue("i", 1);  // Just return success for now
+}
+
+// Message library functions
+static PyObject * py_ddmsg_open_base(PyObject *self, PyObject *args)
+{
+	char *conf;
+	int msgbase_num, flags, mode;
+	if (!PyArg_ParseTuple(args, "siii", &conf, &msgbase_num, &flags, &mode))
+	  return NULL;
+	return Py_BuildValue("i", ddmsg_open_base(conf, msgbase_num, flags, mode));
+}
+
+static PyObject * py_ddmsg_close_base(PyObject *self, PyObject *args)
+{
+	int fd;
+	if (!PyArg_ParseTuple(args, "i", &fd))
+	  return NULL;
+	return Py_BuildValue("i", ddmsg_close_base(fd));
+}
+
+static PyObject * ddmsg_setptrs_py(PyObject *self, PyObject *args)
+{
+	char *conf;
+	int msgbase_num;
+	struct DayDream_MsgPointers ptrs;
+	if (!PyArg_ParseTuple(args, "siii", &conf, &msgbase_num, &ptrs.msp_low, &ptrs.msp_high))
+	  return NULL;
+	return Py_BuildValue("i", ddmsg_setptrs(conf, msgbase_num, &ptrs));
+}
+
+static PyObject * ddmsg_getptrs_py(PyObject *self, PyObject *args)
+{
+	char *conf;
+	int msgbase_num;
+	struct DayDream_MsgPointers ptrs;
+	if (!PyArg_ParseTuple(args, "si", &conf, &msgbase_num))
+	  return NULL;
+	if (ddmsg_getptrs(conf, msgbase_num, &ptrs) < 0)
+	  return Py_BuildValue("");
+	return Py_BuildValue("(ii)", ptrs.msp_low, ptrs.msp_high);
+}
+
+static PyObject * ddmsg_getfidounique_py(PyObject *self, PyObject *args)
+{
+	char *origdir;
+	if (!PyArg_ParseTuple(args, "s", &origdir))
+	  return NULL;
+	return Py_BuildValue("i", ddmsg_getfidounique(origdir));
+}
+
+static PyObject * py_ddmsg_open_msg(PyObject *self, PyObject *args)
+{
+	char *conf;
+	int msgbase_num, msgnum, flags, mode;
+	if (!PyArg_ParseTuple(args, "siiii", &conf, &msgbase_num, &msgnum, &flags, &mode))
+	  return NULL;
+	return Py_BuildValue("i", ddmsg_open_msg(conf, msgbase_num, msgnum, flags, mode));
+}
+
+static PyObject * py_ddmsg_close_msg(PyObject *self, PyObject *args)
+{
+	int fd;
+	if (!PyArg_ParseTuple(args, "i", &fd))
+	  return NULL;
+	return Py_BuildValue("i", ddmsg_close_msg(fd));
+}
+
+static PyObject * py_ddmsg_delete_msg(PyObject *self, PyObject *args)
+{
+	char *conf;
+	int msgbase_num, msgnum;
+	if (!PyArg_ParseTuple(args, "sii", &conf, &msgbase_num, &msgnum))
+	  return NULL;
+	return Py_BuildValue("i", ddmsg_delete_msg(conf, msgbase_num, msgnum));
+}
+
+static PyObject * py_ddmsg_rename_msg(PyObject *self, PyObject *args)
+{
+	char *conf;
+	int msgbase_num, old_num, new_num;
+	if (!PyArg_ParseTuple(args, "siii", &conf, &msgbase_num, &old_num, &new_num))
+	  return NULL;
+	return Py_BuildValue("i", ddmsg_rename_msg(conf, msgbase_num, old_num, new_num));
+}
+
 static PyObject * new(PyObject *self, PyObject *args)
 {
 	int i;
@@ -431,6 +733,8 @@ static PyMethodDef DDMethods[] = {
 	{"initdoor",  initdoor, 1},
 	{"print", sendstring, 1},
 	{"sendstring", sendstring, 1},
+	{"sendstring_noparse", sendstring_noparse, 1},
+	{"sendfmt", sendfmt, 1},
 	{"closedoor", closedoor ,1},
 	{"prompt", prompt, 1},
 	{"hotkey", hotkey, 1},
@@ -457,6 +761,36 @@ static PyMethodDef DDMethods[] = {
 	{"unflagfiles",unflagfiles,1},
 	{"findfilestolist",findfilestolist,1},
 	{"dumpfilestolist",dumpfilestofile,1},
+	{"getlprs", getlprs, 1},
+	{"setlprs", setlprs, 1},
+	{"getmprs", getmprs, 1},
+	{"setmprs", setmprs, 1},
+	{"getfidounique", getfidounique, 1},
+	{"fileattach", fileattach, 1},
+	{"isfiletagged", isfiletagged, 1},
+	{"outputmask", outputmask, 1},
+	{"ansi_fg", ansi_fg, 1},
+	{"ansi_bg", ansi_bg, 1},
+	{"parsepipes", parsepipes, 1},
+	{"strippipes", strippipes, 1},
+	{"stripansi", stripansi, 1},
+	{"ansipos", ansipos, 1},
+	{"clrscr", clrscr, 1},
+	{"center", center, 1},
+	{"strlenansi", strlenansi, 1},
+	{"stripcrlf", stripcrlf, 1},
+	{"cursoron", cursoron, 1},
+	{"cursoroff", cursoroff, 1},
+	{"getconfdata", getconfdata, 1},
+	{"ddmsg_open_base", py_ddmsg_open_base, 1},
+	{"ddmsg_close_base", py_ddmsg_close_base, 1},
+	{"ddmsg_setptrs", ddmsg_setptrs_py, 1},
+	{"ddmsg_getptrs", ddmsg_getptrs_py, 1},
+	{"ddmsg_getfidounique", ddmsg_getfidounique_py, 1},
+	{"ddmsg_open_msg", py_ddmsg_open_msg, 1},
+	{"ddmsg_close_msg", py_ddmsg_close_msg, 1},
+	{"ddmsg_delete_msg", py_ddmsg_delete_msg, 1},
+	{"ddmsg_rename_msg", py_ddmsg_rename_msg, 1},
 	{NULL,      NULL}        /* Sentinel */
 };
 
