@@ -1,9 +1,17 @@
-#include <python2.7/Python.h>
+#include <Python.h>
 #include <dd.h>
 #include <ddlib.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
+
+// Python 2/3 compatibility macros
+#if PY_MAJOR_VERSION >= 3
+    #define PyInt_FromLong PyLong_FromLong
+    #define PyInt_AsLong PyLong_AsLong
+    #define PyString_FromString PyUnicode_FromString
+    #define PyString_AsString PyUnicode_AsUTF8
+#endif
 
 static struct dif *d;
 static struct DayDream_MainConfig mcfg;
@@ -24,7 +32,7 @@ static PyObject * initdoor(PyObject *self, PyObject *args)
 	d=dd_initdoor(node);
 	if (d) sts=1;
 	
-	return Py_BuildValue("i", sts);
+	return PyInt_FromLong( sts);
 }
 
 static PyObject * sendstring(PyObject *self, PyObject *args)
@@ -34,8 +42,7 @@ static PyObject * sendstring(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s", &s))
 	  return NULL;
 	dd_sendstring(d,s);
-	return Py_BuildValue("");
-
+	Py_RETURN_NONE;
 }
 
 static PyObject * sendstring_noparse(PyObject *self, PyObject *args)
@@ -45,7 +52,7 @@ static PyObject * sendstring_noparse(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s", &s))
 	  return NULL;
 	dd_sendstring_noparse(d,s);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * sendfmt(PyObject *self, PyObject *args)
@@ -54,7 +61,7 @@ static PyObject * sendfmt(PyObject *self, PyObject *args)
 	
 	if (!PyArg_ParseTuple(args, "s", &s))
 	  return NULL;
-	return Py_BuildValue("i", dd_sendfmt(d, "%s", s));
+	return PyInt_FromLong(dd_sendfmt(d, "%s", s));
 }
 
 static PyObject * hotkey(PyObject *self, PyObject *args)
@@ -66,7 +73,7 @@ static PyObject * hotkey(PyObject *self, PyObject *args)
 	  return NULL;
 	foo=dd_hotkey(d,fl);
 	if ((fl & HOT_YESNO) || (fl & HOT_NOYES)) {
-		return Py_BuildValue("i",foo);
+		return PyInt_FromLong(foo);
 	} 
 	return Py_BuildValue("c",foo);
 
@@ -81,14 +88,14 @@ static PyObject * prompt(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "sii", &t,&i,&fl))
 	  return NULL;
 	strncpy(s,t,1024);
-	if (dd_prompt(d,s,i,fl)) return Py_BuildValue("s",s);
+	if (dd_prompt(d,s,i,fl)) return PyString_FromString(s);
 	return 0;
 }
 
 static PyObject * closedoor(PyObject *self, PyObject *args)
 {
 	dd_close(d);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * typefile(PyObject *self, PyObject *args)
@@ -98,7 +105,7 @@ static PyObject * typefile(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "si", &s,&fl))
 	  return NULL;
 
-	return Py_BuildValue("i",dd_typefile(d,s,fl));
+	return PyInt_FromLong(dd_typefile(d,s,fl));
 }
 
 void confstostr(int confss, char *str)
@@ -134,7 +141,7 @@ static PyObject * getvar(PyObject *self, PyObject *args)
 	  return NULL;
 	if ( (i>99 && i<109) || (i>128 && i < 131)) {
 		dd_getstrlval(d, buf, sizeof buf, i);
-		return Py_BuildValue("s",buf);
+		return PyString_FromString(buf);
 	} else if (i == 109 || (i > 112 && i < 124) || (i > 125 && i < 129)
 		   || ( i == 131) || (i == 135) || (i > 137 && i < 144)) {
 		return Py_BuildValue("i",dd_getintval(d,i));
@@ -142,7 +149,7 @@ static PyObject * getvar(PyObject *self, PyObject *args)
 		return Py_BuildValue("l",dd_getlintval(d,i));
 	} else if (i==124 || i==125) {
 		confstostr(dd_getintval(d,i),buf);
-		return Py_BuildValue("s",buf);
+		return PyString_FromString(buf);
 	} else if (i==USER_PROTOCOL) {
 		return Py_BuildValue("c",dd_getintval(d,i));
 	} else if (i==136 || i==134) {
@@ -155,31 +162,31 @@ static PyObject * getvar(PyObject *self, PyObject *args)
 		if (!co) return 0;
 		switch (i) {
 		case 100000:
-			return Py_BuildValue("s",co->CONF_NAME);
+			return PyString_FromString(co->CONF_NAME);
 			break;
 		case 100001:
-			return Py_BuildValue("s",co->CONF_PATH);
+			return PyString_FromString(co->CONF_PATH);
 			break;
 		case 100002:
-			return Py_BuildValue("i",co->CONF_FILEAREAS);
+			return PyInt_FromLong(co->CONF_FILEAREAS);
 			break;
 		case 100003:
-			return Py_BuildValue("i",co->CONF_UPLOADAREA);
+			return PyInt_FromLong(co->CONF_UPLOADAREA);
 			break;
 		case 100004:
-			return Py_BuildValue("i",co->CONF_MSGBASES);
+			return PyInt_FromLong(co->CONF_MSGBASES);
 			break;
 		case 100005:
-			return Py_BuildValue("i",co->CONF_COMMENTAREA);
+			return PyInt_FromLong(co->CONF_COMMENTAREA);
 			break;
 		case 100006:
-			return Py_BuildValue("s",co->CONF_ULPATH);
+			return PyString_FromString(co->CONF_ULPATH);
 			break;
 		case 100007:
-			return Py_BuildValue("s",co->CONF_NEWSCANAREAS);
+			return PyString_FromString(co->CONF_NEWSCANAREAS);
 			break;
 		case 100008:
-			return Py_BuildValue("s",co->CONF_PASSWD);
+			return PyString_FromString(co->CONF_PASSWD);
 			break;
 		default:
 			return 0;
@@ -190,22 +197,22 @@ static PyObject * getvar(PyObject *self, PyObject *args)
 		if (!ba) return 0;
 		switch (i) {
 		case 100100:
-			return Py_BuildValue("i",ba->MSGBASE_MSGLIMIT);
+			return PyInt_FromLong(ba->MSGBASE_MSGLIMIT);
 			break;
 		case 100101:
-			return Py_BuildValue("s",ba->MSGBASE_NAME);
+			return PyString_FromString(ba->MSGBASE_NAME);
 			break;
 		case 100102:
-			return Py_BuildValue("s",ba->MSGBASE_FN_TAG);
+			return PyString_FromString(ba->MSGBASE_FN_TAG);
 			break;
 		case 100103:
-			return Py_BuildValue("s",ba->MSGBASE_FN_ORIGIN);
+			return PyString_FromString(ba->MSGBASE_FN_ORIGIN);
 			break;
 		case 100104:
 			sprintf(buf,"%d:%d/%d.%d",ba->MSGBASE_FN_ZONE,
 				ba->MSGBASE_FN_NET, ba->MSGBASE_FN_NODE,
 				ba->MSGBASE_FN_POINT);
-			return Py_BuildValue("s",buf);
+			return PyString_FromString(buf);
 			break;
 		default:
 			return 0;
@@ -240,7 +247,7 @@ static PyObject * setvar(PyObject *self, PyObject *args)
 	} else {
 		return 0;
 	}
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 		
 
 }
@@ -252,7 +259,7 @@ static PyObject * flagsingle(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "si", &s,&i))
 	  return NULL;
 	
-	return Py_BuildValue("i",dd_flagsingle(d,s,i));
+	return PyInt_FromLong(dd_flagsingle(d,s,i));
 
 }
 
@@ -287,7 +294,7 @@ static PyObject * writelog(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s", &s))
 	  return NULL;
 	dd_writelog(d,s);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 } 
 
 static PyObject * changestatus(PyObject *self, PyObject *args)
@@ -296,7 +303,7 @@ static PyObject * changestatus(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s", &s))
 	  return NULL;
 	dd_changestatus(d,s);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * dpause(PyObject *self, PyObject *args)
@@ -304,7 +311,7 @@ static PyObject * dpause(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, ""))
 	  return NULL;
 	dd_pause(d);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * joinconf(PyObject *self, PyObject *args)
@@ -377,7 +384,7 @@ static PyObject * sendfiles(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s",&s))
 	  return NULL;
 	dd_sendfiles(d,s);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * getfiles(PyObject *self, PyObject *args)
@@ -386,7 +393,7 @@ static PyObject * getfiles(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s",&s))
 	  return NULL;
 	dd_sendfiles(d,s);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * unflagfiles(PyObject *self, PyObject *args)
@@ -435,7 +442,7 @@ static PyObject * dumpfilestofile(PyObject *self, PyObject *args)
 	
 	unlink(tmpf);
 	
-	return Py_BuildValue("i", i);
+	return PyInt_FromLong( i);
 }
 
 static PyObject * getlprs(PyObject *self, PyObject *args)
@@ -455,7 +462,7 @@ static PyObject * setlprs(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "ii", &lrp.lrp_read, &lrp.lrp_scan))
 	  return NULL;
 	dd_setlprs(d, &lrp);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * getmprs(PyObject *self, PyObject *args)
@@ -475,7 +482,7 @@ static PyObject * setmprs(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "ii", &mptrs.msp_low, &mptrs.msp_high))
 	  return NULL;
 	dd_setmprs(d, &mptrs);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * getfidounique(PyObject *self, PyObject *args)
@@ -500,14 +507,16 @@ static PyObject * isfiletagged(PyObject *self, PyObject *args)
 	return Py_BuildValue("i", dd_isfiletagged(d, s));
 }
 
+/* dd_outputmask not implemented in libdd
 static PyObject * outputmask(PyObject *self, PyObject *args)
 {
 	int mask;
 	if (!PyArg_ParseTuple(args, "i", &mask))
 	  return NULL;
 	dd_outputmask(d, mask);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
+*/
 
 static PyObject * ansi_fg(PyObject *self, PyObject *args)
 {
@@ -516,7 +525,7 @@ static PyObject * ansi_fg(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "i", &color))
 	  return NULL;
 	dd_ansi_fg(buf, color);
-	return Py_BuildValue("s", buf);
+	return PyString_FromString( buf);
 }
 
 static PyObject * ansi_bg(PyObject *self, PyObject *args)
@@ -526,7 +535,7 @@ static PyObject * ansi_bg(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "i", &color))
 	  return NULL;
 	dd_ansi_bg(buf, color);
-	return Py_BuildValue("s", buf);
+	return PyString_FromString( buf);
 }
 
 static PyObject * parsepipes(PyObject *self, PyObject *args)
@@ -538,7 +547,7 @@ static PyObject * parsepipes(PyObject *self, PyObject *args)
 	strncpy(buf, s, sizeof(buf) - 1);
 	buf[sizeof(buf) - 1] = '\0';
 	dd_parsepipes(buf);
-	return Py_BuildValue("s", buf);
+	return PyString_FromString( buf);
 }
 
 static PyObject * strippipes(PyObject *self, PyObject *args)
@@ -550,7 +559,7 @@ static PyObject * strippipes(PyObject *self, PyObject *args)
 	strncpy(buf, s, sizeof(buf) - 1);
 	buf[sizeof(buf) - 1] = '\0';
 	dd_strippipes(buf);
-	return Py_BuildValue("s", buf);
+	return PyString_FromString( buf);
 }
 
 static PyObject * stripansi(PyObject *self, PyObject *args)
@@ -562,7 +571,7 @@ static PyObject * stripansi(PyObject *self, PyObject *args)
 	strncpy(buf, s, sizeof(buf) - 1);
 	buf[sizeof(buf) - 1] = '\0';
 	dd_stripansi(buf);
-	return Py_BuildValue("s", buf);
+	return PyString_FromString( buf);
 }
 
 static PyObject * ansipos(PyObject *self, PyObject *args)
@@ -571,7 +580,7 @@ static PyObject * ansipos(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "ii", &x, &y))
 	  return NULL;
 	dd_ansipos(d, x, y);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * clrscr(PyObject *self, PyObject *args)
@@ -579,7 +588,7 @@ static PyObject * clrscr(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, ""))
 	  return NULL;
 	dd_clrscr(d);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * center(PyObject *self, PyObject *args)
@@ -588,7 +597,7 @@ static PyObject * center(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "s", &s))
 	  return NULL;
 	dd_center(d, s);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * strlenansi(PyObject *self, PyObject *args)
@@ -608,7 +617,7 @@ static PyObject * stripcrlf(PyObject *self, PyObject *args)
 	strncpy(buf, s, sizeof(buf) - 1);
 	buf[sizeof(buf) - 1] = '\0';
 	dd_stripcrlf(buf);
-	return Py_BuildValue("s", buf);
+	return PyString_FromString( buf);
 }
 
 static PyObject * cursoron(PyObject *self, PyObject *args)
@@ -616,7 +625,7 @@ static PyObject * cursoron(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, ""))
 	  return NULL;
 	dd_cursoron(d);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * cursoroff(PyObject *self, PyObject *args)
@@ -624,7 +633,7 @@ static PyObject * cursoroff(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, ""))
 	  return NULL;
 	dd_cursoroff(d);
-	return Py_BuildValue("");
+	Py_RETURN_NONE;
 }
 
 static PyObject * getconfdata(PyObject *self, PyObject *args)
@@ -635,7 +644,7 @@ static PyObject * getconfdata(PyObject *self, PyObject *args)
 	conf = dd_getconfdata();
 	if (!conf)
 	  return Py_BuildValue("");
-	return Py_BuildValue("i", 1);  // Just return success for now
+	return PyInt_FromLong( 1);  // Just return success for now
 }
 
 // Message library functions
@@ -726,7 +735,7 @@ static PyObject * new(PyObject *self, PyObject *args)
 	int i;
 	if (!PyArg_ParseTuple(args, "i", &i))
 	  return NULL;
-	return Py_BuildValue("i",i);
+	return PyInt_FromLong(i);
 
 }
 static PyMethodDef DDMethods[] = {
@@ -768,7 +777,7 @@ static PyMethodDef DDMethods[] = {
 	{"getfidounique", getfidounique, 1},
 	{"fileattach", fileattach, 1},
 	{"isfiletagged", isfiletagged, 1},
-	{"outputmask", outputmask, 1},
+	/* {"outputmask", outputmask, 1}, */  /* Not implemented in libdd */
 	{"ansi_fg", ansi_fg, 1},
 	{"ansi_bg", ansi_bg, 1},
 	{"parsepipes", parsepipes, 1},
@@ -794,14 +803,27 @@ static PyMethodDef DDMethods[] = {
 	{NULL,      NULL}        /* Sentinel */
 };
 
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef ddpmodule = {
+	PyModuleDef_HEAD_INIT,
+	"ddp",           /* name of module */
+	NULL,            /* module documentation, may be NULL */
+	-1,              /* size of per-interpreter state of the module,
+	                    or -1 if the module keeps state in global variables. */
+	DDMethods
+};
+
+PyMODINIT_FUNC PyInit_ddp(void)
+{
+	return PyModule_Create(&ddpmodule);
+}
+#else
 PyMODINIT_FUNC initddp(void)
 {
 	PyObject* m;
-
 	m = Py_InitModule("ddp", DDMethods);
-	
-	//return m;
 }
+#endif
 
 
 /*
