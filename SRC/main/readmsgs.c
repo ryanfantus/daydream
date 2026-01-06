@@ -10,6 +10,7 @@
 #include <daydream.h>
 #include <ddcommon.h>
 #include <utility.h>
+#include <ddlib.h>
 
 /* FIXME! what do all these things store in case the next caller dials? */
 static int show_klugdes = 0;
@@ -1018,9 +1019,10 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
     for (int i = 0; i < line_count; i++) {
         char *line = lines[i];
         int line_len = strlen(line);
+        int visible_len = dd_strlenansi(line);
         
         // DEBUG: Log line length to help diagnose
-        // ddprintf("[DEBUG: Line %d, len=%d]\n", i, line_len);
+        // ddprintf("[DEBUG: Line %d, len=%d, visible=%d]\n", i, line_len, visible_len);
         
         // Skip kludge lines for FidoNet messages
         if (*line == 1 || !strncmp("AREA:", line, 5) || 
@@ -1034,7 +1036,7 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
         }
         
         // For lines that don't need wrapping, just copy and add ONE newline
-        if (line_len <= wrap_length) {
+        if (visible_len <= wrap_length) {
             // Ensure we have enough space
             if (result_len + line_len + 2 > total_capacity) {
                 total_capacity *= 2;
@@ -1052,38 +1054,75 @@ static char *wrap_lines(char **lines, int line_count, int wrap_length) {
             continue;
         }
         
-        // For lines that need wrapping, process them in chunks
-        int pos = 0;
+        // For lines that need wrapping, process them based on VISIBLE characters
+        int pos = 0;  // Actual character position in string
+        int visible_pos = 0;  // Visible character position on screen
+        
         while (pos < line_len) {
-            int remaining = line_len - pos;
-            int chunk_len = (remaining > wrap_length) ? wrap_length : remaining;
+            int chunk_start = pos;
+            int chunk_visible = 0;
+            int chunk_actual_len = 0;
             
-            // Find last space within chunk for word boundary
-            if (chunk_len == wrap_length && pos + chunk_len < line_len) {
-                int last_space = chunk_len;
-                while (last_space > 0 && line[pos + last_space] != ' ') {
-                    last_space--;
+            // Find how many actual characters we need to get wrap_length visible characters
+            while (pos < line_len && chunk_visible < wrap_length) {
+                // Check if we're at the start of a pipe code (|XX)
+                if (line[pos] == '|' && pos + 2 < line_len && 
+                    isdigit(line[pos+1]) && isdigit(line[pos+2])) {
+                    // Skip pipe code (doesn't add to visible length)
+                    pos += 3;
+                    chunk_actual_len += 3;
+                } 
+                // Check if we're at the start of an ANSI escape sequence
+                else if (line[pos] == '\033' && pos + 1 < line_len && line[pos+1] == '[') {
+                    // Skip ANSI sequence (doesn't add to visible length)
+                    pos += 2;
+                    chunk_actual_len += 2;
+                    while (pos < line_len && !(line[pos] >= 'A' && line[pos] <= 'Z') && 
+                           !(line[pos] >= 'a' && line[pos] <= 'z')) {
+                        pos++;
+                        chunk_actual_len++;
+                    }
+                    if (pos < line_len) {
+                        pos++;
+                        chunk_actual_len++;
+                    }
+                } else {
+                    // Regular character - adds to visible length
+                    pos++;
+                    chunk_actual_len++;
+                    chunk_visible++;
                 }
-                if (last_space > 0) {
-                    chunk_len = last_space;
+            }
+            
+            // Find last space for word boundary if we're not at end of line
+            if (pos < line_len && chunk_visible == wrap_length) {
+                int test_pos = pos - 1;
+                int backtrack = 0;
+                while (test_pos > chunk_start && line[test_pos] != ' ' && backtrack < 20) {
+                    test_pos--;
+                    backtrack++;
+                }
+                if (line[test_pos] == ' ' && test_pos > chunk_start) {
+                    chunk_actual_len -= backtrack;
+                    pos = test_pos;
                 }
             }
             
             // Ensure we have enough space in result buffer
-            if (result_len + chunk_len + 2 > total_capacity) {
+            if (result_len + chunk_actual_len + 2 > total_capacity) {
                 total_capacity *= 2;
                 result = (char *) realloc(result, total_capacity);
             }
             
             // Copy chunk to result
-            strncat(result, line + pos, chunk_len);
-            result_len += chunk_len;
+            strncat(result, line + chunk_start, chunk_actual_len);
+            result_len += chunk_actual_len;
             
             // Add newline after each chunk
             strcat(result, "\n");
             result_len++;
             
-            pos += chunk_len;
+            visible_pos += chunk_visible;
             
             // Skip space at beginning of next chunk if we're mid-line
             if (pos < line_len && line[pos] == ' ') {
@@ -1189,14 +1228,14 @@ static void display_scrollable_message(char **display_lines, int total_lines, in
     // If message fits on one screen, just display it and return
     if (total_lines <= max_lines) {
         for (int i = 0; i < total_lines; i++) {
-            int line_len = strlen(display_lines[i]);
-            if (line_len == 0) {
+            int visible_len = dd_strlenansi(display_lines[i]);
+            if (visible_len == 0) {
                 // Empty line - just output newline
                 DDPut("\n");
             } else {
                 DDPut(display_lines[i]);
                 // Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
-                if (line_len != 80) {
+                if (visible_len != 80) {
                     DDPut("\n");
                 }
             }
@@ -1206,14 +1245,14 @@ static void display_scrollable_message(char **display_lines, int total_lines, in
     
     // Initial display
     for (int i = 0; i < max_lines && i < total_lines; i++) {
-        int line_len = strlen(display_lines[i]);
-        if (line_len == 0) {
+        int visible_len = dd_strlenansi(display_lines[i]);
+        if (visible_len == 0) {
             // Empty line - just output newline
             DDPut("\n");
         } else {
             DDPut(display_lines[i]);
             // Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
-            if (line_len != 80) {
+            if (visible_len != 80) {
                 DDPut("\n");
             }
         }
@@ -1454,14 +1493,14 @@ static void display_scrollable_message(char **display_lines, int total_lines, in
             // Redraw all lines in the viewport
             for (int i = 0; i < lines_to_show; i++) {
                 DDPut("\e[K");  // Clear current line
-                int line_len = strlen(display_lines[top_line + i]);
-                if (line_len == 0) {
+                int visible_len = dd_strlenansi(display_lines[top_line + i]);
+                if (visible_len == 0) {
                     // Empty line - just output newline
                     DDPut("\n");
                 } else {
                     DDPut(display_lines[top_line + i]);
                     // Only output newline if line is NOT exactly 80 chars (terminal auto-wraps at 80)
-                    if (line_len != 80) {
+                    if (visible_len != 80) {
                         DDPut("\n");
                     }
                 }
