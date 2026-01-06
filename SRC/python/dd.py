@@ -1,4 +1,10 @@
-from ddp import *
+import sys
+
+# Python 2 uses ddpmodule.so, Python 3 uses ddp.so
+if sys.version_info[0] == 2:
+    from ddpmodule import *
+else:
+    from ddp import *
 
 PROMPT_SECRET=1
 PROMPT_NOCRLF=2
