@@ -37,6 +37,7 @@ static void word_wrap(const char *, char *, int, int *);
 static bool contains_ansi_codes(const char *);
 static char *read_entire_message(FILE *msgfd, long *total_size);
 static char **split_into_lines(const char *buffer, int *line_count);
+static char **process_flowed_format(char **lines, int line_count, int *out_line_count);
 static char *wrap_lines(char **lines, int line_count, int wrap_length);
 static void free_line_array(char **lines, int line_count);
 static void display_scrollable_message(char **display_lines, int total_lines, int screenl);
@@ -401,8 +402,19 @@ static int showmsg(int showme, int mode)
 			goto cleanup_msg;
 		}
 		
+		// Step 2.5: Process format=flowed if applicable
+		char **processed_lines;
+		int processed_line_count;
+		int needs_free_processed = 0;
+		
+		processed_lines = process_flowed_format(lines, line_count, &processed_line_count);
+		if (processed_lines != lines) {
+			// Flowed format was processed, we got new line array
+			needs_free_processed = 1;
+		}
+		
 		// Step 3: Wrap the lines
-		wrapped_message = wrap_lines(lines, line_count, 80);
+		wrapped_message = wrap_lines(processed_lines, processed_line_count, 80);
 		if (!wrapped_message) {
 			free_line_array(lines, line_count);
 			free(message_buffer);
@@ -410,15 +422,15 @@ static int showmsg(int showme, int mode)
 			goto cleanup_msg;
 		}
 		
-		// Step 4: Prepare display lines from wrapped message
-		display_lines = prepare_display_lines(wrapped_message, &total_display_lines);
-		if (!display_lines) {
-			free(wrapped_message);
-			free_line_array(lines, line_count);
-			free(message_buffer);
-			DDPut("Error preparing display.\n");
-			goto cleanup_msg;
-		}
+        // Step 4: Prepare display lines from wrapped message
+        display_lines = prepare_display_lines(wrapped_message, &total_display_lines);
+        if (!display_lines) {
+            free(wrapped_message);
+            free_line_array(lines, line_count);
+            free(message_buffer);
+            DDPut("Error preparing display.\n");
+            goto cleanup_msg;
+        }
 		
 		// Step 5: Display with scrollable interface
 		display_scrollable_message(display_lines, total_display_lines, screenl);
@@ -426,6 +438,9 @@ static int showmsg(int showme, int mode)
 		// Cleanup
 		free_line_array(display_lines, total_display_lines);
 		free(wrapped_message);
+		if (needs_free_processed) {
+			free_line_array(processed_lines, processed_line_count);
+		}
 		free_line_array(lines, line_count);
 		free(message_buffer);
 		
@@ -1007,6 +1022,262 @@ static char **split_into_lines(const char *buffer, int *line_count) {
     
     *line_count = count;
     return lines;
+}
+
+// Helper: Check if a string contains only formatting codes and whitespace (no visible text)
+static int is_only_formatting(const char *str) {
+    if (!str || !*str) return 1; // Empty string
+    
+    while (*str) {
+        // Skip whitespace
+        if (*str == ' ' || *str == '\t' || *str == '\r') {
+            str++;
+            continue;
+        }
+        
+        // Skip pipe codes (|XX where XX are digits)
+        if (*str == '|' && isdigit(*(str+1)) && isdigit(*(str+2))) {
+            str += 3;
+            continue;
+        }
+        
+        // Skip ANSI escape sequences (\e[...m)
+        if (*str == '\033' && *(str+1) == '[') {
+            str += 2;
+            while (*str && !((*str >= 'A' && *str <= 'Z') || (*str >= 'a' && *str <= 'z'))) {
+                str++;
+            }
+            if (*str) str++; // Skip the final letter
+            continue;
+        }
+        
+        // Found a visible character
+        return 0;
+    }
+    
+    return 1; // Only formatting codes found
+}
+
+// Step 2.5: Process format=flowed messages (RFC 3676)
+static char **process_flowed_format(char **lines, int line_count, int *out_line_count) {
+    // First, check if this message uses format=flowed
+    int is_flowed = 0;
+    for (int i = 0; i < line_count && i < 20; i++) {
+        // Check for FORMAT: flowed or FORMAT:flowed (with SOH prefix)
+        char *line = lines[i];
+        if (*line == 1) line++; // Skip SOH character
+        if (!strncmp("FORMAT: flowed", line, 14) || 
+            !strncmp("FORMAT:flowed", line, 13)) {
+            is_flowed = 1;
+            break;
+        }
+    }
+    
+    if (!is_flowed) {
+        // Not a flowed message, return original lines
+        *out_line_count = line_count;
+        return lines;
+    }
+    
+    // Process flowed format
+    int capacity = line_count;
+    char **result = (char **) xmalloc(capacity * sizeof(char *));
+    int result_count = 0;
+    
+    int i = 0;
+    while (i < line_count) {
+        char *line = lines[i];
+        int line_len = strlen(line);
+        
+        // Skip kludge lines (they're not part of the body)
+        if (*line == 1 || !strncmp("AREA:", line, 5) || 
+            !strncmp("SEEN-BY:", line, 8) || !strncmp("PATH:", line, 5)) {
+            i++;
+            continue;
+        }
+        
+        // Count quote depth (number of '>' characters at start)
+        int quote_depth = 0;
+        int pos = 0;
+        while (pos < line_len && (line[pos] == '>' || line[pos] == ' ')) {
+            if (line[pos] == '>') quote_depth++;
+            pos++;
+        }
+        
+        // Remove space-stuffing (leading space after quotes)
+        const char *text_start = line;
+        if (pos < line_len && pos > 0 && line[pos-1] == ' ') {
+            text_start = line; // Keep as-is for now
+        }
+        
+        // Check if line is empty
+        if (line_len == 0 || (pos >= line_len)) {
+            // Empty line = paragraph break, always include it
+            if (result_count >= capacity) {
+                capacity *= 2;
+                result = (char **) realloc(result, capacity * sizeof(char *));
+            }
+            result[result_count] = strdup(line);
+            result_count++;
+            i++;
+            continue;
+        }
+        
+        // Build a paragraph by joining flowed lines
+        long para_capacity = line_len + 1;
+        char *paragraph = (char *) xmalloc(para_capacity);
+        strcpy(paragraph, line);
+        int para_len = line_len;
+        i++;
+        
+        // Join lines that end with a space (soft break)
+        while (i < line_count && para_len > 0 && paragraph[para_len-1] == ' ') {
+            char *next_line = lines[i];
+            int next_len = strlen(next_line);
+            
+            // Stop if next line is kludge
+            if (*next_line == 1 || !strncmp("AREA:", next_line, 5) || 
+                !strncmp("SEEN-BY:", next_line, 8) || !strncmp("PATH:", next_line, 5)) {
+                break;
+            }
+            
+            // Stop if next line is empty (paragraph break)
+            if (next_len == 0) {
+                break;
+            }
+            
+            // Check quote depth of next line
+            int next_quote_depth = 0;
+            int next_pos = 0;
+            while (next_pos < next_len && (next_line[next_pos] == '>' || next_line[next_pos] == ' ')) {
+                if (next_line[next_pos] == '>') next_quote_depth++;
+                next_pos++;
+            }
+            
+            // Stop if quote depth changes
+            if (next_quote_depth != quote_depth) {
+                break;
+            }
+            
+            // Remove the trailing space from current paragraph
+            paragraph[para_len-1] = '\0';
+            para_len--;
+            
+            // Append next line
+            if (para_len + next_len + 2 > para_capacity) {
+                para_capacity = para_len + next_len + 100;
+                paragraph = (char *) realloc(paragraph, para_capacity);
+            }
+            
+            strcat(paragraph, " ");
+            strcat(paragraph, next_line);
+            para_len += 1 + next_len;
+            i++;
+        }
+        
+        // Add the completed paragraph to results
+        if (result_count >= capacity) {
+            capacity *= 2;
+            result = (char **) realloc(result, capacity * sizeof(char *));
+        }
+        result[result_count] = paragraph;
+        result_count++;
+    }
+    
+    // Post-process: Remove empty lines between quoted text at same quote level
+    // and collapse consecutive empty lines
+    int final_capacity = result_count;
+    char **final_result = (char **) xmalloc(final_capacity * sizeof(char *));
+    int final_count = 0;
+    int prev_was_empty = 0;
+    
+    for (int i = 0; i < result_count; i++) {
+        // Check if line is empty based on VISIBLE content (not raw length)
+        // Lines with only ANSI/pipe codes should be treated as empty
+        int is_empty = is_only_formatting(result[i]);
+        
+        // Skip this line if both current and previous were empty
+        if (is_empty && prev_was_empty) {
+            free(result[i]); // Free the skipped line
+            continue;
+        }
+        
+        // Special case: Skip empty lines in certain contexts
+        if (is_empty && i > 0 && i < result_count - 1) {
+            char *prev = result[i-1];
+            char *next = result[i+1];
+            int skip_this_empty = 0;
+            
+            // Case 1: Empty lines between quoted text with same prefix
+            // Look for patterns like " Sh>>", " pa>", " >", etc.
+            int prev_is_quote = (strchr(prev, '>') != NULL);
+            int next_is_quote = (strchr(next, '>') != NULL);
+            
+            if (prev_is_quote && next_is_quote) {
+                // Extract quote prefix from previous line (text before '>>')
+                char prev_prefix[20] = {0};
+                char *prev_gt = strstr(prev, ">>");
+                if (prev_gt == NULL) prev_gt = strchr(prev, '>');
+                if (prev_gt != NULL) {
+                    int prefix_len = (prev_gt - prev) + 2; // Include '>>' or '>'
+                    if (prefix_len > 0 && prefix_len < 20) {
+                        strncpy(prev_prefix, prev, prefix_len);
+                        prev_prefix[prefix_len] = '\0';
+                    }
+                }
+                
+                // Extract quote prefix from next line
+                char next_prefix[20] = {0};
+                char *next_gt = strstr(next, ">>");
+                if (next_gt == NULL) next_gt = strchr(next, '>');
+                if (next_gt != NULL) {
+                    int prefix_len = (next_gt - next) + 2; // Include '>>' or '>'
+                    if (prefix_len > 0 && prefix_len < 20) {
+                        strncpy(next_prefix, next, prefix_len);
+                        next_prefix[prefix_len] = '\0';
+                    }
+                }
+                
+                // If both lines have same quote prefix, skip the empty line
+                if (strlen(prev_prefix) > 0 && strcmp(prev_prefix, next_prefix) == 0) {
+                    skip_this_empty = 1;
+                }
+            }
+            
+            // Case 2: Empty lines between ASCII art / formatted text
+            // Lines that start with pipe codes (|XX) or have lots of ANSI/box drawing chars
+            int prev_has_pipes = (prev[0] == '|' && strlen(prev) > 2);
+            int next_has_pipes = (next[0] == '|' && strlen(next) > 2);
+            
+            // Also check for box drawing characters (UTF-8 or CP437)
+            int prev_has_boxdraw = (strstr(prev, "┌") || strstr(prev, "─") || strstr(prev, "┐") ||
+                                     strstr(prev, "│") || strstr(prev, "└") || strstr(prev, "┘") ||
+                                     strstr(prev, "█") || strstr(prev, "▄"));
+            int next_has_boxdraw = (strstr(next, "┌") || strstr(next, "─") || strstr(next, "┐") ||
+                                     strstr(next, "│") || strstr(next, "└") || strstr(next, "┘") ||
+                                     strstr(next, "█") || strstr(next, "▄"));
+            
+            // If both lines are ASCII art, skip the empty line between them
+            if ((prev_has_pipes && next_has_pipes) || 
+                (prev_has_boxdraw && next_has_boxdraw)) {
+                skip_this_empty = 1;
+            }
+            
+            if (skip_this_empty) {
+                free(result[i]);
+                continue;
+            }
+        }
+        
+        final_result[final_count] = result[i];
+        final_count++;
+        prev_was_empty = is_empty;
+    }
+    
+    free(result); // Free the array (but not the strings, they're in final_result)
+    
+    *out_line_count = final_count;
+    return final_result;
 }
 
 // Step 3: Wrap the lines
