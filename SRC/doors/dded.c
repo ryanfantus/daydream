@@ -704,9 +704,17 @@ static int quote_modal(void)
 	dd_sendstring(d, "\033[2J\033[H");
 	dd_sendstring(d, "\033[0;44;37m--- Quote Message Lines ---\033[K\n\033[0m");
 	
-	// Try to open the original message file first
-	snprintf(quotefile, sizeof(quotefile), "%s/daydream%d.full.msg", DDTMP, node);
-	if (!(qfd = fopen(quotefile, "r"))) {
+	// Try to open daydream%d.mtm first (numbered quote file from askqlines format)
+	snprintf(quotefile, sizeof(quotefile), "%s/daydream%d.mtm", DDTMP, node);
+	qfd = fopen(quotefile, "r");
+	
+	// If .mtm doesn't exist, try .full.msg as fallback
+	if (!qfd) {
+		snprintf(quotefile, sizeof(quotefile), "%s/daydream%d.full.msg", DDTMP, node);
+		qfd = fopen(quotefile, "r");
+	}
+	
+	if (!qfd) {
 		dd_sendstring(d, "\nNo message available to quote.\n\nPress any key to continue...");
 		dd_hotkey(d, 0);
 		return 1; // Return 1 to indicate redraw needed
@@ -719,80 +727,58 @@ static int quote_modal(void)
 		lcount = dd_getintval(d, USER_SCREENLENGTH) - 3; // Leave room for header and prompt
 		outp = 1;
 
-		// Display the message with line numbers (skip kludge lines)
-		while (fgets(input, sizeof(input), qfd)) {
-			// Remove trailing newlines
-			int len = strlen(input);
-			while (len > 0 && (input[len-1] == '\n' || input[len-1] == '\r')) {
-				input[len-1] = '\0';
-				len--;
-			}
-			
-			// Skip FidoNet kludge lines (similar to replymsg.c processing)
-			if (*input == 1 || !strncmp("AREA:", input, 5) || 
-			    !strncmp("SEEN-BY:", input, 8)) {
-				continue;
-			}
-			
-			// Handle @ character replacement for kludge lines
-			if (*input == 1) {
-				*input = '@';
-			}
-			
+		// Display the message with line numbers
+		// Use fgets with 78 buffer size to match askqlines() consistency
+		while (fgets(input, 78, qfd)) {
 			ql++;
 			if (outp) {
-				snprintf(qbuffer, sizeof(qbuffer), "%3d: %s\n", ql, input);
+				// Match askqlines() format exactly
+				snprintf(qbuffer, sizeof(qbuffer), "%3d: %s", ql, input);
 				dd_sendstring(d, qbuffer);
 				lcount--;
 			}
-			if (lcount <= 0) {
-				dd_sendstring(d, "\033[0;33m-- More -- (N)o more, (C)ontinue, or any key for next page: \033[0m");
+			if (lcount == 0) {
+				dd_sendstring(d, "\033[0;33m-- More --\033[0m");
 				key = dd_hotkey(d, 0);
-				dd_sendstring(d, "\r                                                                \r");
+				dd_sendstring(d, "\r                                                         \r");
 				if (key == 'N' || key == 'n') {
 					outp = 0;
 					lcount = -1;
 				} else if (key == 'C' || key == 'c') {
 					lcount = -1;
 				} else {
-					lcount = dd_getintval(d, USER_SCREENLENGTH) - 3;
+					lcount = dd_getintval(d, USER_SCREENLENGTH) - 1;
 				}
 			}
 		}
 		
-	// Show prompt for line selection
-	snprintf(qbuffer, sizeof(qbuffer), "\n\033[0;36mTotal lines: %d\nEnter line range (1-%d), L)ist again, * for all, or ENTER to cancel: \033[0m", ql, ql);
-	dd_sendstring(d, qbuffer);
-	
-	// Clear buffer before getting new input to prevent stale values
-	prompt_buf[0] = '\0';
-	
-	// Get user input
-	if (!dd_prompt(d, prompt_buf, sizeof(prompt_buf), 0)) {
+		// Show prompt for line selection - match askqlines() format
+		snprintf(qbuffer, sizeof(qbuffer), "Quote lines (1-%d), * for all, or L to list again: ", ql);
+		dd_sendstring(d, qbuffer);
+		
+		// Clear buffer before getting new input to prevent stale values
+		prompt_buf[0] = '\0';
+		
+		// Get user input
+		if (!dd_prompt(d, prompt_buf, 3, 0)) {
 			fclose(qfd);
 			return 1; // User cancelled
 		}
 		
 		if (!strcasecmp(prompt_buf, "l")) {
-			dd_sendstring(d, "\033[2J\033[H");
-			dd_sendstring(d, "\033[0;44;37m--- Quote Message Lines ---\033[K\n\033[0m");
+			dd_sendstring(d, "\n\n");
 			fseek(qfd, 0, SEEK_SET);
-		} else if ((!strcasecmp(prompt_buf, "*")) || strlen(prompt_buf) == 0) {
-			if (strlen(prompt_buf) == 0) {
-				fclose(qfd);
-				return 1; // User cancelled
-			}
+		} else if ((!strcasecmp(prompt_buf, "*")) || *prompt_buf == 0) {
 			startn = 1;
 			endn = ql;
 			break;
-	} else if ((startn = atoi(prompt_buf))) {
-		// Clear the buffer before asking for ending line number
-		prompt_buf[0] = '\0';
-		dd_sendstring(d, "\033[0;36mEnter ending line number: \033[0m");
-		if (!dd_prompt(d, prompt_buf, sizeof(prompt_buf), 0)) {
-			fclose(qfd);
-			return 1;
-		}
+		} else if ((startn = atoi(prompt_buf))) {
+			dd_sendstring(d, "To: ");
+			prompt_buf[0] = 0;
+			if (!dd_prompt(d, prompt_buf, 3, 0)) {
+				fclose(qfd);
+				return 1;
+			}
 			if ((endn = atoi(prompt_buf))) {
 				break;
 			} else {
@@ -813,31 +799,19 @@ static int quote_modal(void)
 		return 1;
 	}
 
-	// Extract selected lines
+	// Extract selected lines - use 78 char buffer to match display
 	fseek(qfd, 0, SEEK_SET);
 	line = 1;
 	selected_quotes[0] = '\0';
 	
-	while (fgets(input, sizeof(input), qfd)) {
-		// Remove trailing newlines
-		int len = strlen(input);
-		while (len > 0 && (input[len-1] == '\n' || input[len-1] == '\r')) {
-			input[len-1] = '\0';
-			len--;
-		}
-		
-		// Skip FidoNet kludge lines (same filtering as display)
-		if (*input == 1 || !strncmp("AREA:", input, 5) || 
-		    !strncmp("SEEN-BY:", input, 8)) {
-			continue;
-		}
-		
-		// Handle @ character replacement for kludge lines
-		if (*input == 1) {
-			*input = '@';
-		}
-		
+	while (fgets(input, 78, qfd)) {
 		if (startn <= line && endn >= line) {
+			// Remove trailing newline if present
+			int len = strlen(input);
+			if (len > 0 && input[len-1] == '\n') {
+				input[len-1] = '\0';
+			}
+			
 			// Add to selected quotes buffer
 			if (strlen(selected_quotes) + strlen(input) + 2 < sizeof(selected_quotes)) {
 				if (strlen(selected_quotes) > 0) {

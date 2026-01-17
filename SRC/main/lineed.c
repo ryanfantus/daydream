@@ -8,6 +8,7 @@
 #include <ddcommon.h>
 
 static int quote(char *, size_t) __attr_bounded__ (__buffer__, 1, 2);
+static int quote_interactive(int, char *, size_t);
 static int delete_lines(int, char *);
 
 char wrapbuf[80];
@@ -116,12 +117,17 @@ int lineed(char *buffer, size_t bufsize, int mode, struct DayDream_Message *msg)
 
 			} else if (!strcasecmp(lbuf, "s")) {
 				return row - 1;
-			} else if (!strcasecmp(lbuf, "q")) {
-				if (!mode) {
-					DDPut(sd[lereperrorstr]);
+		} else if (!strcasecmp(lbuf, "q")) {
+			if (!mode) {
+				DDPut(sd[lereperrorstr]);
+			} else {
+				// Use interactive quote flow with askqlines()
+				int new_row = quote_interactive(row, buffer, bufsize);
+				if (new_row > 0) {
+					row = new_row;
 				}
-				row = quote(s, strlen(s));
 			}
+		}
 		}
 	}
 }
@@ -235,3 +241,52 @@ static int quote(char *buffer, size_t bufsize)
 
 	return rows;
 }
+
+/* Interactive quote function that uses askqlines() for better UX */
+static int quote_interactive(int current_row, char *buffer, size_t bufsize)
+{
+	char filename[PATH_MAX];
+	char input[80];
+	int rows;
+	FILE *fp;
+	char *insertion_point;
+	size_t remaining_bufsize;
+	
+	// Calculate where to insert the quoted text (after current lines)
+	insertion_point = buffer + (current_row - 1) * 80;
+	remaining_bufsize = bufsize - ((current_row - 1) * 80);
+	
+	// Call askqlines() to let user interactively select lines from daydream%d.mtm
+	// This will write the selected lines to daydream%d.msg
+	if (!askqlines()) {
+		// User aborted or error occurred
+		return current_row;
+	}
+	
+	// Now read the selected lines from daydream%d.msg and insert into buffer
+	if (ssnprintf(filename, "%s/daydream%d.msg", DDTMP, node))
+		return current_row;
+	
+	if ((fp = fopen(filename, "r")) == NULL)
+		return current_row;
+	
+	rows = current_row - 1;  // Start from current position
+	while (fgetsnolf(input, 78, fp)) {
+		if (remaining_bufsize < 80) {
+			// Buffer full
+			fclose(fp);
+			break;
+		}
+		if (strlcpy(insertion_point, input, remaining_bufsize) >= remaining_bufsize) {
+			fclose(fp);
+			break;
+		}
+		insertion_point += 80;
+		remaining_bufsize -= 80;
+		rows++;
+	}
+	fclose(fp);
+	
+	return rows + 1;  // Return next available row
+}
+
