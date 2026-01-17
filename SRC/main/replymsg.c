@@ -280,7 +280,7 @@ int askqlines(void)
 		return 0;
 	}
 
-	while (fgets(input, 77, qfd)) {
+	while (fgets(input, 78, qfd)) {
 		if (startn <= line && endn >= line) {
 			fputs(input, msgfd);
 		}
